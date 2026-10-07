@@ -34,6 +34,16 @@ const _argEnvelopeRoutes = {
   'DELETE /api/convos',
 };
 
+/// Routes whose 401 means "wrong credentials" or "no session", never "refresh
+/// and retry" (Req 12.3).
+const _authRoutes = {
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/refresh',
+  '/api/auth/logout',
+  '/api/auth/2fa/verify-temp',
+};
+
 /// [data] wrapped as `{"arg": data}` on the Arg_Envelope routes, otherwise
 /// [data] unchanged. The query, if any, is ignored when matching [path].
 Object? argEnvelope(String method, String path, Object? data) {
@@ -85,7 +95,14 @@ class ApiClient {
   /// - [feature]: a 404 that isn't an item-not-found marks it missing.
   /// - [refreshCookie]: sent as the `refreshToken` cookie (refresh route).
   /// - [serverUrl], [customHeaders]: the onboarding probe's typed URL and
-  ///   rows instead of the stored ones; no session is sent with them.
+  ///   rows instead of the stored ones; no session is sent with them, and a
+  ///   401 never refreshes.
+  /// - [checkStatus]: when false, the final response returns whatever its
+  ///   status, so the refresh classification can read a 401 or 403 body.
+  ///
+  /// A 401 outside the auth routes refreshes once through AuthService and
+  /// retries once with the new Access_Token (Req 12.3–12.4). A second 401
+  /// returns as a server 401 and the session stays (Req 12.9).
   Future<Response<Object?>> send(
     String method,
     String path, {
@@ -100,6 +117,7 @@ class ApiClient {
     Map<String, String>? customHeaders,
     ProgressCallback? onSendProgress,
     CancelToken? cancelToken,
+    bool checkStatus = true,
   }) async {
     // 1. Resolve against the Server_URL, keeping its subpath (Req 4.1).
     final base = serverUrl ?? _auth.serverUrl;
@@ -117,8 +135,15 @@ class ApiClient {
     }
 
     // 2. Arg_Envelope (Req 4.5). Models already omit unset fields (Req 4.6).
+    final firstBody = argEnvelope(method.toUpperCase(), path, data);
     var hopMethod = method.toUpperCase();
-    var body = argEnvelope(hopMethod, path, data);
+    var body = firstBody;
+
+    // Step 7 applies only to the stored session's own requests.
+    var mayRefresh =
+        serverUrl == null &&
+        refreshCookie == null &&
+        !_authRoutes.contains(path.split('?').first);
 
     // One token for the whole send: the 30 s timer and the caller's token
     // both cancel through it, and [timedOut] tells them apart.
@@ -142,6 +167,7 @@ class ApiClient {
     try {
       while (true) {
         // 3–4. Headers for this hop, then one request with redirects off.
+        final sentToken = _auth.session?.accessToken;
         final response = await _dio.requestUri<Object?>(
           hop,
           data: body,
@@ -190,9 +216,25 @@ class ApiClient {
           continue;
         }
 
-        // 7. 401: refresh once and repeat from step 3 (Task 5.1).
+        // 7. 401: refresh once, unless another request's refresh already
+        // replaced the token this one carried, then repeat from step 3 with
+        // fresh headers and hops (Req 12.3–12.4). Refresh failures propagate
+        // (Req 12.7–12.8).
+        if (status == 401 && mayRefresh && sentToken != null) {
+          mayRefresh = false;
+          if (_auth.session?.accessToken == sentToken) await _auth.refresh();
+          if (_auth.session == null) {
+            throw AppException(FailureKind.sessionExpired, signedIn: false);
+          }
+          hop = uri;
+          hops = 0;
+          hopMethod = method.toUpperCase();
+          body = firstBody is FormData ? firstBody.clone() : firstBody;
+          continue;
+        }
 
         // 8. Map the status.
+        if (!checkStatus) return response;
         return _check(response, path, feature, followRedirects);
       }
     } on DioException catch (e, st) {
@@ -330,7 +372,7 @@ class ApiClient {
         status == 404 ||
         (ok && path.startsWith('/api/') && _isHtml(response.data));
     if (notFound) {
-      final message = _errorText(response.data);
+      final message = errorText(response.data);
       if (feature != null && message == null) {
         missingFeatures.value = {...missingFeatures.value, feature};
         throw AppException(FailureKind.unsupported, status: 404);
@@ -342,7 +384,7 @@ class ApiClient {
     throw AppException(
       FailureKind.server,
       status: status,
-      message: _errorText(response.data),
+      message: errorText(response.data),
     );
   }
 
@@ -366,7 +408,7 @@ class ApiClient {
   }
 
   /// The body's `message`, `error` or `error_message` text, if it has one.
-  static String? _errorText(Object? data) {
+  static String? errorText(Object? data) {
     var body = data;
     if (body is String) {
       try {

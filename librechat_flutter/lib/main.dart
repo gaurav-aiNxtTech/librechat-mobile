@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'core/auth/auth_api.dart';
 import 'core/auth/auth_service.dart';
 import 'core/images/image_loader.dart';
 import 'core/log/diagnostic_log.dart';
@@ -46,10 +47,11 @@ Future<void> main() async {
   final cacheDb = CacheDb();
   await cacheDb.customSelect('SELECT 1').get();
 
-  // 5. AuthService, then ApiClient, then the stored session. Task 5.1 sets
-  // `auth.api = AuthApi(api)` before `load()`.
+  // 5. AuthService, then ApiClient, then `auth.api` to close the only
+  // dependency cycle, then the stored session.
   final auth = AuthService(secure: secureStore, cache: cacheDb, log: log);
   final api = ApiClient(secure: secureStore, auth: auth, log: log);
+  auth.api = AuthApi(api);
   await auth.load();
 
   // 6. StreamClient lands with its task. ImageLoader caches files in
