@@ -64,10 +64,39 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   LoginResult loginResult = const SignedIn();
   Object? loginError;
   Object? verifyError;
+  final savedServers = <(String, Map<String, String>)>[];
   int signOuts = 0;
 
   @override
   bool openIdAutoRedirected = false;
+
+  String? _serverUrl;
+  Session? _session;
+  bool _expired = false;
+
+  @override
+  String? get serverUrl => _serverUrl;
+
+  @override
+  Session? get session => _session;
+
+  @override
+  bool get expired => _expired;
+
+  /// Sets what the redirect reads, then notifies like the real service.
+  void emit({String? serverUrl, Session? session, bool expired = false}) {
+    _serverUrl = serverUrl;
+    _session = session;
+    _expired = expired;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> saveServer(String url, Map<String, String> headers) async {
+    savedServers.add((url, headers));
+    _serverUrl = url;
+    notifyListeners();
+  }
 
   /// What the account screens reach through [api].
   final authApi = FakeAuthApi();
