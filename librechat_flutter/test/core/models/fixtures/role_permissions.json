@@ -1,0 +1,25 @@
+{
+  "_id": "69eab599e5c9757247ad5c22",
+  "name": "USER",
+  "permissions": {
+    "BOOKMARKS": { "USE": true },
+    "PROMPTS": { "USE": true, "CREATE": true, "SHARE": false, "SHARE_PUBLIC": false },
+    "MEMORIES": { "USE": true, "CREATE": true, "UPDATE": true, "READ": true, "OPT_OUT": true },
+    "AGENTS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+    "MULTI_CONVO": { "USE": true },
+    "TEMPORARY_CHAT": { "USE": true },
+    "RUN_CODE": { "USE": true },
+    "WEB_SEARCH": { "USE": true },
+    "PEOPLE_PICKER": { "VIEW_USERS": false, "VIEW_GROUPS": false, "VIEW_ROLES": false },
+    "MARKETPLACE": { "USE": false },
+    "FILE_SEARCH": { "USE": true },
+    "FILE_CITATIONS": { "USE": true },
+    "MCP_SERVERS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+    "REMOTE_AGENTS": { "USE": false, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+    "SKILLS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+    "SCHEDULES": { "USE": true, "CREATE": true },
+    "FUTURE_FEATURE": { "USE": true }
+  },
+  "__v": 0,
+  "description": ""
+}

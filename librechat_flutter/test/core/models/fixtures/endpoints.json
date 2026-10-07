@@ -1,0 +1,44 @@
+{
+  "openAI": {
+    "order": 0,
+    "type": "openAI",
+    "userProvide": false,
+    "userProvideURL": false,
+    "modelDisplayLabel": "ChatGPT",
+    "disableBuilder": false
+  },
+  "anthropic": {
+    "order": 2,
+    "type": "anthropic",
+    "userProvide": true,
+    "userProvideURL": false,
+    "modelDisplayLabel": "Claude"
+  },
+  "agents": {
+    "order": 1,
+    "type": "agents",
+    "userProvide": false,
+    "disableBuilder": false,
+    "capabilities": [
+      "deferred_tools",
+      "execute_code",
+      "file_search",
+      "web_search",
+      "artifacts",
+      "actions",
+      "context",
+      "tools",
+      "chain",
+      "ocr"
+    ]
+  },
+  "OpenRouter": {
+    "order": 9999,
+    "type": "custom",
+    "userProvide": true,
+    "userProvideURL": false,
+    "modelDisplayLabel": "OpenRouter",
+    "iconURL": "openrouter",
+    "customParams": { "defaultParamsEndpoint": "openAI" }
+  }
+}

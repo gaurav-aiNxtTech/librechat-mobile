@@ -1,0 +1,93 @@
+{
+  "_id": "66f2a1c3c5d6e7f801234abc",
+  "messageId": "8e9f0a1b-2c3d-4e5f-9a0b-1c2d3e4f5a6b",
+  "__v": 0,
+  "conversationId": "3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e",
+  "createdAt": "2026-09-20T14:03:11.482Z",
+  "endpoint": "agents",
+  "error": false,
+  "expiredAt": null,
+  "feedback": {
+    "rating": "thumbsSideways",
+    "tag": { "key": "accurate_reliable", "label": "Accurate and reliable" },
+    "text": "Good sources."
+  },
+  "iconURL": null,
+  "isCreatedByUser": false,
+  "model": "agent_Xk3mPq9rT2vW",
+  "parentMessageId": "5b7d1e2a-0c3f-4e5a-8b9c-1d2e3f4a5b6c",
+  "sender": "Research helper",
+  "text": "",
+  "tokenCount": 412,
+  "unfinished": false,
+  "updatedAt": "2026-09-20T14:05:42.917Z",
+  "user": "6650f1c2a8b3c4d5e6f70001",
+  "content": [
+    {
+      "type": "think",
+      "think": "The user wants walking routes. I should search first."
+    },
+    {
+      "type": "text",
+      "text": "Let me look that up.",
+      "tool_call_ids": ["toolu_01AbCdEfGhIjKlMn"]
+    },
+    {
+      "type": "tool_call",
+      "tool_call": {
+        "id": "toolu_01AbCdEfGhIjKlMn",
+        "name": "web_search",
+        "args": "{\"query\":\"best walking routes Lisbon\"}",
+        "type": "tool_call",
+        "output": "Found 5 results.",
+        "progress": 1,
+        "stepId": "step_7Hq2LmN4pR"
+      },
+      "agentId": "agent_Xk3mPq9rT2vW",
+      "groupId": 1,
+      "stepIndex": 2
+    },
+    {
+      "type": "text",
+      "text": {
+        "value": "Alfama and Belém are the two classic walks.",
+        "annotations": [{ "type": "file_citation", "start_index": 0, "end_index": 6 }]
+      }
+    },
+    {
+      "type": "brand_new_part",
+      "payloadFromTheFuture": [1, 2, 3]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "web_search",
+      "messageId": "8e9f0a1b-2c3d-4e5f-9a0b-1c2d3e4f5a6b",
+      "toolCallId": "toolu_01AbCdEfGhIjKlMn",
+      "conversationId": "3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e",
+      "web_search": {
+        "turn": 0,
+        "organic": [
+          {
+            "title": "Walking in Lisbon",
+            "link": "https://example.com/lisbon-walks",
+            "snippet": "Alfama is the oldest district."
+          }
+        ],
+        "topStories": []
+      }
+    }
+  ],
+  "files": [
+    {
+      "file_id": "a7c3e9f1-2b4d-4f6a-8c0e-1d3f5a7b9c2e",
+      "filename": "lisbon-map.png",
+      "filepath": "/images/6650f1c2a8b3c4d5e6f70001/a7c3e9f1-2b4d-4f6a-8c0e-1d3f5a7b9c2e__lisbon-map.png",
+      "type": "image/png",
+      "bytes": 482113,
+      "width": 1600,
+      "height": 1200,
+      "embedded": false
+    }
+  ]
+}

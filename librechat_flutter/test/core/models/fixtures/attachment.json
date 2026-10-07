@@ -1,0 +1,21 @@
+{
+  "_id": "66f2a1c0c5d6e7f801234999",
+  "user": "6650f1c2a8b3c4d5e6f70001",
+  "conversationId": "3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e",
+  "file_id": "a7c3e9f1-2b4d-4f6a-8c0e-1d3f5a7b9c2e",
+  "bytes": 482113,
+  "embedded": false,
+  "filename": "lisbon-map.png",
+  "filepath": "/images/6650f1c2a8b3c4d5e6f70001/a7c3e9f1-2b4d-4f6a-8c0e-1d3f5a7b9c2e__lisbon-map.png",
+  "object": "file",
+  "type": "image/png",
+  "usage": 1,
+  "context": "message_attachment",
+  "source": "local",
+  "width": 1600,
+  "height": 1200,
+  "messageId": "5b7d1e2a-0c3f-4e5a-8b9c-1d2e3f4a5b6c",
+  "createdAt": "2026-09-20T14:03:09.551Z",
+  "updatedAt": "2026-09-20T14:03:09.551Z",
+  "__v": 0
+}

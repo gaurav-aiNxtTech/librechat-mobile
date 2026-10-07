@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+        Same policy as the KMP app (app/src/main/res/xml/network_security_config.xml).
+        Cleartext is permitted because LibreChat is self-hosted and the server URL is user-entered,
+        so it cannot be scoped to specific domains in this static file. The server URL screen
+        shows a warning for any http:// URL and the user must confirm before it is used.
+        Only the system trust store is used (no user-installed CAs).
+    -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

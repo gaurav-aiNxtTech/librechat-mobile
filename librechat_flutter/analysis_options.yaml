@@ -1,0 +1,14 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    # freezed + json_serializable put @JsonKey on factory parameters by design.
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # A dropped future in network or stream code loses its error.
+    unawaited_futures: true

@@ -1,0 +1,18 @@
+{
+  "_id": "6650f1c2a8b3c4d5e6f70001",
+  "id": "6650f1c2a8b3c4d5e6f70001",
+  "name": "Ada Lovelace",
+  "username": "ada",
+  "email": "ada@example.com",
+  "emailVerified": true,
+  "avatar": "https://chat.example.com/images/6650f1c2a8b3c4d5e6f70001/avatar.png?manual=true",
+  "provider": "local",
+  "role": "USER",
+  "plugins": [],
+  "twoFactorEnabled": true,
+  "termsAccepted": true,
+  "personalization": { "memories": false, "favorites": [] },
+  "createdAt": "2026-01-05T09:12:44.120Z",
+  "updatedAt": "2026-09-20T14:00:02.981Z",
+  "__v": 0
+}

@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Nested freezed models must serialize through their own toJson.
+          explicit_to_json: true
+          # Mirrors the KMP `explicitNulls = false`: an unset optional field is omitted from the wire
+          # instead of being sent as `null` (which several LibreChat routes treat as "clear it").
+          include_if_null: false
+      drift_dev:
+        options:
+          store_date_time_values_as_text: false
+          named_parameters: true

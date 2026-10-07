@@ -1,0 +1,43 @@
+name: librechat_flutter
+description: "Switchboard - native Android client for self-hosted LibreChat servers (Flutter rewrite of the KMP app)."
+publish_to: "none"
+
+# versionName+versionCode. The KMP app owns the repo-root version.properties; the Flutter app
+# versions independently until it replaces the KMP build.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+# Every package is pinned to an exact stable version and added by the task that first imports it.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: 3.4.3
+  go_router: 17.5.0
+  freezed_annotation: 3.1.0
+  json_annotation: 4.12.0
+  drift: 2.34.4
+  drift_flutter: 0.3.1
+  shared_preferences: 2.5.6
+  flutter_secure_storage: 11.2.0
+  path_provider: 2.1.6
+  path: 1.9.1
+  crypto: 3.0.7
+  dynamic_color: 1.9.0
+  flutter_svg: 2.3.0
+  dio: 5.11.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  build_runner: 2.15.1
+  freezed: 3.2.5
+  json_serializable: 6.14.1
+  drift_dev: 2.34.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/providers/

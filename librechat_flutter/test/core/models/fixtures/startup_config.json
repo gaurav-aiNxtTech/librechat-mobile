@@ -1,0 +1,101 @@
+{
+  "appTitle": "Acme Chat",
+  "socialLogins": ["openid", "github", "google"],
+  "discordLoginEnabled": false,
+  "facebookLoginEnabled": false,
+  "githubLoginEnabled": true,
+  "googleLoginEnabled": true,
+  "appleLoginEnabled": false,
+  "openidLoginEnabled": true,
+  "openidLabel": "Acme SSO",
+  "openidImageUrl": "https://sso.example.com/logo.svg",
+  "openidAutoRedirect": false,
+  "samlLoginEnabled": false,
+  "samlLabel": "",
+  "samlImageUrl": "",
+  "serverDomain": "https://chat.example.com",
+  "emailLoginEnabled": true,
+  "registrationEnabled": true,
+  "socialLoginEnabled": true,
+  "passwordResetEnabled": true,
+  "emailEnabled": true,
+  "showBirthdayIcon": false,
+  "helpAndFaqURL": "https://librechat.ai",
+  "instanceProjectId": "6650f1c2a8b3c4d5e6f70812",
+  "bundlerURL": "https://bundler.example.com",
+  "sharedLinksEnabled": true,
+  "publicSharedLinksEnabled": false,
+  "sharePointFilePickerEnabled": false,
+  "openidReuseTokens": false,
+  "conversationImportMaxFileSize": 262144000,
+  "minPasswordLength": 8,
+  "allowAccountDeletion": true,
+  "ldap": { "enabled": false },
+  "balance": {
+    "enabled": true,
+    "startBalance": 20000,
+    "autoRefillEnabled": false
+  },
+  "modelSpecs": {
+    "enforce": false,
+    "prioritize": true,
+    "list": [
+      {
+        "name": "fast-chat",
+        "label": "Fast chat",
+        "preset": { "endpoint": "openAI", "model": "gpt-4o-mini" }
+      }
+    ]
+  },
+  "webSearch": {
+    "searchProvider": "serper",
+    "scraperProvider": "firecrawl",
+    "rerankerType": "jina"
+  },
+  "buildInfo": {
+    "commit": "361553f3322d7b9bb547d0a9c2c5aaefc2934901",
+    "branch": "main",
+    "buildDate": "2026-09-23T08:00:00.000Z"
+  },
+  "compactionEnabled": true,
+  "interface": {
+    "customWelcome": "Welcome to Acme Chat",
+    "termsOfService": {
+      "modalAcceptance": true,
+      "modalTitle": "Terms of Service",
+      "modalContent": ["Be kind.", "Do not share secrets."],
+      "externalUrl": "https://example.com/terms"
+    },
+    "endpointsMenu": true,
+    "modelSelect": true,
+    "parameters": true,
+    "presets": false,
+    "sidePanel": true,
+    "bookmarks": true,
+    "multiConvo": false,
+    "temporaryChat": true,
+    "runCode": true,
+    "webSearch": true,
+    "fileSearch": true,
+    "fileCitations": true,
+    "memories": true,
+    "feedback": true,
+    "buildInfo": true,
+    "autoSubmitFromUrl": false,
+    "prompts": { "use": true, "create": true, "share": false, "public": false },
+    "agents": { "use": true, "create": true, "share": true, "public": false },
+    "remoteAgents": { "use": false, "create": false, "share": false, "public": false },
+    "skills": { "use": true, "create": false },
+    "sharedLinks": true,
+    "schedules": true,
+    "traceViewer": { "enabled": false },
+    "mcpServers": {
+      "use": true,
+      "create": false,
+      "share": false,
+      "public": false,
+      "placeholder": "Search MCP servers"
+    },
+    "marketplace": { "use": false }
+  }
+}
