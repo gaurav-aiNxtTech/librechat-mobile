@@ -80,8 +80,10 @@ void main() {
       expect(go(path), isNull, reason: path);
       expect(go(path, signedIn: true), Routes.settingsGeneral, reason: path);
     }
-    expect(go(Routes.ssoLogin), Routes.login);
+    expect(go(Routes.ssoLogin), isNull);
     expect(go(Routes.ssoLogin, signedIn: true), Routes.settingsGeneral);
+    expect(go(Routes.terms), Routes.login);
+    expect(go(Routes.terms, signedIn: true), isNull);
     expect(go(Routes.serverUrl), isNull);
     expect(go(Routes.newChat, signedIn: true), Routes.settingsGeneral);
     expect(go(Routes.serverUrl, signedIn: true), Routes.settingsGeneral);

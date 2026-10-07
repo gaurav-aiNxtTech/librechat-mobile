@@ -7,6 +7,8 @@ import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/auth/reset_password_screen.dart';
 import '../features/auth/server_url_screen.dart';
+import '../features/auth/sso_screen.dart';
+import '../features/auth/terms_screen.dart';
 import '../features/auth/two_factor_screen.dart';
 import '../features/auth/verify_email_screen.dart';
 import '../features/settings/general_settings_screen.dart';
@@ -61,14 +63,10 @@ String? authRedirect({
   return onAuthRoute ? Routes.newChat : null;
 }
 
-// FALLBACK, remove with Task 5.6 (`/sso`) and Task 7.4 (`/chat`): those
-// routes aren't declared yet, so a location that resolves to one of them goes
-// to a declared stand-in. Delete each entry when its route lands, and the
-// whole map, plus its use in [routerRedirect], once it is empty.
-const _undeclaredStandIns = {
-  Routes.ssoLogin: Routes.login,
-  Routes.newChat: Routes.settingsGeneral,
-};
+// FALLBACK, remove with Task 7.4 (`/chat`): that route isn't declared yet,
+// so a location that resolves to it goes to a declared stand-in. Delete the
+// map, plus its use in [routerRedirect], when `/chat` lands.
+const _undeclaredStandIns = {Routes.newChat: Routes.settingsGeneral};
 
 /// [authRedirect], then the temporary stand-ins for undeclared routes.
 String? routerRedirect({
@@ -139,6 +137,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.verifyEmail,
         builder: (context, state) =>
             VerifyEmailScreen(email: state.uri.queryParameters['email'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.ssoLogin,
+        redirect: (context, state) =>
+            (state.uri.queryParameters['provider'] ?? '').isEmpty
+            ? Routes.login
+            : null,
+        builder: (context, state) =>
+            SsoScreen(provider: state.uri.queryParameters['provider']!),
+      ),
+      // Root navigator, outside the AppShell (design Navigation section).
+      GoRoute(
+        path: Routes.terms,
+        builder: (context, state) => const TermsScreen(),
       ),
       GoRoute(
         path: Routes.settingsGeneral,

@@ -10,6 +10,7 @@ import '../../core/config/server_config.dart';
 import '../../core/images/app_image.dart';
 import '../../core/models/startup_config.dart';
 import '../../core/network/app_exception.dart';
+import '../../core/storage/settings_store.dart';
 
 /// A social sign-in button: the SSO provider [id], its button [label] and,
 /// for OpenID and SAML, the Server_Config [image].
@@ -92,6 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _identifier = TextEditingController();
   final _password = TextEditingController();
   bool _submitting = false;
+  bool _ssoPrompting = false;
   String? _error;
 
   @override
@@ -123,6 +125,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _openSso('openid');
     });
+  }
+
+  /// A social button: the one-time embedded-browser warning first
+  /// (Req 13.1), then `/sso`. The OpenID auto-redirect skips the warning,
+  /// since the user did not start it.
+  Future<void> _startSso(String provider) async {
+    if (_ssoPrompting) return;
+    if (!ref.read(settingsProvider).ssoWarningAcknowledged) {
+      _ssoPrompting = true;
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (context) => const _SsoWarningDialog(),
+      );
+      _ssoPrompting = false;
+      if (accepted != true || !mounted) return;
+      try {
+        await ref
+            .read(settingsProvider.notifier)
+            .save(
+              ref.read(settingsProvider).copyWith(ssoWarningAcknowledged: true),
+            );
+      } catch (_) {
+        // A failed write costs one extra warning next time, not the sign-in.
+      }
+      if (!mounted) return;
+    }
+    _openSso(provider);
   }
 
   void _openSso(String provider) => context.go(
@@ -324,7 +353,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 8),
             _SocialButton(
               provider: provider,
-              onPressed: enabled ? () => _openSso(provider.id) : null,
+              onPressed: enabled
+                  ? () => unawaited(_startSso(provider.id))
+                  : null,
             ),
           ],
         ],
@@ -378,6 +409,31 @@ class _SocialButton extends StatelessWidget {
       label: label,
     );
   }
+}
+
+/// KMP LoginScreen's one-time warning before the first social sign-in. Pops
+/// true on Continue.
+class _SsoWarningDialog extends StatelessWidget {
+  const _SsoWarningDialog();
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Sign in with an in-app browser?'),
+    content: const Text(
+      'Some providers, including Google, do not officially support this and '
+      'may block it at any time. Use at your own risk.',
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context, false),
+        child: const Text('Cancel'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.pop(context, true),
+        child: const Text('Continue'),
+      ),
+    ],
+  );
 }
 
 /// No Server_Config could load and none is cached.

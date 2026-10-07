@@ -16,10 +16,12 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:librechat_flutter/core/auth/auth_api.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
+import 'package:librechat_flutter/core/storage/settings_store.dart';
 
 /// Records [probe] and [save] calls. [probe] answers with [probeResult], or
 /// throws [probeError], after [probeGate] completes when one is set. Other
@@ -62,6 +64,7 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   LoginResult loginResult = const SignedIn();
   Object? loginError;
   Object? verifyError;
+  int signOuts = 0;
 
   @override
   bool openIdAutoRedirected = false;
@@ -90,6 +93,9 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   }
 
   @override
+  Future<void> signOut() async => signOuts++;
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -102,6 +108,7 @@ class FakeAuthApi implements AuthApi {
   final resetRequests = <String>[];
   final resets = <Map<String, String>>[];
   final resends = <String>[];
+  int termsAccepts = 0;
   String? registerMessage = 'Registered.';
   ({String? message, String? link}) resetRequestReply = (
     message: 'Check your inbox.',
@@ -165,6 +172,12 @@ class FakeAuthApi implements AuthApi {
   }
 
   @override
+  Future<void> acceptTerms() {
+    termsAccepts++;
+    return _answer(null);
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -176,4 +189,25 @@ class FakeServerConfig extends ServerConfigNotifier {
 
   @override
   Future<ServerInfo> build() async => info;
+}
+
+/// A [settingsProvider] held in memory, starting from [initial]. Each [save]
+/// is recorded.
+class FakeSettingsStore extends Notifier<AppSettings> implements SettingsStore {
+  FakeSettingsStore([this.initial = const AppSettings()]);
+
+  final AppSettings initial;
+  final saved = <AppSettings>[];
+
+  @override
+  AppSettings build() => initial;
+
+  @override
+  Future<void> save(AppSettings next) async {
+    saved.add(next);
+    state = next;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

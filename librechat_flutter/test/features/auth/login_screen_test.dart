@@ -7,14 +7,22 @@ import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/network/app_exception.dart';
+import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/features/auth/login_screen.dart';
 
 import '../../support/fakes.dart';
 
 void main() {
   late FakeAuthService auth;
+  late FakeSettingsStore settings;
 
-  setUp(() => auth = FakeAuthService());
+  setUp(() {
+    auth = FakeAuthService();
+    // Acknowledged, so the social buttons open /sso directly.
+    settings = FakeSettingsStore(
+      const AppSettings(ssoWarningAcknowledged: true),
+    );
+  });
 
   /// The Login_Screen at `/login`, with stub destinations that show what
   /// they received.
@@ -39,6 +47,7 @@ void main() {
       ProviderScope(
         overrides: [
           authServiceProvider.overrideWith((ref) => auth),
+          settingsProvider.overrideWith(() => settings),
           serverConfigProvider.overrideWith(
             () => FakeServerConfig(ServerInfo(config: config)),
           ),
@@ -124,5 +133,44 @@ void main() {
     await tester.pumpAndSettle();
     expect(location(router).path, Routes.ssoLogin);
     expect(location(router).queryParameters, {'provider': 'openid'});
+  });
+
+  testWidgets('the first social sign-in warns once, then opens /sso', (
+    tester,
+  ) async {
+    settings = FakeSettingsStore();
+    final router = await pump(
+      tester,
+      config: const StartupConfig(
+        socialLogins: ['github'],
+        githubLoginEnabled: true,
+      ),
+    );
+    final github = find.widgetWithText(OutlinedButton, 'Continue with GitHub');
+
+    // Cancel stays on /login and keeps the warning for next time.
+    await tester.tap(github);
+    await tester.pumpAndSettle();
+    expect(find.text('Sign in with an in-app browser?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(location(router).path, Routes.login);
+    expect(settings.saved, isEmpty);
+
+    await tester.tap(github);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+    expect(location(router).path, Routes.ssoLogin);
+    expect(location(router).queryParameters, {'provider': 'github'});
+    expect(settings.saved.single.ssoWarningAcknowledged, isTrue);
+
+    // Acknowledged: the next start skips it.
+    router.go(Routes.login);
+    await tester.pumpAndSettle();
+    await tester.tap(github);
+    await tester.pumpAndSettle();
+    expect(find.text('Sign in with an in-app browser?'), findsNothing);
+    expect(location(router).path, Routes.ssoLogin);
   });
 }
