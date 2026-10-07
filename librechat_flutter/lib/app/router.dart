@@ -2,7 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/auth/auth_service.dart';
+import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/login_screen.dart';
+import '../features/auth/register_screen.dart';
+import '../features/auth/reset_password_screen.dart';
 import '../features/auth/server_url_screen.dart';
+import '../features/auth/two_factor_screen.dart';
+import '../features/auth/verify_email_screen.dart';
 import '../features/settings/general_settings_screen.dart';
 import 'routes.dart';
 
@@ -55,12 +61,12 @@ String? authRedirect({
   return onAuthRoute ? Routes.newChat : null;
 }
 
-// FALLBACK, remove with Task 5.5 (`/login`) and Task 7.4 (`/chat`): those
+// FALLBACK, remove with Task 5.6 (`/sso`) and Task 7.4 (`/chat`): those
 // routes aren't declared yet, so a location that resolves to one of them goes
 // to a declared stand-in. Delete each entry when its route lands, and the
 // whole map, plus its use in [routerRedirect], once it is empty.
 const _undeclaredStandIns = {
-  Routes.login: Routes.serverUrl,
+  Routes.ssoLogin: Routes.login,
   Routes.newChat: Routes.settingsGeneral,
 };
 
@@ -100,6 +106,39 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.serverUrl,
         builder: (context, state) => const ServerUrlScreen(),
+      ),
+      GoRoute(
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.twoFactor,
+        // The tempToken only travels in `extra`, so a restored or typed
+        // location without it starts over at `/login`.
+        redirect: (context, state) =>
+            state.extra is String ? null : Routes.login,
+        builder: (context, state) =>
+            TwoFactorScreen(tempToken: state.extra! as String),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: Routes.resetPassword,
+        builder: (context, state) => ResetPasswordScreen(
+          token: state.uri.queryParameters['token'],
+          userId: state.uri.queryParameters['userId'],
+        ),
+      ),
+      GoRoute(
+        path: Routes.verifyEmail,
+        builder: (context, state) =>
+            VerifyEmailScreen(email: state.uri.queryParameters['email'] ?? ''),
       ),
       GoRoute(
         path: Routes.settingsGeneral,

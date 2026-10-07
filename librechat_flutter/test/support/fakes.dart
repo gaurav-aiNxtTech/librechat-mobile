@@ -15,6 +15,9 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:librechat_flutter/core/auth/auth_api.dart';
+import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 
@@ -48,4 +51,129 @@ class FakeConfigRepository implements ConfigRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Answers [login] with [loginResult], or throws [loginError], and
+/// [verifyTwoFactor] with [verifyError] when set. Each call is recorded.
+/// Other members are not used by the sign-in screens and throw.
+class FakeAuthService extends ChangeNotifier implements AuthService {
+  final logins = <(String, String)>[];
+  final verifications = <(String, String, bool)>[];
+  LoginResult loginResult = const SignedIn();
+  Object? loginError;
+  Object? verifyError;
+
+  @override
+  bool openIdAutoRedirected = false;
+
+  /// What the account screens reach through [api].
+  final authApi = FakeAuthApi();
+
+  @override
+  AuthApi get api => authApi;
+
+  @override
+  Future<LoginResult> login(String identifier, String password) async {
+    logins.add((identifier, password));
+    if (loginError case final error?) throw error;
+    return loginResult;
+  }
+
+  @override
+  Future<void> verifyTwoFactor(
+    String tempToken,
+    String code, {
+    required bool backupCode,
+  }) async {
+    verifications.add((tempToken, code, backupCode));
+    if (verifyError case final error?) throw error;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Records the account routes the Register, Forgot_Password,
+/// Reset_Password and Verify_Email screens call. Each answers with its
+/// reply field, or throws [error], after [gate] completes when one is set.
+/// Other members throw.
+class FakeAuthApi implements AuthApi {
+  final registrations = <Map<String, String>>[];
+  final resetRequests = <String>[];
+  final resets = <Map<String, String>>[];
+  final resends = <String>[];
+  String? registerMessage = 'Registered.';
+  ({String? message, String? link}) resetRequestReply = (
+    message: 'Check your inbox.',
+    link: null,
+  );
+  String? resetMessage = 'Password reset.';
+  String? resendMessage = 'Sent again.';
+  Object? error;
+  Completer<void>? gate;
+
+  Future<T> _answer<T>(T reply) async {
+    await gate?.future;
+    if (error case final error?) throw error;
+    return reply;
+  }
+
+  @override
+  Future<String?> register({
+    required String name,
+    required String username,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) {
+    registrations.add({
+      'name': name,
+      'username': username,
+      'email': email,
+      'password': password,
+      'confirmPassword': confirmPassword,
+    });
+    return _answer(registerMessage);
+  }
+
+  @override
+  Future<({String? message, String? link})> requestPasswordReset(String email) {
+    resetRequests.add(email);
+    return _answer(resetRequestReply);
+  }
+
+  @override
+  Future<String?> resetPassword({
+    required String userId,
+    required String token,
+    required String password,
+    required String confirmPassword,
+  }) {
+    resets.add({
+      'userId': userId,
+      'token': token,
+      'password': password,
+      'confirmPassword': confirmPassword,
+    });
+    return _answer(resetMessage);
+  }
+
+  @override
+  Future<String?> resendVerification(String email) {
+    resends.add(email);
+    return _answer(resendMessage);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// A [serverConfigProvider] that loads [info] and never fetches.
+class FakeServerConfig extends ServerConfigNotifier {
+  FakeServerConfig(this.info);
+
+  final ServerInfo info;
+
+  @override
+  Future<ServerInfo> build() async => info;
 }

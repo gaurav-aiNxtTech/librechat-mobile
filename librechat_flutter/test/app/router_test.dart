@@ -61,15 +61,27 @@ void main() {
     });
   });
 
-  test('routerRedirect stands in for the undeclared /login and /chat', () {
+  test('routerRedirect stands in for the undeclared routes', () {
     String? go(String path, {bool signedIn = false}) => routerRedirect(
       hasServerUrl: true,
       signedIn: signedIn,
       expired: false,
       path: path,
     );
-    expect(go(Routes.newChat), Routes.serverUrl);
-    expect(go(Routes.login), Routes.serverUrl);
+    expect(go(Routes.newChat), Routes.login);
+    expect(go(Routes.login), isNull);
+    for (final path in [
+      Routes.twoFactor,
+      Routes.register,
+      Routes.forgotPassword,
+      Routes.resetPassword,
+      Routes.verifyEmail,
+    ]) {
+      expect(go(path), isNull, reason: path);
+      expect(go(path, signedIn: true), Routes.settingsGeneral, reason: path);
+    }
+    expect(go(Routes.ssoLogin), Routes.login);
+    expect(go(Routes.ssoLogin, signedIn: true), Routes.settingsGeneral);
     expect(go(Routes.serverUrl), isNull);
     expect(go(Routes.newChat, signedIn: true), Routes.settingsGeneral);
     expect(go(Routes.serverUrl, signedIn: true), Routes.settingsGeneral);
