@@ -11,8 +11,10 @@ import '../features/auth/sso_screen.dart';
 import '../features/auth/terms_screen.dart';
 import '../features/auth/two_factor_screen.dart';
 import '../features/auth/verify_email_screen.dart';
+import '../features/chat/chat_screen.dart';
 import '../features/settings/general_settings_screen.dart';
 import 'routes.dart';
+import 'shell/app_shell.dart';
 
 /// The routes a signed-out user may stay on (Req 7.2). With a session, each
 /// of them goes to `/chat` (Req 9.5, 12.2).
@@ -63,28 +65,6 @@ String? authRedirect({
   return onAuthRoute ? Routes.newChat : null;
 }
 
-// FALLBACK, remove with Task 7.4 (`/chat`): that route isn't declared yet,
-// so a location that resolves to it goes to a declared stand-in. Delete the
-// map, plus its use in [routerRedirect], when `/chat` lands.
-const _undeclaredStandIns = {Routes.newChat: Routes.settingsGeneral};
-
-/// [authRedirect], then the temporary stand-ins for undeclared routes.
-String? routerRedirect({
-  required bool hasServerUrl,
-  required bool signedIn,
-  required bool expired,
-  required String path,
-}) {
-  final target = authRedirect(
-    hasServerUrl: hasServerUrl,
-    signedIn: signedIn,
-    expired: expired,
-    path: path,
-  );
-  final standIn = _undeclaredStandIns[target ?? path];
-  return standIn == null || standIn == path ? target : standIn;
-}
-
 /// App navigation. Each route is declared when its screen lands (Req 1.9).
 /// The redirect runs on every navigation and on every AuthService change.
 final routerProvider = Provider<GoRouter>((ref) {
@@ -94,7 +74,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     // screen for the stored state (Req 7.1, 7.2, 12.2).
     initialLocation: Routes.newChat,
     refreshListenable: auth,
-    redirect: (context, state) => routerRedirect(
+    redirect: (context, state) => authRedirect(
       hasServerUrl: auth.serverUrl != null,
       signedIn: auth.session != null,
       expired: auth.expired,
@@ -152,9 +132,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.terms,
         builder: (context, state) => const TermsScreen(),
       ),
-      GoRoute(
-        path: Routes.settingsGeneral,
-        builder: (context, state) => const GeneralSettingsScreen(),
+      // Every signed-in route except /terms and /artifact goes inside the
+      // AppShell (Req 14.1–14.3).
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: Routes.newChat,
+            builder: (context, state) => const ChatScreen(),
+          ),
+          GoRoute(
+            path: Routes.settingsGeneral,
+            builder: (context, state) => const GeneralSettingsScreen(),
+          ),
+        ],
       ),
     ],
   );

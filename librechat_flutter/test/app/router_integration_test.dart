@@ -5,8 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:librechat_flutter/app/router.dart';
 import 'package:librechat_flutter/app/routes.dart';
+import 'package:librechat_flutter/app/shell/app_shell.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
+import 'package:librechat_flutter/core/config/feature_gate.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
+import 'package:librechat_flutter/features/chat/chat_screen.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
@@ -41,6 +44,9 @@ void main() {
         serverConfigProvider.overrideWith(
           () => FakeServerConfig(const ServerInfo(config: StartupConfig())),
         ),
+        missingFeaturesProvider.overrideWithValue(
+          ValueNotifier<Set<Feature>>(const {}),
+        ),
       ],
     );
     addTearDown(container.dispose);
@@ -70,12 +76,25 @@ void main() {
     expect(location(router).path, Routes.login);
   });
 
-  testWidgets('a session opens the signed-in stand-in', (tester) async {
+  testWidgets('a session opens /chat in the AppShell', (tester) async {
     auth.emit(serverUrl: server, session: session);
     final router = await pump(tester);
-    // `/chat` until Task 7.4 declares it.
-    expect(location(router).path, Routes.settingsGeneral);
-    expect(find.text('General'), findsOneWidget);
+    expect(location(router).path, Routes.newChat);
+    expect(find.byType(AppShell), findsOneWidget);
+    expect(find.byType(ChatScreen), findsOneWidget);
+  });
+
+  testWidgets('Terms I Accept opens /chat', (tester) async {
+    auth.emit(serverUrl: server, session: session);
+    final router = await pump(tester);
+    router.go(Routes.terms);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppShell), findsNothing);
+    await tester.tap(find.widgetWithText(FilledButton, 'I Accept'));
+    await tester.pumpAndSettle();
+    expect(location(router).path, Routes.newChat);
+    expect(auth.authApi.termsAccepts, 1);
+    expect(find.byType(ChatScreen), findsOneWidget);
   });
 
   testWidgets('signing out moves to /login', (tester) async {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/shell/shell_menu_button.dart';
 import '../../core/storage/settings_store.dart';
 import '../../core/ui/theme/accent_colors.dart';
 import '../../core/ui/theme/app_theme.dart';
@@ -28,7 +29,10 @@ class GeneralSettingsScreen extends ConsumerWidget {
         unawaited(ref.read(settingsProvider.notifier).save(next));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('General')),
+      appBar: AppBar(
+        leading: ShellMenuButton.leading(context),
+        title: const Text('General'),
+      ),
       body: ListView(
         children: [
           const _SectionHeader('Appearance'),
