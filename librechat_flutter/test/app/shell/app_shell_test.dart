@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:librechat_flutter/app/router.dart';
 import 'package:librechat_flutter/app/routes.dart';
 import 'package:librechat_flutter/app/shell/app_shell.dart';
+import 'package:librechat_flutter/app/shell/banners.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/feature_gate.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
+import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/ui/theme/app_theme.dart';
@@ -58,6 +60,8 @@ void main() {
         missingFeaturesProvider.overrideWithValue(
           ValueNotifier<Set<Feature>>(const {}),
         ),
+        onlineProvider.overrideWith((ref) => Stream.value(true)),
+        bannerProvider.overrideWith((ref) async => null),
       ],
     );
     addTearDown(container.dispose);
@@ -134,6 +138,21 @@ void main() {
       expect(find.text('General'), findsOneWidget);
       expect(find.byTooltip(menuTooltip), findsNothing);
       expect(settingsSelected(tester), isTrue);
+    });
+
+    testWidgets('the sidebar is in the semantics tree beside the screen', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pump(tester, width: 600);
+      // The screen's Navigator would otherwise block the sidebar's semantics.
+      expect(find.bySemanticsLabel('New Chat'), findsOneWidget);
+      expect(find.bySemanticsLabel('Settings'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('How can I help you today?'),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
 
     testWidgets('resizing to 599 dp keeps the location', (tester) async {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
+import '../../app/shell/banners.dart';
 import '../../core/auth/auth_service.dart';
 import '../../core/config/server_config.dart';
 import '../../core/models/interface_config.dart';
@@ -41,7 +42,11 @@ class _TermsScreenState extends ConsumerState<TermsScreen> {
     });
     try {
       await ref.read(authServiceProvider).api.acceptTerms();
-      if (mounted) context.go(Routes.newChat);
+      if (!mounted) return;
+      // Without this the remounted AppShell would send the user back to
+      // /terms (Req 11.8).
+      ref.read(termsCheckProvider.notifier).accepted();
+      context.go(Routes.newChat);
     } catch (_) {
       // KMP TermsViewModel.
       if (mounted) {

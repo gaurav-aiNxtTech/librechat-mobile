@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'banners.dart';
 import 'shell_drawer.dart';
 import 'shell_menu_button.dart';
 
@@ -35,30 +36,38 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= shellBreakpoint;
     // Banners (Req 14.4) wrap the screen, and the session-expired and terms
-    // listeners (Req 11.8, 14.7) wrap the Scaffold, in both layouts.
+    // listeners (Req 11.8, 14.7) wrap the Scaffold, in both layouts. The
+    // screen is the ShellRoute's Navigator, whose route barrier blocks the
+    // semantics of everything painted before it in the same container; its
+    // own container keeps the banners and the sidebar reachable by TalkBack.
+    final screen = BannerStack(
+      child: Semantics(container: true, child: widget.child),
+    );
     return ShellScope(
       scaffoldKey: _scaffoldKey,
       modalDrawer: !wide,
-      child: wide
-          ? Scaffold(
-              key: _scaffoldKey,
-              body: Row(
-                children: [
-                  const SizedBox(
-                    key: AppShell.sidebarKey,
-                    width: sidebarWidth,
-                    child: ShellDrawer(modal: false),
-                  ),
-                  const VerticalDivider(width: 1),
-                  Expanded(child: widget.child),
-                ],
+      child: ShellListeners(
+        child: wide
+            ? Scaffold(
+                key: _scaffoldKey,
+                body: Row(
+                  children: [
+                    const SizedBox(
+                      key: AppShell.sidebarKey,
+                      width: sidebarWidth,
+                      child: ShellDrawer(modal: false),
+                    ),
+                    const VerticalDivider(width: 1),
+                    Expanded(child: screen),
+                  ],
+                ),
+              )
+            : Scaffold(
+                key: _scaffoldKey,
+                drawer: const Drawer(child: ShellDrawer(modal: true)),
+                body: screen,
               ),
-            )
-          : Scaffold(
-              key: _scaffoldKey,
-              drawer: const Drawer(child: ShellDrawer(modal: true)),
-              body: widget.child,
-            ),
+      ),
     );
   }
 }

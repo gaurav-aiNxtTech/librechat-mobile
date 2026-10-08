@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:librechat_flutter/app/router.dart';
 import 'package:librechat_flutter/app/routes.dart';
 import 'package:librechat_flutter/app/shell/app_shell.dart';
+import 'package:librechat_flutter/app/shell/banners.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/feature_gate.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/features/chat/chat_screen.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
+import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/ui/theme/app_theme.dart';
@@ -47,6 +49,8 @@ void main() {
         missingFeaturesProvider.overrideWithValue(
           ValueNotifier<Set<Feature>>(const {}),
         ),
+        onlineProvider.overrideWith((ref) => Stream.value(true)),
+        bannerProvider.overrideWith((ref) async => null),
       ],
     );
     addTearDown(container.dispose);

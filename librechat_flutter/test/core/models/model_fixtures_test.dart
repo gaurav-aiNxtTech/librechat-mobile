@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:librechat_flutter/core/models/attachment.dart';
+import 'package:librechat_flutter/core/models/banner.dart';
 import 'package:librechat_flutter/core/models/content_part.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
 import 'package:librechat_flutter/core/models/endpoint_config.dart';
@@ -202,6 +203,31 @@ final _fixtures = <_Fixture<dynamic>>[
       expect(role.permissions?['FUTURE_FEATURE'], {
         'USE': true,
       }, reason: 'types are open keys');
+    },
+  ),
+  _Fixture<ServerBanner>(
+    'banner.json',
+    decode: (json) => ServerBanner.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const [
+      '_id',
+      'isPublic',
+      'createdAt',
+      'updatedAt',
+      '__v',
+      'futureField',
+    ],
+    check: (banner) {
+      expect(banner.bannerId, 'c2b8d4e6-1f3a-4b5c-9d7e-0a1b2c3d4e5f');
+      expect(
+        banner.message,
+        'Scheduled maintenance on Saturday from 02:00 to 04:00 UTC.',
+      );
+      expect(banner.type, 'banner');
+      expect(banner.persistable, isTrue);
+      expect(banner.displayFrom, DateTime.utc(2026, 10));
+      expect(banner.displayTo, DateTime.utc(2026, 10, 11, 2));
+      expect(banner.displayTo?.isUtc, isTrue);
     },
   ),
   _Fixture<User>(

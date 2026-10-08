@@ -56,8 +56,9 @@ class FakeConfigRepository implements ConfigRepository {
 }
 
 /// Answers [login] with [loginResult], or throws [loginError], and
-/// [verifyTwoFactor] with [verifyError] when set. Each call is recorded.
-/// Other members are not used by the sign-in screens and throw.
+/// [verifyTwoFactor] with [verifyError] when set. Each call is recorded,
+/// and [acknowledgeExpiry] counts in [expiryAcknowledgements]. Other members
+/// are not used by the sign-in screens and throw.
 class FakeAuthService extends ChangeNotifier implements AuthService {
   final logins = <(String, String)>[];
   final verifications = <(String, String, bool)>[];
@@ -124,20 +125,32 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
   @override
   Future<void> signOut() async => signOuts++;
 
+  /// How often the session-expired dialog acknowledged the expiry.
+  int expiryAcknowledgements = 0;
+
+  @override
+  void acknowledgeExpiry() {
+    expiryAcknowledgements++;
+    _expired = false;
+    notifyListeners();
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// Records the account routes the Register, Forgot_Password,
-/// Reset_Password and Verify_Email screens call. Each answers with its
-/// reply field, or throws [error], after [gate] completes when one is set.
-/// Other members throw.
+/// Reset_Password, Verify_Email and Terms screens and the AppShell's terms
+/// check call. Each answers with its reply field, or throws [error], after
+/// [gate] completes when one is set. Other members throw.
 class FakeAuthApi implements AuthApi {
   final registrations = <Map<String, String>>[];
   final resetRequests = <String>[];
   final resets = <Map<String, String>>[];
   final resends = <String>[];
   int termsAccepts = 0;
+  int termsChecks = 0;
+  bool termsAcceptedReply = true;
   String? registerMessage = 'Registered.';
   ({String? message, String? link}) resetRequestReply = (
     message: 'Check your inbox.',
@@ -204,6 +217,12 @@ class FakeAuthApi implements AuthApi {
   Future<void> acceptTerms() {
     termsAccepts++;
     return _answer(null);
+  }
+
+  @override
+  Future<bool> termsAccepted() {
+    termsChecks++;
+    return _answer(termsAcceptedReply);
   }
 
   @override
