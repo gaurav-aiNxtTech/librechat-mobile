@@ -8,12 +8,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:librechat_flutter/core/models/attachment.dart';
 import 'package:librechat_flutter/core/models/banner.dart';
 import 'package:librechat_flutter/core/models/content_part.dart';
+import 'package:librechat_flutter/core/models/context_usage.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
 import 'package:librechat_flutter/core/models/endpoint_config.dart';
 import 'package:librechat_flutter/core/models/message.dart';
+import 'package:librechat_flutter/core/models/pending_action.dart';
+import 'package:librechat_flutter/core/models/pending_steer.dart';
 import 'package:librechat_flutter/core/models/role_permissions.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/tag.dart';
+import 'package:librechat_flutter/core/models/token_usage.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 
 /// One fixture file and how to decode, encode and check it.
@@ -407,6 +411,76 @@ final _fixtures = <_Fixture<dynamic>>[
       expect(file.height, 1200);
       expect(file.messageId, '5b7d1e2a-0c3f-4e5a-8b9c-1d2e3f4a5b6c');
       expect(file.toolCallId, isNull);
+    },
+  ),
+  _Fixture<PendingAction>(
+    'pending_action.json',
+    decode: (json) => PendingAction.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const [
+      'createdAt',
+      'interruptId',
+      'threadId',
+      'responseMessageId',
+    ],
+    check: (action) {
+      expect(action.actionId, 'act_7f3c2a91');
+      expect(action.streamId, '3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e');
+      expect(action.conversationId, '3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e');
+      expect(action.runId, 'run_b41e0d7c');
+      expect(action.expiresAt, 1790000600000);
+      expect(action.payload?['type'], 'tool_approval');
+      expect(
+        (action.payload?['action_requests'] as List).single,
+        containsPair('tool_call_id', 'call_1'),
+      );
+      expect(
+        (action.payload?['review_configs'] as List).single,
+        containsPair('allowed_decisions', ['approve', 'reject', 'edit']),
+      );
+    },
+  ),
+  _Fixture<PendingSteer>(
+    'pending_steer.json',
+    decode: (json) => PendingSteer.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const ['status', '__v'],
+    check: (steer) {
+      expect(steer.steerId, 'st_4b8e1f2a');
+      expect(steer.clientSteerId, 'local-0c7d');
+      expect(steer.text, 'Keep it under three sentences.');
+      expect(steer.quotes, ['Alfama and Belém are the two classic walks.']);
+      expect(steer.createdAt, 1790000123456);
+    },
+  ),
+  _Fixture<TokenUsage>(
+    'token_usage.json',
+    decode: (json) => TokenUsage.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const ['input_token_details', 'output_token_details'],
+    check: (usage) {
+      expect(usage.inputTokens, 4012);
+      expect(usage.outputTokens, 917);
+      expect(usage.totalTokens, 4929);
+      expect(usage.model, 'claude-opus-4-1');
+      expect(usage.provider, 'anthropic');
+      expect(usage.usageType, 'activity-label');
+    },
+  ),
+  _Fixture<ContextUsage>(
+    'context_usage.json',
+    decode: (json) => ContextUsage.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const ['effectiveInstructionTokens', 'calibrationRatio'],
+    check: (usage) {
+      expect(usage.contextBudget, 180000);
+      expect(usage.remainingContextTokens, 151234);
+      expect(usage.prePruneContextTokens, 29766);
+      expect(usage.runId, 'run_b41e0d7c');
+      expect(usage.agentId, 'agent_Xk3mPq9rT2vW');
+      expect(usage.breakdown?['maxContextTokens'], 200000);
+      expect(usage.breakdown?['instructionTokens'], 2048);
+      expect(usage.breakdown?['messageTokens'], 26368);
     },
   ),
 ];

@@ -1,0 +1,17 @@
+{
+  "contextBudget": 180000,
+  "remainingContextTokens": 151234,
+  "prePruneContextTokens": 29766,
+  "runId": "run_b41e0d7c",
+  "agentId": "agent_Xk3mPq9rT2vW",
+  "effectiveInstructionTokens": 2100,
+  "calibrationRatio": 1.04,
+  "breakdown": {
+    "maxContextTokens": 200000,
+    "instructionTokens": 2048,
+    "toolSchemaTokens": 1350,
+    "messageTokens": 26368,
+    "messageCount": 14,
+    "summaryTokens": 0
+  }
+}

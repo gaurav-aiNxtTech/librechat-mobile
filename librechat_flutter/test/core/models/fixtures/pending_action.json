@@ -1,0 +1,29 @@
+{
+  "actionId": "act_7f3c2a91",
+  "streamId": "3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e",
+  "conversationId": "3f1c9a52-6a7e-4c1b-9d8e-2b4f6a8c0d1e",
+  "runId": "run_b41e0d7c",
+  "createdAt": 1790000000000,
+  "expiresAt": 1790000600000,
+  "interruptId": "int_2d9a",
+  "threadId": "thread_5c1e",
+  "responseMessageId": "8e9f0a1b-2c3d-4e5f-9a0b-1c2d3e4f5a6b",
+  "payload": {
+    "type": "tool_approval",
+    "action_requests": [
+      {
+        "name": "web_search",
+        "tool_call_id": "call_1",
+        "arguments": { "query": "walking routes Lisbon" },
+        "description": "Search the web"
+      }
+    ],
+    "review_configs": [
+      {
+        "action_name": "web_search",
+        "tool_call_id": "call_1",
+        "allowed_decisions": ["approve", "reject", "edit"]
+      }
+    ]
+  }
+}

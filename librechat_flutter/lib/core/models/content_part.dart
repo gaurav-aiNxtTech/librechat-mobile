@@ -38,7 +38,7 @@ abstract class ContentPart with _$ContentPart {
     @JsonKey(name: 'input_audio') Map<String, Object?>? inputAudio,
     String? error,
     @JsonKey(name: 'agent_update') Map<String, Object?>? agentUpdate,
-    Map<String, Object?>? steer,
+    Object? steer, // The Server sends the steered text as a string.
     @JsonKey(name: 'activity_label') String? activityLabel,
     @JsonKey(name: 'activity_label_type') String? activityLabelType,
     @JsonKey(name: 'activity_end_index') int? activityEndIndex,

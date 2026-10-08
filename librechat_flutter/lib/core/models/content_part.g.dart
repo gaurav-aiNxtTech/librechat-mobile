@@ -22,7 +22,7 @@ _ContentPart _$ContentPartFromJson(Map<String, dynamic> json) => _ContentPart(
   inputAudio: json['input_audio'] as Map<String, dynamic>?,
   error: json['error'] as String?,
   agentUpdate: json['agent_update'] as Map<String, dynamic>?,
-  steer: json['steer'] as Map<String, dynamic>?,
+  steer: json['steer'],
   activityLabel: json['activity_label'] as String?,
   activityLabelType: json['activity_label_type'] as String?,
   activityEndIndex: (json['activity_end_index'] as num?)?.toInt(),

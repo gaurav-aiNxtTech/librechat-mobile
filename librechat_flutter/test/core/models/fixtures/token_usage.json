@@ -1,0 +1,10 @@
+{
+  "input_tokens": 4012,
+  "output_tokens": 917,
+  "total_tokens": 4929,
+  "model": "claude-opus-4-1",
+  "provider": "anthropic",
+  "usage_type": "activity-label",
+  "input_token_details": { "cache_read": 3800, "cache_creation": 0 },
+  "output_token_details": { "reasoning": 120 }
+}
