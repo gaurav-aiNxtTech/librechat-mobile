@@ -715,3 +715,78 @@ Map<String, Object?> _openApiRequestBody(Random r) {
     },
   };
 }
+
+// Artifact generators (Property 9).
+
+/// An artifact identifier or title: spaces, unicode, `:` and braces, but no
+/// quotes, tabs or line breaks.
+final Gen<String> artifactValueGen = stringOf(
+  '$alphanumeric :-_./{}=#éж中😀',
+  max: 16,
+);
+
+/// An artifact type: a rendered type, or another MIME-like string.
+final Gen<String> artifactTypeGen = frequency([
+  (
+    3,
+    elementOf(const [
+      'text/html',
+      'application/vnd.code-html',
+      'image/svg+xml',
+      'application/vnd.react',
+      'application/vnd.mermaid',
+      'text/markdown',
+      'text/plain',
+    ]),
+  ),
+  (
+    1,
+    zip2(
+      stringOf(lowercase, min: 1, max: 8),
+      stringOf('$lowercase$digits.+-', min: 1, max: 12),
+    ).map((p) => '${p.$1}/${p.$2}'),
+  ),
+]);
+
+/// Artifact content: 0–6 lines with backticks, tildes, mid-line `:::`,
+/// tabs, unicode and blank lines. Every non-blank line holds a letter, so
+/// none closes a fence or a block. With [fenceLines], bare fence and `:::`
+/// lines appear too, for writers that pick a fence longer than the content's.
+Gen<String> artifactContentGen({bool fenceLines = false}) {
+  final token = elementOf(const [
+    '`',
+    '```',
+    '~~~',
+    '~',
+    ' ::: ',
+    ':::',
+    '  ',
+    '\t',
+    'a',
+    'é',
+    '中',
+    '😀',
+  ]);
+  final affix = listOf(token, max: 3).map((t) => t.join());
+  final line = frequency([
+    (2, elementOf(const ['', ' ', '  '])),
+    (
+      6,
+      zip3(
+        affix,
+        charOf('$lowercaseéж中'),
+        affix,
+      ).map((p) => '${p.$1}${p.$2}${p.$3}'),
+    ),
+    if (fenceLines)
+      (1, elementOf(const ['```', '````', '~~~', ':::', '``````````'])),
+  ]);
+  return listOf(line, max: 6).map((lines) => lines.join('\n'));
+}
+
+/// Text around an artifact: 0–3 lines with no `:`, backtick or tilde, so it
+/// opens neither a fence nor an artifact.
+final Gen<String> artifactProseGen = listOf(
+  stringOf('$alphanumeric .,!?éж中😀', max: 20),
+  max: 3,
+).map((lines) => lines.join('\n'));
