@@ -248,10 +248,7 @@ class StreamClient {
     }
   }
 
-  /// An Access_Gateway_Error: a `WWW-Authenticate` naming Cloudflare Access,
-  /// as ApiClient checks it.
+  /// An Access_Gateway_Error, checked as ApiClient checks it.
   static bool _isGateway(HttpHeaders headers) =>
-      (headers[HttpHeaders.wwwAuthenticateHeader] ?? const <String>[]).any(
-        (v) => v.toLowerCase().contains('cloudflare-access'),
-      );
+      ApiClient.isGatewayChallenge(headers[HttpHeaders.wwwAuthenticateHeader]);
 }

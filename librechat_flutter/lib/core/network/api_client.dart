@@ -397,7 +397,12 @@ class ApiClient {
   };
 
   static bool _isGateway(Headers headers) =>
-      (headers['www-authenticate'] ?? const <String>[]).any(
+      isGatewayChallenge(headers['www-authenticate']);
+
+  /// Whether the `WWW-Authenticate` [values] name Cloudflare Access, an
+  /// Access_Gateway_Error (Req 5.9). StreamClient checks its responses too.
+  static bool isGatewayChallenge(List<String>? values) =>
+      (values ?? const <String>[]).any(
         (v) => v.toLowerCase().contains('cloudflare-access'),
       );
 
