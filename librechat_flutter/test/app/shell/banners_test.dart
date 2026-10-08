@@ -190,6 +190,33 @@ void main() {
     handle.dispose();
   });
 
+  for (final width in [599.0, 600.0]) {
+    testWidgets('banner buttons meet the tap-target guidelines at '
+        '${width.toInt()} dp', (tester) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = Size(width, 800);
+      addTearDown(tester.view.reset);
+      final handle = tester.ensureSemantics();
+      await pump(
+        tester,
+        online: false,
+        banner: const ServerBanner(bannerId: 'b1', message: 'Maintenance'),
+        config: const StartupConfig(version: '0.8.7'),
+      );
+      expect(find.text(offlineText), findsOneWidget);
+      expect(find.byTooltip(dismissBanner), findsOneWidget);
+      expect(find.widgetWithText(TextButton, 'Dismiss'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextButton, "Don't show again"),
+        findsOneWidget,
+      );
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+  }
+
   group('the landing scrolls instead of overflowing below banners', () {
     for (final (name, size, offline, withBanners) in [
       ('three banners at 800x600', const Size(800, 600), true, true),
