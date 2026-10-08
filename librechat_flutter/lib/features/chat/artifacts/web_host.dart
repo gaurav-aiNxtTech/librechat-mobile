@@ -277,14 +277,78 @@ String buildArtifactHtml(
   };
 }
 
-/// A start tag named [name], whose quoted attribute values may hold `>`.
-RegExp _startTag(String name) => RegExp(
-  '<$name(?=[\\s/>])(?:[^>"\']|"[^"]*"|\'[^\']*\')*>',
-  caseSensitive: false,
-);
+/// HTML whitespace (tab, LF, FF, CR, space), which is narrower than `\s`.
+bool _isHtmlSpace(String c) => ' \t\n\r\f'.contains(c);
 
-final _htmlTag = _startTag('html');
-final _headTag = _startTag('head');
+/// The end of the comment that starts at [at] (`<!--`), or -1 if unclosed.
+///
+/// Mirrors the HTML tokenizer: `<!-->` and `<!--->` close at once, and both
+/// `-->` and `--!>` close a comment, whichever comes first.
+int _commentEnd(String html, int at) {
+  final dash = html.indexOf('-->', at + 2);
+  final bang = html.indexOf('--!>', at + 4);
+  if (bang >= 0 && (dash < 0 || bang < dash)) return bang + 4;
+  return dash < 0 ? -1 : dash + 3;
+}
+
+/// The end of a `<[name] …>` start tag at [at], or null if there is none.
+///
+/// It accepts only attributes the HTML tokenizer reads the same way: a name
+/// with no quote, `<`, `=`, `/` or `>`, optionally followed by `=` and a
+/// quoted or unquoted value. A quote opens a value only right after `=`, as
+/// in the tokenizer. Anything else returns null, which ends the prologue
+/// walk early; that is safe because the parser opens the tag implicitly.
+int? _startTagEnd(String html, int at, String name) {
+  var i = at + 1 + name.length;
+  if (i >= html.length || html.substring(at, i).toLowerCase() != '<$name') {
+    return null;
+  }
+  final next = html[i];
+  if (!_isHtmlSpace(next) && next != '/' && next != '>') return null;
+  int skipSpace(int from) {
+    var j = from;
+    while (j < html.length && _isHtmlSpace(html[j])) {
+      j++;
+    }
+    return j;
+  }
+
+  while (i < html.length) {
+    final c = html[i];
+    if (c == '>') return i + 1;
+    if (_isHtmlSpace(c) || c == '/') {
+      i++;
+      continue;
+    }
+    final nameStart = i;
+    while (i < html.length &&
+        !_isHtmlSpace(html[i]) &&
+        !'"\'<=/>'.contains(html[i])) {
+      i++;
+    }
+    if (i == nameStart) return null;
+    var j = skipSpace(i);
+    if (j >= html.length || html[j] != '=') continue;
+    j = skipSpace(j + 1);
+    if (j >= html.length) return null;
+    final quote = html[j];
+    if (quote == '"' || quote == "'") {
+      final close = html.indexOf(quote, j + 1);
+      if (close < 0) return null;
+      i = close + 1;
+    } else {
+      final valueStart = j;
+      while (j < html.length &&
+          !_isHtmlSpace(html[j]) &&
+          !'"\'<=>'.contains(html[j])) {
+        j++;
+      }
+      if (j == valueStart) return null;
+      i = j;
+    }
+  }
+  return null;
+}
 
 /// Where the CSP goes in a full HTML document: before any author content
 /// that can run or load anything.
@@ -302,14 +366,14 @@ int _headInsertionPoint(String html) {
   int skipSpaceAndComments(int from) {
     var at = from;
     while (true) {
-      while (at < html.length && ' \t\n\r\f'.contains(html[at])) {
+      while (at < html.length && _isHtmlSpace(html[at])) {
         at++;
       }
       if (!html.startsWith('<!--', at)) return at;
-      final end = html.indexOf('-->', at + 4);
+      final end = _commentEnd(html, at);
       // An unclosed comment hides the rest of the document; stop before it.
       if (end < 0) return at;
-      at = end + 3;
+      at = end;
     }
   }
 
@@ -321,12 +385,12 @@ int _headInsertionPoint(String html) {
     i = end + 1;
     at = skipSpaceAndComments(i);
   }
-  if (_htmlTag.matchAsPrefix(html, at) case final match?) {
-    i = match.end;
+  if (_startTagEnd(html, at, 'html') case final end?) {
+    i = end;
     at = skipSpaceAndComments(i);
   }
-  if (_headTag.matchAsPrefix(html, at) case final match?) {
-    i = match.end;
+  if (_startTagEnd(html, at, 'head') case final end?) {
+    i = end;
   }
   return i;
 }

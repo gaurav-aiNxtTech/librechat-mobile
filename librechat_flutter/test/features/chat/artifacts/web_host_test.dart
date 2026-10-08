@@ -315,6 +315,43 @@ void main() {
       );
     });
 
+    test('abrupt and --!> comment closes do not hide a script', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      const tail = '<!DOCTYPE html><html><head></head></html>';
+      expectCspBefore('<!-->$evil<!-- -->$tail', evil);
+      expectCspBefore('<!--->$evil<!-- -->$tail', evil);
+      expectCspBefore('<!-- a --!>$evil -->$tail', evil);
+      expectCspBefore('<!DOCTYPE html><html><!-->$evil--><head></head>', evil);
+    });
+
+    test('a --!> close still keeps the doctype first', () {
+      final html = _html('text/html', '<!-- c --!><!DOCTYPE html><p>x</p>');
+      expect(
+        html,
+        startsWith(
+          '<!-- c --!><!DOCTYPE html><meta http-equiv="Content-Security-Policy"',
+        ),
+      );
+    });
+
+    test('an unclosed comment puts the CSP before it', () {
+      final html = _html('text/html', '<!-- x <!DOCTYPE html><html><head>');
+      expect(html, startsWith('<meta http-equiv="Content-Security-Policy"'));
+    });
+
+    test('a quote outside an attribute value does not open one', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      expectCspBefore('<html a"b>$evil"><head></head></html>', evil);
+      expectCspBefore("<html><head x'y>$evil'></head></html>", evil);
+      expectCspBefore('<html a="x"="y>$evil"><head></head></html>', evil);
+      expectCspBefore('<html a=b"c>$evil"><head></head></html>', evil);
+    });
+
+    test('only HTML whitespace separates = from a quoted value', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      expectCspBefore('<html a=\u00a0"x>$evil"><head></head></html>', evil);
+    });
+
     test('a > inside an <html> attribute does not split the tag', () {
       final html = _html(
         'text/html',
