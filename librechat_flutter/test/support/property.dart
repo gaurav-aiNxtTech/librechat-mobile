@@ -346,6 +346,7 @@ final Gen<ContentPart> contentPartGen = Gen((r) {
     activityLabel: opt(textGen)(r),
     activityLabelType: opt(idGen)(r),
     activityEndIndex: opt(intGen)(r),
+    pending: opt(boolean)(r),
     status: opt(elementOf(const ['failed', 'partial']))(r),
     content: opt(rawValueGen)(r),
     agentId: opt(idGen)(r),

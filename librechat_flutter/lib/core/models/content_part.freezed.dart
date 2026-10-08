@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 mixin _$ContentPart {
 
  String get type;@FlexibleTextConverter() String? get text; String? get think;@JsonKey(name: 'tool_call_ids') List<String>? get toolCallIds;@JsonKey(name: 'tool_call') ToolCall? get toolCall;@JsonKey(name: 'image_url') Object? get imageUrl;@JsonKey(name: 'image_file') Map<String, Object?>? get imageFile;@JsonKey(name: 'video_url') Object? get videoUrl;@JsonKey(name: 'input_audio') Map<String, Object?>? get inputAudio; String? get error;@JsonKey(name: 'agent_update') Map<String, Object?>? get agentUpdate; Object? get steer;// The Server sends the steered text as a string.
-@JsonKey(name: 'activity_label') String? get activityLabel;@JsonKey(name: 'activity_label_type') String? get activityLabelType;@JsonKey(name: 'activity_end_index') int? get activityEndIndex;// An activity label's `failed` or `partial` batch status.
+@JsonKey(name: 'activity_label') String? get activityLabel;@JsonKey(name: 'activity_label_type') String? get activityLabelType;@JsonKey(name: 'activity_end_index') int? get activityEndIndex;// An activity label still being written: a reservation, or a phase that has not finalized.
+ bool? get pending;// An activity label's `failed` or `partial` batch status.
  String? get status;// A summary's body: a string or a list of `{type, text}` blocks.
  Object? get content; String? get agentId; int? get groupId; int? get stepIndex;
 /// Create a copy of ContentPart
@@ -31,16 +32,16 @@ $ContentPartCopyWith<ContentPart> get copyWith => _$ContentPartCopyWithImpl<Cont
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentPart&&(identical(other.type, type) || other.type == type)&&(identical(other.text, text) || other.text == text)&&(identical(other.think, think) || other.think == think)&&const DeepCollectionEquality().equals(other.toolCallIds, toolCallIds)&&(identical(other.toolCall, toolCall) || other.toolCall == toolCall)&&const DeepCollectionEquality().equals(other.imageUrl, imageUrl)&&const DeepCollectionEquality().equals(other.imageFile, imageFile)&&const DeepCollectionEquality().equals(other.videoUrl, videoUrl)&&const DeepCollectionEquality().equals(other.inputAudio, inputAudio)&&(identical(other.error, error) || other.error == error)&&const DeepCollectionEquality().equals(other.agentUpdate, agentUpdate)&&const DeepCollectionEquality().equals(other.steer, steer)&&(identical(other.activityLabel, activityLabel) || other.activityLabel == activityLabel)&&(identical(other.activityLabelType, activityLabelType) || other.activityLabelType == activityLabelType)&&(identical(other.activityEndIndex, activityEndIndex) || other.activityEndIndex == activityEndIndex)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.content, content)&&(identical(other.agentId, agentId) || other.agentId == agentId)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.stepIndex, stepIndex) || other.stepIndex == stepIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentPart&&(identical(other.type, type) || other.type == type)&&(identical(other.text, text) || other.text == text)&&(identical(other.think, think) || other.think == think)&&const DeepCollectionEquality().equals(other.toolCallIds, toolCallIds)&&(identical(other.toolCall, toolCall) || other.toolCall == toolCall)&&const DeepCollectionEquality().equals(other.imageUrl, imageUrl)&&const DeepCollectionEquality().equals(other.imageFile, imageFile)&&const DeepCollectionEquality().equals(other.videoUrl, videoUrl)&&const DeepCollectionEquality().equals(other.inputAudio, inputAudio)&&(identical(other.error, error) || other.error == error)&&const DeepCollectionEquality().equals(other.agentUpdate, agentUpdate)&&const DeepCollectionEquality().equals(other.steer, steer)&&(identical(other.activityLabel, activityLabel) || other.activityLabel == activityLabel)&&(identical(other.activityLabelType, activityLabelType) || other.activityLabelType == activityLabelType)&&(identical(other.activityEndIndex, activityEndIndex) || other.activityEndIndex == activityEndIndex)&&(identical(other.pending, pending) || other.pending == pending)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.content, content)&&(identical(other.agentId, agentId) || other.agentId == agentId)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.stepIndex, stepIndex) || other.stepIndex == stepIndex));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,type,text,think,const DeepCollectionEquality().hash(toolCallIds),toolCall,const DeepCollectionEquality().hash(imageUrl),const DeepCollectionEquality().hash(imageFile),const DeepCollectionEquality().hash(videoUrl),const DeepCollectionEquality().hash(inputAudio),error,const DeepCollectionEquality().hash(agentUpdate),const DeepCollectionEquality().hash(steer),activityLabel,activityLabelType,activityEndIndex,status,const DeepCollectionEquality().hash(content),agentId,groupId,stepIndex]);
+int get hashCode => Object.hashAll([runtimeType,type,text,think,const DeepCollectionEquality().hash(toolCallIds),toolCall,const DeepCollectionEquality().hash(imageUrl),const DeepCollectionEquality().hash(imageFile),const DeepCollectionEquality().hash(videoUrl),const DeepCollectionEquality().hash(inputAudio),error,const DeepCollectionEquality().hash(agentUpdate),const DeepCollectionEquality().hash(steer),activityLabel,activityLabelType,activityEndIndex,pending,status,const DeepCollectionEquality().hash(content),agentId,groupId,stepIndex]);
 
 @override
 String toString() {
-  return 'ContentPart(type: $type, text: $text, think: $think, toolCallIds: $toolCallIds, toolCall: $toolCall, imageUrl: $imageUrl, imageFile: $imageFile, videoUrl: $videoUrl, inputAudio: $inputAudio, error: $error, agentUpdate: $agentUpdate, steer: $steer, activityLabel: $activityLabel, activityLabelType: $activityLabelType, activityEndIndex: $activityEndIndex, status: $status, content: $content, agentId: $agentId, groupId: $groupId, stepIndex: $stepIndex)';
+  return 'ContentPart(type: $type, text: $text, think: $think, toolCallIds: $toolCallIds, toolCall: $toolCall, imageUrl: $imageUrl, imageFile: $imageFile, videoUrl: $videoUrl, inputAudio: $inputAudio, error: $error, agentUpdate: $agentUpdate, steer: $steer, activityLabel: $activityLabel, activityLabelType: $activityLabelType, activityEndIndex: $activityEndIndex, pending: $pending, status: $status, content: $content, agentId: $agentId, groupId: $groupId, stepIndex: $stepIndex)';
 }
 
 
@@ -51,7 +52,7 @@ abstract mixin class $ContentPartCopyWith<$Res>  {
   factory $ContentPartCopyWith(ContentPart value, $Res Function(ContentPart) _then) = _$ContentPartCopyWithImpl;
 @useResult
 $Res call({
- String type,@FlexibleTextConverter() String? text, String? think,@JsonKey(name: 'tool_call_ids') List<String>? toolCallIds,@JsonKey(name: 'tool_call') ToolCall? toolCall,@JsonKey(name: 'image_url') Object? imageUrl,@JsonKey(name: 'image_file') Map<String, Object?>? imageFile,@JsonKey(name: 'video_url') Object? videoUrl,@JsonKey(name: 'input_audio') Map<String, Object?>? inputAudio, String? error,@JsonKey(name: 'agent_update') Map<String, Object?>? agentUpdate, Object? steer,@JsonKey(name: 'activity_label') String? activityLabel,@JsonKey(name: 'activity_label_type') String? activityLabelType,@JsonKey(name: 'activity_end_index') int? activityEndIndex, String? status, Object? content, String? agentId, int? groupId, int? stepIndex
+ String type,@FlexibleTextConverter() String? text, String? think,@JsonKey(name: 'tool_call_ids') List<String>? toolCallIds,@JsonKey(name: 'tool_call') ToolCall? toolCall,@JsonKey(name: 'image_url') Object? imageUrl,@JsonKey(name: 'image_file') Map<String, Object?>? imageFile,@JsonKey(name: 'video_url') Object? videoUrl,@JsonKey(name: 'input_audio') Map<String, Object?>? inputAudio, String? error,@JsonKey(name: 'agent_update') Map<String, Object?>? agentUpdate, Object? steer,@JsonKey(name: 'activity_label') String? activityLabel,@JsonKey(name: 'activity_label_type') String? activityLabelType,@JsonKey(name: 'activity_end_index') int? activityEndIndex, bool? pending, String? status, Object? content, String? agentId, int? groupId, int? stepIndex
 });
 
 
@@ -68,7 +69,7 @@ class _$ContentPartCopyWithImpl<$Res>
 
 /// Create a copy of ContentPart
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? text = freezed,Object? think = freezed,Object? toolCallIds = freezed,Object? toolCall = freezed,Object? imageUrl = freezed,Object? imageFile = freezed,Object? videoUrl = freezed,Object? inputAudio = freezed,Object? error = freezed,Object? agentUpdate = freezed,Object? steer = freezed,Object? activityLabel = freezed,Object? activityLabelType = freezed,Object? activityEndIndex = freezed,Object? status = freezed,Object? content = freezed,Object? agentId = freezed,Object? groupId = freezed,Object? stepIndex = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? text = freezed,Object? think = freezed,Object? toolCallIds = freezed,Object? toolCall = freezed,Object? imageUrl = freezed,Object? imageFile = freezed,Object? videoUrl = freezed,Object? inputAudio = freezed,Object? error = freezed,Object? agentUpdate = freezed,Object? steer = freezed,Object? activityLabel = freezed,Object? activityLabelType = freezed,Object? activityEndIndex = freezed,Object? pending = freezed,Object? status = freezed,Object? content = freezed,Object? agentId = freezed,Object? groupId = freezed,Object? stepIndex = freezed,}) {
   return _then(_self.copyWith(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
@@ -82,7 +83,8 @@ as String?,agentUpdate: freezed == agentUpdate ? _self.agentUpdate : agentUpdate
 as Map<String, Object?>?,steer: freezed == steer ? _self.steer : steer ,activityLabel: freezed == activityLabel ? _self.activityLabel : activityLabel // ignore: cast_nullable_to_non_nullable
 as String?,activityLabelType: freezed == activityLabelType ? _self.activityLabelType : activityLabelType // ignore: cast_nullable_to_non_nullable
 as String?,activityEndIndex: freezed == activityEndIndex ? _self.activityEndIndex : activityEndIndex // ignore: cast_nullable_to_non_nullable
-as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as int?,pending: freezed == pending ? _self.pending : pending // ignore: cast_nullable_to_non_nullable
+as bool?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content ,agentId: freezed == agentId ? _self.agentId : agentId // ignore: cast_nullable_to_non_nullable
 as String?,groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,stepIndex: freezed == stepIndex ? _self.stepIndex : stepIndex // ignore: cast_nullable_to_non_nullable
@@ -183,10 +185,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  bool? pending,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ContentPart() when $default != null:
-return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
+return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.pending,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
   return orElse();
 
 }
@@ -204,10 +206,10 @@ return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  bool? pending,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)  $default,) {final _that = this;
 switch (_that) {
 case _ContentPart():
-return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
+return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.pending,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -224,10 +226,10 @@ return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String type, @FlexibleTextConverter()  String? text,  String? think, @JsonKey(name: 'tool_call_ids')  List<String>? toolCallIds, @JsonKey(name: 'tool_call')  ToolCall? toolCall, @JsonKey(name: 'image_url')  Object? imageUrl, @JsonKey(name: 'image_file')  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url')  Object? videoUrl, @JsonKey(name: 'input_audio')  Map<String, Object?>? inputAudio,  String? error, @JsonKey(name: 'agent_update')  Map<String, Object?>? agentUpdate,  Object? steer, @JsonKey(name: 'activity_label')  String? activityLabel, @JsonKey(name: 'activity_label_type')  String? activityLabelType, @JsonKey(name: 'activity_end_index')  int? activityEndIndex,  bool? pending,  String? status,  Object? content,  String? agentId,  int? groupId,  int? stepIndex)?  $default,) {final _that = this;
 switch (_that) {
 case _ContentPart() when $default != null:
-return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
+return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCall,_that.imageUrl,_that.imageFile,_that.videoUrl,_that.inputAudio,_that.error,_that.agentUpdate,_that.steer,_that.activityLabel,_that.activityLabelType,_that.activityEndIndex,_that.pending,_that.status,_that.content,_that.agentId,_that.groupId,_that.stepIndex);case _:
   return null;
 
 }
@@ -239,7 +241,7 @@ return $default(_that.type,_that.text,_that.think,_that.toolCallIds,_that.toolCa
 @JsonSerializable()
 
 class _ContentPart implements ContentPart {
-  const _ContentPart({required this.type, @FlexibleTextConverter() this.text, this.think, @JsonKey(name: 'tool_call_ids') final  List<String>? toolCallIds, @JsonKey(name: 'tool_call') this.toolCall, @JsonKey(name: 'image_url') this.imageUrl, @JsonKey(name: 'image_file') final  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url') this.videoUrl, @JsonKey(name: 'input_audio') final  Map<String, Object?>? inputAudio, this.error, @JsonKey(name: 'agent_update') final  Map<String, Object?>? agentUpdate, this.steer, @JsonKey(name: 'activity_label') this.activityLabel, @JsonKey(name: 'activity_label_type') this.activityLabelType, @JsonKey(name: 'activity_end_index') this.activityEndIndex, this.status, this.content, this.agentId, this.groupId, this.stepIndex}): _toolCallIds = toolCallIds,_imageFile = imageFile,_inputAudio = inputAudio,_agentUpdate = agentUpdate;
+  const _ContentPart({required this.type, @FlexibleTextConverter() this.text, this.think, @JsonKey(name: 'tool_call_ids') final  List<String>? toolCallIds, @JsonKey(name: 'tool_call') this.toolCall, @JsonKey(name: 'image_url') this.imageUrl, @JsonKey(name: 'image_file') final  Map<String, Object?>? imageFile, @JsonKey(name: 'video_url') this.videoUrl, @JsonKey(name: 'input_audio') final  Map<String, Object?>? inputAudio, this.error, @JsonKey(name: 'agent_update') final  Map<String, Object?>? agentUpdate, this.steer, @JsonKey(name: 'activity_label') this.activityLabel, @JsonKey(name: 'activity_label_type') this.activityLabelType, @JsonKey(name: 'activity_end_index') this.activityEndIndex, this.pending, this.status, this.content, this.agentId, this.groupId, this.stepIndex}): _toolCallIds = toolCallIds,_imageFile = imageFile,_inputAudio = inputAudio,_agentUpdate = agentUpdate;
   factory _ContentPart.fromJson(Map<String, dynamic> json) => _$ContentPartFromJson(json);
 
 @override final  String type;
@@ -290,6 +292,8 @@ class _ContentPart implements ContentPart {
 @override@JsonKey(name: 'activity_label') final  String? activityLabel;
 @override@JsonKey(name: 'activity_label_type') final  String? activityLabelType;
 @override@JsonKey(name: 'activity_end_index') final  int? activityEndIndex;
+// An activity label still being written: a reservation, or a phase that has not finalized.
+@override final  bool? pending;
 // An activity label's `failed` or `partial` batch status.
 @override final  String? status;
 // A summary's body: a string or a list of `{type, text}` blocks.
@@ -311,16 +315,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentPart&&(identical(other.type, type) || other.type == type)&&(identical(other.text, text) || other.text == text)&&(identical(other.think, think) || other.think == think)&&const DeepCollectionEquality().equals(other._toolCallIds, _toolCallIds)&&(identical(other.toolCall, toolCall) || other.toolCall == toolCall)&&const DeepCollectionEquality().equals(other.imageUrl, imageUrl)&&const DeepCollectionEquality().equals(other._imageFile, _imageFile)&&const DeepCollectionEquality().equals(other.videoUrl, videoUrl)&&const DeepCollectionEquality().equals(other._inputAudio, _inputAudio)&&(identical(other.error, error) || other.error == error)&&const DeepCollectionEquality().equals(other._agentUpdate, _agentUpdate)&&const DeepCollectionEquality().equals(other.steer, steer)&&(identical(other.activityLabel, activityLabel) || other.activityLabel == activityLabel)&&(identical(other.activityLabelType, activityLabelType) || other.activityLabelType == activityLabelType)&&(identical(other.activityEndIndex, activityEndIndex) || other.activityEndIndex == activityEndIndex)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.content, content)&&(identical(other.agentId, agentId) || other.agentId == agentId)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.stepIndex, stepIndex) || other.stepIndex == stepIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentPart&&(identical(other.type, type) || other.type == type)&&(identical(other.text, text) || other.text == text)&&(identical(other.think, think) || other.think == think)&&const DeepCollectionEquality().equals(other._toolCallIds, _toolCallIds)&&(identical(other.toolCall, toolCall) || other.toolCall == toolCall)&&const DeepCollectionEquality().equals(other.imageUrl, imageUrl)&&const DeepCollectionEquality().equals(other._imageFile, _imageFile)&&const DeepCollectionEquality().equals(other.videoUrl, videoUrl)&&const DeepCollectionEquality().equals(other._inputAudio, _inputAudio)&&(identical(other.error, error) || other.error == error)&&const DeepCollectionEquality().equals(other._agentUpdate, _agentUpdate)&&const DeepCollectionEquality().equals(other.steer, steer)&&(identical(other.activityLabel, activityLabel) || other.activityLabel == activityLabel)&&(identical(other.activityLabelType, activityLabelType) || other.activityLabelType == activityLabelType)&&(identical(other.activityEndIndex, activityEndIndex) || other.activityEndIndex == activityEndIndex)&&(identical(other.pending, pending) || other.pending == pending)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.content, content)&&(identical(other.agentId, agentId) || other.agentId == agentId)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.stepIndex, stepIndex) || other.stepIndex == stepIndex));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,type,text,think,const DeepCollectionEquality().hash(_toolCallIds),toolCall,const DeepCollectionEquality().hash(imageUrl),const DeepCollectionEquality().hash(_imageFile),const DeepCollectionEquality().hash(videoUrl),const DeepCollectionEquality().hash(_inputAudio),error,const DeepCollectionEquality().hash(_agentUpdate),const DeepCollectionEquality().hash(steer),activityLabel,activityLabelType,activityEndIndex,status,const DeepCollectionEquality().hash(content),agentId,groupId,stepIndex]);
+int get hashCode => Object.hashAll([runtimeType,type,text,think,const DeepCollectionEquality().hash(_toolCallIds),toolCall,const DeepCollectionEquality().hash(imageUrl),const DeepCollectionEquality().hash(_imageFile),const DeepCollectionEquality().hash(videoUrl),const DeepCollectionEquality().hash(_inputAudio),error,const DeepCollectionEquality().hash(_agentUpdate),const DeepCollectionEquality().hash(steer),activityLabel,activityLabelType,activityEndIndex,pending,status,const DeepCollectionEquality().hash(content),agentId,groupId,stepIndex]);
 
 @override
 String toString() {
-  return 'ContentPart(type: $type, text: $text, think: $think, toolCallIds: $toolCallIds, toolCall: $toolCall, imageUrl: $imageUrl, imageFile: $imageFile, videoUrl: $videoUrl, inputAudio: $inputAudio, error: $error, agentUpdate: $agentUpdate, steer: $steer, activityLabel: $activityLabel, activityLabelType: $activityLabelType, activityEndIndex: $activityEndIndex, status: $status, content: $content, agentId: $agentId, groupId: $groupId, stepIndex: $stepIndex)';
+  return 'ContentPart(type: $type, text: $text, think: $think, toolCallIds: $toolCallIds, toolCall: $toolCall, imageUrl: $imageUrl, imageFile: $imageFile, videoUrl: $videoUrl, inputAudio: $inputAudio, error: $error, agentUpdate: $agentUpdate, steer: $steer, activityLabel: $activityLabel, activityLabelType: $activityLabelType, activityEndIndex: $activityEndIndex, pending: $pending, status: $status, content: $content, agentId: $agentId, groupId: $groupId, stepIndex: $stepIndex)';
 }
 
 
@@ -331,7 +335,7 @@ abstract mixin class _$ContentPartCopyWith<$Res> implements $ContentPartCopyWith
   factory _$ContentPartCopyWith(_ContentPart value, $Res Function(_ContentPart) _then) = __$ContentPartCopyWithImpl;
 @override @useResult
 $Res call({
- String type,@FlexibleTextConverter() String? text, String? think,@JsonKey(name: 'tool_call_ids') List<String>? toolCallIds,@JsonKey(name: 'tool_call') ToolCall? toolCall,@JsonKey(name: 'image_url') Object? imageUrl,@JsonKey(name: 'image_file') Map<String, Object?>? imageFile,@JsonKey(name: 'video_url') Object? videoUrl,@JsonKey(name: 'input_audio') Map<String, Object?>? inputAudio, String? error,@JsonKey(name: 'agent_update') Map<String, Object?>? agentUpdate, Object? steer,@JsonKey(name: 'activity_label') String? activityLabel,@JsonKey(name: 'activity_label_type') String? activityLabelType,@JsonKey(name: 'activity_end_index') int? activityEndIndex, String? status, Object? content, String? agentId, int? groupId, int? stepIndex
+ String type,@FlexibleTextConverter() String? text, String? think,@JsonKey(name: 'tool_call_ids') List<String>? toolCallIds,@JsonKey(name: 'tool_call') ToolCall? toolCall,@JsonKey(name: 'image_url') Object? imageUrl,@JsonKey(name: 'image_file') Map<String, Object?>? imageFile,@JsonKey(name: 'video_url') Object? videoUrl,@JsonKey(name: 'input_audio') Map<String, Object?>? inputAudio, String? error,@JsonKey(name: 'agent_update') Map<String, Object?>? agentUpdate, Object? steer,@JsonKey(name: 'activity_label') String? activityLabel,@JsonKey(name: 'activity_label_type') String? activityLabelType,@JsonKey(name: 'activity_end_index') int? activityEndIndex, bool? pending, String? status, Object? content, String? agentId, int? groupId, int? stepIndex
 });
 
 
@@ -348,7 +352,7 @@ class __$ContentPartCopyWithImpl<$Res>
 
 /// Create a copy of ContentPart
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? text = freezed,Object? think = freezed,Object? toolCallIds = freezed,Object? toolCall = freezed,Object? imageUrl = freezed,Object? imageFile = freezed,Object? videoUrl = freezed,Object? inputAudio = freezed,Object? error = freezed,Object? agentUpdate = freezed,Object? steer = freezed,Object? activityLabel = freezed,Object? activityLabelType = freezed,Object? activityEndIndex = freezed,Object? status = freezed,Object? content = freezed,Object? agentId = freezed,Object? groupId = freezed,Object? stepIndex = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? text = freezed,Object? think = freezed,Object? toolCallIds = freezed,Object? toolCall = freezed,Object? imageUrl = freezed,Object? imageFile = freezed,Object? videoUrl = freezed,Object? inputAudio = freezed,Object? error = freezed,Object? agentUpdate = freezed,Object? steer = freezed,Object? activityLabel = freezed,Object? activityLabelType = freezed,Object? activityEndIndex = freezed,Object? pending = freezed,Object? status = freezed,Object? content = freezed,Object? agentId = freezed,Object? groupId = freezed,Object? stepIndex = freezed,}) {
   return _then(_ContentPart(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
@@ -362,7 +366,8 @@ as String?,agentUpdate: freezed == agentUpdate ? _self._agentUpdate : agentUpdat
 as Map<String, Object?>?,steer: freezed == steer ? _self.steer : steer ,activityLabel: freezed == activityLabel ? _self.activityLabel : activityLabel // ignore: cast_nullable_to_non_nullable
 as String?,activityLabelType: freezed == activityLabelType ? _self.activityLabelType : activityLabelType // ignore: cast_nullable_to_non_nullable
 as String?,activityEndIndex: freezed == activityEndIndex ? _self.activityEndIndex : activityEndIndex // ignore: cast_nullable_to_non_nullable
-as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as int?,pending: freezed == pending ? _self.pending : pending // ignore: cast_nullable_to_non_nullable
+as bool?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content ,agentId: freezed == agentId ? _self.agentId : agentId // ignore: cast_nullable_to_non_nullable
 as String?,groupId: freezed == groupId ? _self.groupId : groupId // ignore: cast_nullable_to_non_nullable
 as int?,stepIndex: freezed == stepIndex ? _self.stepIndex : stepIndex // ignore: cast_nullable_to_non_nullable

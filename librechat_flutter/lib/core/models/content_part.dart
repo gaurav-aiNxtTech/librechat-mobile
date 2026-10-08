@@ -42,6 +42,8 @@ abstract class ContentPart with _$ContentPart {
     @JsonKey(name: 'activity_label') String? activityLabel,
     @JsonKey(name: 'activity_label_type') String? activityLabelType,
     @JsonKey(name: 'activity_end_index') int? activityEndIndex,
+    // An activity label still being written: a reservation, or a phase that has not finalized.
+    bool? pending,
     // An activity label's `failed` or `partial` batch status.
     String? status,
     // A summary's body: a string or a list of `{type, text}` blocks.
