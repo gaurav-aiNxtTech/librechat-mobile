@@ -311,10 +311,34 @@ void main() {
     expect(shape(groups), ['p0', 'p1', 'p2', 'p3', 'p4']);
   });
 
-  test('groups start collapsed except in the live reply', () {
+  test('completed groups start collapsed except in the live reply', () {
     final group = onlyGroup([tool('t1'), tool('t2')]);
+    expect(group.completed, isTrue);
     expect(group.startsCollapsed(live: false), isTrue);
     expect(group.startsCollapsed(live: true), isFalse);
+  });
+
+  test('a labelled completed group starts collapsed', () {
+    final group = onlyGroup([tool('t1'), label('Read the file')]);
+    expect(group.startsCollapsed(live: false), isTrue);
+  });
+
+  test('a saved group whose tools never returned starts expanded', () {
+    final group = onlyGroup([
+      tool('t1', output: null),
+      tool('t2', output: null),
+    ]);
+    expect(group.completed, isFalse);
+    expect(group.startsCollapsed(live: false), isFalse);
+    expect(group.startsCollapsed(live: true), isFalse);
+  });
+
+  test('a saved group with a pending label starts expanded', () {
+    final group = onlyGroup([
+      tool('t1', output: null),
+      label('Working', pending: true),
+    ]);
+    expect(group.startsCollapsed(live: false), isFalse);
   });
 
   test('groups compare by value', () {

@@ -68,9 +68,11 @@ final class ActivityGroup extends PartGroup {
   /// a non-empty output.
   final bool completed;
 
-  /// Groups start collapsed, except in the live reply and in `justSettledId`
-  /// (Req 23.12); [live] is true for both.
-  bool startsCollapsed({required bool live}) => !live;
+  /// Groups start collapsed once [completed], except in the live reply and in
+  /// `justSettledId` (Req 23.12); [live] is true for both. A saved reply whose
+  /// tools never returned (aborted, errored or detached) stays expanded so
+  /// the unfinished calls show, as KMP's `collapsedByDefault` does.
+  bool startsCollapsed({required bool live}) => !live && completed;
 
   @override
   bool operator ==(Object other) =>
