@@ -49,3 +49,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/providers/
+    - assets/web/babel/
+    - assets/web/mermaid/
+    - assets/web/react/
+    - assets/web/react-dom/
+    - assets/web/tailwind/

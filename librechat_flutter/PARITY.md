@@ -294,7 +294,7 @@ Every KMP_App screen and user-visible feature, with its status in the Flutter Ap
 | Diagnostic log                                            | `core/logging/DiagnosticLogRepository.kt`                                        | todo                            | Req 46                    |
 | Secure token and header storage                           | `core/network/client/SecureTokenStorage.kt`                                      | todo                            | Req 46                    |
 | Accessibility (labels, tap targets, contrast, font scale) | `core/ui`                                                                        | todo                            | Req 47                    |
-| Vendored web assets                                       | `feature/chat/components/web/VendoredWebAssets.kt`                               | todo                            | Req 24.8, 48.3            |
+| Vendored web assets                                       | `feature/chat/components/web/VendoredWebAssets.kt`                               | ported                          | Req 24.8, 48.3            |
 | Background prefetch                                       | `core/data/prefetch/PrefetchEngine.kt`                                           | deferred: prefetch              |                           |
 | Prefetch request marker                                   | `core/common/network/PrefetchMarker.kt`                                          | deferred: prefetch              |                           |
 | iOS app                                                   | `iosApp/`, `*/src/iosMain/`                                                      | deferred: iOS                   | `ios/` stays as generated |
