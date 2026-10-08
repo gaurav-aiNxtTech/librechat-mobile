@@ -791,3 +791,76 @@ final Gen<String> artifactProseGen = listOf(
   stringOf('$alphanumeric .,!?éж中😀', max: 20),
   max: 3,
 ).map((lines) => lines.join('\n'));
+
+// Prompt variable generators (Property 11)
+
+const _promptNamePool = ['name', 'topic', 'first name', 'x-y', 'a.b', 'Lang'];
+const _promptServerNames = [
+  'current_date',
+  'current_user',
+  'iso_datetime',
+  'current_datetime',
+];
+
+/// [base] with each character's case picked at random.
+Gen<String> _randomCase(String base) => Gen(
+  (r) => [
+    for (final c in base.split(''))
+      r.nextBool() ? c.toUpperCase() : c.toLowerCase(),
+  ].join(),
+);
+
+/// 0-2 spaces on each side of [inner].
+Gen<String> _padded(Gen<String> inner) =>
+    Gen((r) => '${' ' * r.nextInt(3)}${inner(r)}${' ' * r.nextInt(3)}');
+
+/// A name from a small pool, in random case with 0-2 spaces on each side.
+final Gen<String> promptNameGen = _padded(
+  elementOf(_promptNamePool).flatMap(_randomCase),
+);
+
+final Gen<String> _promptServerNameGen = _padded(
+  elementOf(_promptServerNames).flatMap(_randomCase),
+);
+
+/// 0-8 segments: literal text, placeholders, server-filled placeholders and
+/// stray brace fragments.
+final Gen<String> promptTemplateGen = listOf(
+  frequency([
+    (
+      2,
+      stringOf(
+        '$alphanumeric $tricky',
+        max: 12,
+      ).map((s) => s.replaceAll(RegExp('[{}]'), '')),
+    ),
+    (3, promptNameGen.map((name) => '{{$name}}')),
+    (1, _promptServerNameGen.map((name) => '{{$name}}')),
+    (2, elementOf(const ['{', '}', '{{', '}}', '{{}}', '{ {', '}}{{'])),
+  ]),
+  max: 8,
+).map((segments) => segments.join());
+
+/// 0-6 entries keyed by pool names, unused names and server names, with
+/// blank values and values holding `$1`, `\` and `{{x}}`.
+final Gen<Map<String, String>> promptValuesGen = listOf(
+  zip2(
+    frequency([
+      (4, promptNameGen),
+      (1, elementOf(const ['unused', 'other key', ''])),
+      (1, _promptServerNameGen),
+    ]),
+    oneOf([
+      elementOf(const ['', '  ', '\t']),
+      stringOf('$alphanumeric \$\\{}', min: 1, max: 8).map((s) => 'v$s'),
+      elementOf(const [r'$1', r'\', '{{x}}', r'a\$2b']),
+    ]),
+  ),
+  max: 6,
+).map((entries) => {for (final (key, value) in entries) key: value});
+
+/// Property 11's case: a template and a value map.
+final Gen<(String, Map<String, String>)> promptFillCaseGen = zip2(
+  promptTemplateGen,
+  promptValuesGen,
+);
