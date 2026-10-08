@@ -353,8 +353,8 @@ int? _startTagEnd(String html, int at, String name) {
 /// Where the CSP goes in a full HTML document: before any author content
 /// that can run or load anything.
 ///
-/// It walks only the document's prologue: leading whitespace and comments,
-/// the doctype, the `<html …>` tag and the `<head …>` tag, each optional and
+/// It walks only the document's prologue: leading whitespace and comments
+/// (bogus ones such as `<?xml …?>` and `<!foo>` included), the doctype, the `<html …>` tag and the `<head …>` tag, each optional and
 /// in that order. The point is right after the last one found, so the
 /// doctype stays first (no quirks mode) and an existing head keeps the
 /// policy (design "WebView_Host"). Any other markup ends the walk, so a
@@ -363,14 +363,28 @@ int? _startTagEnd(String html, int at, String name) {
 /// implicitly at the inserted `<meta>`.
 int _headInsertionPoint(String html) {
   var i = 0;
+  bool isDoctype(int at) =>
+      html.length - at >= 9 &&
+      html.substring(at, at + 9).toLowerCase() == '<!doctype';
+
   int skipSpaceAndComments(int from) {
     var at = from;
     while (true) {
       while (at < html.length && _isHtmlSpace(html[at])) {
         at++;
       }
-      if (!html.startsWith('<!--', at)) return at;
-      final end = _commentEnd(html, at);
+      final int end;
+      if (html.startsWith('<!--', at)) {
+        end = _commentEnd(html, at);
+      } else if (html.startsWith('<?', at) ||
+          (html.startsWith('<!', at) && !isDoctype(at))) {
+        // The tokenizer's bogus comment (`<?xml …?>`, `<!foo>`): it ends
+        // at the first `>`.
+        final close = html.indexOf('>', at);
+        end = close < 0 ? -1 : close + 1;
+      } else {
+        return at;
+      }
       // An unclosed comment hides the rest of the document; stop before it.
       if (end < 0) return at;
       at = end;
@@ -378,8 +392,7 @@ int _headInsertionPoint(String html) {
   }
 
   var at = skipSpaceAndComments(i);
-  if (html.length - at >= 9 &&
-      html.substring(at, at + 9).toLowerCase() == '<!doctype') {
+  if (isDoctype(at)) {
     final end = html.indexOf('>', at);
     if (end < 0) return i;
     i = end + 1;

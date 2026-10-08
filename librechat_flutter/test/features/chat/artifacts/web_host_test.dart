@@ -339,6 +339,33 @@ void main() {
       expect(html, startsWith('<meta http-equiv="Content-Security-Policy"'));
     });
 
+    test('bogus comments before the doctype keep it first', () {
+      const prologue = '<?xml version="1.0"?>\n<!foo>\n<!DOCTYPE html>';
+      final html = _html(
+        'text/html',
+        '$prologue<html><head><title>x</title></head></html>',
+      );
+      expect(
+        html,
+        startsWith(
+          '$prologue<html><head><meta http-equiv="Content-Security-Policy"',
+        ),
+      );
+      expect(_csps(html), [_htmlCsp]);
+    });
+
+    test('a bogus comment ends at the first > and hides no script', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      const tail = '<!DOCTYPE html><html><head></head></html>';
+      expectCspBefore('<?x a=">$evil"?>$tail', evil);
+      expectCspBefore('<!x a=">$evil">$tail', evil);
+    });
+
+    test('an unclosed bogus comment puts the CSP before it', () {
+      final html = _html('text/html', '<?xml <!DOCTYPE html<html<head');
+      expect(html, startsWith('<meta http-equiv="Content-Security-Policy"'));
+    });
+
     test('a quote outside an attribute value does not open one', () {
       const evil = '<script src="https://evil.example/x.js"></script>';
       expectCspBefore('<html a"b>$evil"><head></head></html>', evil);
