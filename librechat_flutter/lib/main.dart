@@ -16,6 +16,7 @@ import 'core/network/api_client.dart';
 import 'core/storage/cache_db.dart';
 import 'core/storage/secure_store.dart';
 import 'core/storage/settings_store.dart';
+import 'core/stream/stream_client.dart';
 import 'core/ui/theme/app_theme.dart';
 
 /// Bootstrap: every step finishes before `runApp`, so the first frame uses the stored theme
@@ -54,9 +55,10 @@ Future<void> main() async {
   auth.api = AuthApi(api);
   await auth.load();
 
-  // 6. StreamClient lands with its task. ImageLoader caches files in
-  // `<app cache>/images`; the wallpaper palette loads here so the first frame
-  // can use it.
+  // 6. StreamClient shares ApiClient's headers and AuthService's refresh.
+  // ImageLoader caches files in `<app cache>/images`; the wallpaper palette
+  // loads here so the first frame can use it.
+  final streamClient = StreamClient(api: api, auth: auth, log: log);
   final cacheDir = await getApplicationCacheDirectory();
   final imageLoader = ImageLoader(
     api,
@@ -75,6 +77,7 @@ Future<void> main() async {
         cacheDbProvider.overrideWithValue(cacheDb),
         authServiceProvider.overrideWith((ref) => auth),
         apiClientProvider.overrideWithValue(api),
+        streamClientProvider.overrideWithValue(streamClient),
         imageLoaderProvider.overrideWithValue(imageLoader),
         wallpaperSchemesProvider.overrideWithValue(wallpaperSchemes),
       ],
