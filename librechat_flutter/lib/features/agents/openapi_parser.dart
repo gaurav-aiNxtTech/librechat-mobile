@@ -126,21 +126,30 @@ OpenApiParseResult parseOpenApiSpec(String text) {
 
   Object? decoded;
   try {
-    decoded = jsonDecode(text);
-  } on FormatException {
     try {
-      decoded = loadYaml(text);
-    } on YamlException catch (e) {
-      // Only `message`: `toString()` quotes the spec text.
-      final start = e.span?.start;
-      final at = start == null
-          ? ''
-          : ' (line ${start.line + 1}, column ${start.column + 1})';
-      return failed(OpenApiErrors.unparsable('${e.message}$at'));
+      decoded = jsonDecode(text);
+    } on FormatException {
+      try {
+        decoded = loadYaml(text);
+      } on YamlException catch (e) {
+        // Only `message`: `toString()` quotes the spec text.
+        final start = e.span?.start;
+        final at = start == null
+            ? ''
+            : ' (line ${start.line + 1}, column ${start.column + 1})';
+        return failed(OpenApiErrors.unparsable('${e.message}$at'));
+      }
     }
+  } on StackOverflowError {
+    return failed(OpenApiErrors.unparsable(_tooDeep));
   }
 
-  final plain = _plain(decoded);
+  final Object? plain;
+  try {
+    plain = _plain(decoded);
+  } on _TooLarge catch (e) {
+    return failed(OpenApiErrors.unparsable(e.reason));
+  }
   final Map<String, Object?> root;
   switch (plain) {
     case null:
@@ -333,15 +342,49 @@ String _trimUnderscores(String text) => text.replaceAll(RegExp(r'^_+|_+$'), '');
 String? _nonBlank(Object? value) =>
     value is String && value.trim().isNotEmpty ? value : null;
 
+/// The most values [_plain] produces. A YAML alias is copied each time it is
+/// used, so a few lines of aliases (a "billion laughs" spec) could otherwise
+/// expand without bound.
+const _maxNodes = 100000;
+
+/// The deepest nesting [_plain] follows, well past any real spec.
+const _maxDepth = 256;
+
+const _tooDeep = 'The specification is nested too deeply.';
+
+/// A spec past [_maxNodes] or [_maxDepth]; [reason] is user-facing.
+final class _TooLarge implements Exception {
+  const _TooLarge(this.reason);
+
+  final String reason;
+}
+
 /// Turns decoded JSON or YAML into plain Dart values: maps get `String` keys
 /// (YAML keys such as `200` become `"200"`), lists become `List<Object?>`.
-Object? _plain(Object? value) => switch (value) {
-  Map() => <String, Object?>{
-    for (final MapEntry(:key, :value) in value.entries) '$key': _plain(value),
-  },
-  List() => <Object?>[for (final item in value) _plain(item)],
-  _ => value,
-};
+/// Throws [_TooLarge] past [_maxNodes] values or [_maxDepth] levels.
+Object? _plain(Object? value) {
+  var nodes = 0;
+  Object? convert(Object? value, int depth) {
+    if (++nodes > _maxNodes) {
+      throw const _TooLarge(
+        'The specification expands to more than $_maxNodes values.',
+      );
+    }
+    if (depth > _maxDepth) throw const _TooLarge(_tooDeep);
+    return switch (value) {
+      Map() => <String, Object?>{
+        for (final MapEntry(:key, :value) in value.entries)
+          // A collection key is converted too, so its text stays bounded.
+          '${key is Map || key is List ? convert(key, depth + 1) : key}':
+              convert(value, depth + 1),
+      },
+      List() => <Object?>[for (final item in value) convert(item, depth + 1)],
+      _ => value,
+    };
+  }
+
+  return convert(value, 0);
+}
 
 String _kind(Object value) => switch (value) {
   List() => 'a list',

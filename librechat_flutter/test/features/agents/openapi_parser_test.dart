@@ -201,6 +201,41 @@ void main() {
         expect(() => parseOpenApiSpec(text), returnsNormally, reason: text);
       }
     });
+
+    test('a YAML alias bomb fails fast with the parse error', () {
+      // Nine levels of ten aliases each would expand to 10^9 values.
+      final lines = ['l0: &l0 [x, x, x, x, x, x, x, x, x, x]'];
+      for (var i = 1; i <= 9; i++) {
+        lines.add('l$i: &l$i [${List.filled(10, '*l${i - 1}').join(', ')}]');
+      }
+      final text = 'openapi: 3.0.0\n${lines.join('\n')}\n';
+      final watch = Stopwatch()..start();
+      late OpenApiParseResult result;
+      expect(() => result = parseOpenApiSpec(text), returnsNormally);
+      expect(watch.elapsed, lessThan(const Duration(milliseconds: 500)));
+      _expectErrors(result, [
+        '${_parseError}The specification expands to more than '
+            '100000 values.',
+      ]);
+    });
+
+    test('10 000-deep nesting fails with the parse error', () {
+      const depth = 10000;
+      for (final text in [
+        '${'[' * depth}${']' * depth}',
+        '${'{a: ' * depth}x${'}' * depth}',
+      ]) {
+        late OpenApiParseResult result;
+        expect(
+          () => result = parseOpenApiSpec(text),
+          returnsNormally,
+          reason: text.substring(0, 8),
+        );
+        _expectErrors(result, [
+          '${_parseError}The specification is nested too deeply.',
+        ]);
+      }
+    });
   });
 
   group('domain', () {
