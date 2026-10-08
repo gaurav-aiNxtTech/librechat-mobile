@@ -1,7 +1,8 @@
 /// The WebView_Host (Req 2.7, 24.6, 24.8–24.11, 24.15, design "Artifacts and
 /// Mermaid"): the HTML documents that preview Mermaid, HTML, SVG and React
 /// artifacts, ported from KMP `MermaidWebContent` and `ArtifactWebContent`,
-/// and the pure Host-message and navigation rules the WebContentView applies.
+/// the pure Host-message and navigation rules, and the [WebContentView]
+/// that applies them.
 ///
 /// Every document loads only the bundled `assets/web/` copies, relative to
 /// [webAssetBaseUrl], under a CSP that allows no remote script origin.
@@ -9,9 +10,13 @@
 /// backticks and `${…}` in model output need no escaping.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import 'artifact_parser.dart';
 
@@ -666,4 +671,115 @@ WebNavigationAction webNavigationAction(
     return WebNavigationAction.openExternally;
   }
   return WebNavigationAction.block;
+}
+
+/// A WebView showing one preview document (Req 2.7, 24.8–24.10, design
+/// "WebContentView").
+///
+/// [html] loads with [webAssetBaseUrl] as its base, so it reads the bundled
+/// assets; file and content access are off, so it reads nothing else. No
+/// headers or cookies are set, so the page never receives tokens,
+/// Custom_Headers or App cookies. The one `Host` channel passes only
+/// `{height}` to [onHeight] and `{error}` to [onError] (see
+/// [parseHostMessage]); a main-frame load error goes to [onError] too.
+/// Navigation follows [webNavigationAction]: web links open in the external
+/// browser and everything else is blocked.
+class WebContentView extends StatefulWidget {
+  const WebContentView(this.html, {super.key, this.onHeight, this.onError});
+
+  final String html;
+  final ValueChanged<double>? onHeight;
+  final ValueChanged<String>? onError;
+
+  @override
+  State<WebContentView> createState() => _WebContentViewState();
+}
+
+class _WebContentViewState extends State<WebContentView> {
+  late final WebViewController _controller;
+
+  /// Completes once the controller is configured and the first load starts.
+  late final Future<void> _configured;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController();
+    _configured = _configure();
+    unawaited(_configured);
+  }
+
+  /// Configures the WebView before the first load, so the first document
+  /// already runs with file access off and navigation guarded.
+  Future<void> _configure() async {
+    await _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+    await _controller.setBackgroundColor(Colors.transparent);
+    // Android allows file access by default below API 30 (minSdk is 26).
+    // `file:///android_asset/` stays readable with it off.
+    if (_controller.platform case final AndroidWebViewController android) {
+      await android.setAllowFileAccess(false);
+      await android.setAllowContentAccess(false);
+    }
+    await _controller.addJavaScriptChannel(
+      'Host',
+      onMessageReceived: (message) {
+        if (!mounted) return;
+        switch (parseHostMessage(message.message)) {
+          case HostHeight(:final height):
+            widget.onHeight?.call(height);
+          case HostError(:final message):
+            widget.onError?.call(message);
+          case null:
+            break;
+        }
+      },
+    );
+    await _controller.setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (request) {
+          switch (webNavigationAction(
+            request.url,
+            isMainFrame: request.isMainFrame,
+          )) {
+            case WebNavigationAction.allow:
+              return NavigationDecision.navigate;
+            case WebNavigationAction.openExternally:
+              unawaited(_openExternally(Uri.parse(request.url)));
+              return NavigationDecision.prevent;
+            case WebNavigationAction.block:
+              return NavigationDecision.prevent;
+          }
+        },
+        onWebResourceError: (error) {
+          if (mounted && (error.isForMainFrame ?? false)) {
+            widget.onError?.call(error.description);
+          }
+        },
+      ),
+    );
+    if (mounted) await _load();
+  }
+
+  Future<void> _load() =>
+      _controller.loadHtmlString(widget.html, baseUrl: webAssetBaseUrl);
+
+  /// Opens [uri] in the external browser. A device without one ignores it.
+  Future<void> _openExternally(Uri uri) async {
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Exception {
+      // No app handles the link; the page stays as it is.
+    }
+  }
+
+  @override
+  void didUpdateWidget(WebContentView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.html != oldWidget.html) {
+      unawaited(_configured.then((_) => mounted ? _load() : null));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => WebViewWidget(controller: _controller);
 }
