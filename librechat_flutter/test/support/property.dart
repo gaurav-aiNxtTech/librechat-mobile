@@ -10,8 +10,13 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:librechat_flutter/core/models/attachment.dart';
+import 'package:librechat_flutter/core/models/content_part.dart';
+import 'package:librechat_flutter/core/models/conversation.dart';
+import 'package:librechat_flutter/core/models/message.dart';
 
 /// The seed from `--dart-define=PROPERTY_SEED`, or a random one when unset.
 final int propertySeed = const bool.hasEnvironment('PROPERTY_SEED')
@@ -165,3 +170,346 @@ int _below(Random r, int bound) {
   final wide = (r.nextInt(1 << 32) << 32) | r.nextInt(1 << 32);
   return wide.abs() % bound;
 }
+
+// Model generators
+//
+// The Message, Conversation and Attachment generators feed Property 1 (model
+// JSON round trip) and Property 6 (conversation export round trip).
+//
+// What the generators leave out on purpose, because the wire normalizes it:
+// - ContentPart `text` is always a plain string. FlexibleTextConverter reads
+//   the `{value, annotations}` object form but always writes a string, so an
+//   object can't come back as itself (models_test.dart covers that read).
+// - Every DateTime is UTC. UtcDateTimeConverter decodes to UTC, so a local
+//   time would come back as the same instant with `isUtc` flipped, which
+//   DateTime `==` treats as different.
+// - FeedbackRating.unknown is the decode fallback for a rating the App
+//   doesn't know, not a value it sends, so it is never generated.
+// - Doubles are finite: jsonEncode rejects NaN and the infinities.
+// - Typed `double?` fields only get doubles and typed `int?` fields only get
+//   ints. Inside `Object?` and raw maps and lists, ints stay ints and doubles
+//   stay doubles, because the VM's jsonEncode writes a double with a `.` or an
+//   exponent, so jsonDecode reads it back as a double.
+
+/// Short identifier-like strings, never empty.
+final Gen<String> idGen = stringOf('$alphanumeric-_', min: 1, max: 24);
+
+/// Unicode text: plain words, printable ASCII, whitespace, quotes, escapes,
+/// non-Latin letters, an emoji outside the BMP and a zero-width joiner.
+final Gen<String> textGen = frequency([
+  (2, stringOf('$alphanumeric ', max: 16)),
+  (3, stringOf('$asciiPrintable$tricky', max: 24)),
+  (1, constant('')),
+]);
+
+/// Ints across the range a JSON number carries exactly in JavaScript too.
+final Gen<int> intGen = oneOf([
+  intRange(-1000, 1000),
+  intRange(0, 1 << 31),
+  intRange(-(1 << 53), 1 << 53),
+]);
+
+/// A finite double from a random bit pattern, subnormals included.
+final Gen<double> _bitsDouble = Gen((r) {
+  final bytes = ByteData(8)
+    ..setUint32(0, r.nextInt(1 << 32))
+    ..setUint32(4, r.nextInt(1 << 32));
+  return bytes.getFloat64(0);
+}).where((d) => d.isFinite);
+
+/// Finite doubles: fractions, integral values, edge values and random bits.
+final Gen<double> doubleGen = oneOf([
+  Gen((r) => r.nextDouble()),
+  Gen((r) => (r.nextDouble() - 0.5) * 4000),
+  intRange(-1000, 1000).map((n) => n.toDouble()),
+  elementOf(const [
+    0.0,
+    -0.0,
+    0.1,
+    1e21,
+    1e-7,
+    double.minPositive,
+    double.maxFinite,
+    -double.maxFinite,
+  ]),
+  _bitsDouble,
+]);
+
+/// A UTC time at millisecond precision, from year 1 to year 9999.
+final Gen<DateTime> utcTimeGen = intRange(
+  DateTime.utc(1).millisecondsSinceEpoch,
+  DateTime.utc(9999, 12, 31, 23, 59, 59, 999).millisecondsSinceEpoch,
+).map((ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true));
+
+/// A JSON scalar: null, a bool, an int, a double or a string.
+final Gen<Object?> jsonScalarGen = oneOf<Object?>([
+  constant(null),
+  boolean,
+  intGen,
+  doubleGen,
+  textGen,
+]);
+
+/// A raw JSON value nested up to [depth] levels of lists and maps.
+Gen<Object?> jsonValueGen(int depth) => depth <= 0
+    ? jsonScalarGen
+    : frequency<Object?>([
+        (3, jsonScalarGen),
+        (1, jsonListGen(depth - 1)),
+        (1, jsonMapGen(depth - 1)),
+      ]);
+
+/// A raw JSON list whose items nest up to [depth] more levels.
+Gen<List<Object?>> jsonListGen(int depth) =>
+    listOf(jsonValueGen(depth), max: 4);
+
+/// A raw JSON object whose values nest up to [depth] more levels.
+Gen<Map<String, Object?>> jsonMapGen(int depth) => listOf(
+  zip2(textGen, jsonValueGen(depth)),
+  max: 4,
+).map((entries) => {for (final (key, value) in entries) key: value});
+
+/// Raw pass-through fields: objects and values nested up to 3 deep.
+final Gen<Map<String, Object?>> rawMapGen = jsonMapGen(2);
+final Gen<Object?> rawValueGen = jsonValueGen(3);
+
+final Gen<List<String>> stringListGen = listOf(textGen, max: 4);
+
+/// Each optional field is null about half the time.
+Gen<T?> opt<T>(Gen<T> gen) => nullable(gen, oneIn: 2);
+
+/// Every known ContentPart type, plus unknown ones that must still decode.
+final Gen<String> partTypeGen = frequency([
+  (
+    6,
+    elementOf(const [
+      ContentPartType.text,
+      ContentPartType.textDelta,
+      ContentPartType.think,
+      ContentPartType.toolCall,
+      ContentPartType.imageUrl,
+      ContentPartType.imageFile,
+      ContentPartType.videoUrl,
+      ContentPartType.inputAudio,
+      ContentPartType.error,
+      ContentPartType.agentUpdate,
+      ContentPartType.summary,
+      ContentPartType.steer,
+      ContentPartType.activityLabel,
+    ]),
+  ),
+  (1, stringOf('${lowercase}_', min: 1, max: 14)),
+]);
+
+/// `args` is a map mid-stream, a JSON string once saved, or anything else.
+final Gen<Object?> toolArgsGen = oneOf<Object?>([
+  rawMapGen,
+  rawMapGen.map(jsonEncode),
+  rawValueGen,
+]);
+
+final Gen<ToolCall> toolCallGen = Gen(
+  (r) => ToolCall(
+    id: opt(idGen)(r),
+    name: opt(idGen)(r),
+    type: opt(elementOf(const ['tool_call', 'function', 'code_interpreter']))(
+      r,
+    ),
+    args: opt(toolArgsGen)(r),
+    output: opt(textGen)(r),
+    progress: opt(doubleGen)(r),
+  ),
+);
+
+/// A part of any type with every optional field independently set or null.
+/// A `tool_call` part always carries its tool call.
+final Gen<ContentPart> contentPartGen = Gen((r) {
+  final type = partTypeGen(r);
+  return ContentPart(
+    type: type,
+    text: opt(textGen)(r),
+    think: opt(textGen)(r),
+    toolCallIds: opt(listOf(idGen, max: 3))(r),
+    toolCall: type == ContentPartType.toolCall
+        ? toolCallGen(r)
+        : opt(toolCallGen)(r),
+    imageUrl: opt(oneOf<Object?>([textGen, rawMapGen]))(r),
+    imageFile: opt(rawMapGen)(r),
+    videoUrl: opt(oneOf<Object?>([textGen, rawMapGen]))(r),
+    inputAudio: opt(rawMapGen)(r),
+    error: opt(textGen)(r),
+    agentUpdate: opt(rawMapGen)(r),
+    steer: opt(rawMapGen)(r),
+    activityLabel: opt(textGen)(r),
+    activityLabelType: opt(idGen)(r),
+    activityEndIndex: opt(intGen)(r),
+    status: opt(elementOf(const ['failed', 'partial']))(r),
+    content: opt(rawValueGen)(r),
+    agentId: opt(idGen)(r),
+    groupId: opt(intGen)(r),
+    stepIndex: opt(intGen)(r),
+  );
+});
+
+final Gen<Attachment> attachmentGen = Gen(
+  (r) => Attachment(
+    fileId: opt(idGen)(r),
+    filename: opt(textGen)(r),
+    filepath: opt(textGen)(r),
+    type: opt(elementOf(const ['image/png', 'application/pdf', 'text/plain']))(
+      r,
+    ),
+    bytes: opt(intGen)(r),
+    width: opt(intGen)(r),
+    height: opt(intGen)(r),
+    messageId: opt(idGen)(r),
+    toolCallId: opt(idGen)(r),
+    status: opt(idGen)(r),
+    previewError: opt(textGen)(r),
+    webSearch: opt(rawMapGen)(r),
+    fileSearch: opt(rawMapGen)(r),
+    memory: opt(rawMapGen)(r),
+  ),
+);
+
+final Gen<MessageFeedback> feedbackGen = Gen(
+  (r) => MessageFeedback(
+    rating: opt(
+      elementOf(const [FeedbackRating.thumbsUp, FeedbackRating.thumbsDown]),
+    )(r),
+    tag: opt(rawValueGen)(r),
+    text: opt(textGen)(r),
+  ),
+);
+
+/// A Message with 0–6 ContentParts.
+final Gen<Message> messageGen = Gen(
+  (r) => Message(
+    messageId: idGen(r),
+    conversationId: idGen(r),
+    parentMessageId: opt(idGen)(r),
+    sender: opt(textGen)(r),
+    text: textGen(r),
+    isCreatedByUser: boolean(r),
+    endpoint: opt(idGen)(r),
+    model: opt(idGen)(r),
+    error: boolean(r),
+    unfinished: boolean(r),
+    content: opt(listOf(contentPartGen, max: 6))(r),
+    files: opt(listOf(attachmentGen, max: 3))(r),
+    attachments: opt(listOf(attachmentGen, max: 3))(r),
+    feedback: opt(feedbackGen)(r),
+    quotes: opt(stringListGen)(r),
+    createdAt: opt(utcTimeGen)(r),
+    updatedAt: opt(utcTimeGen)(r),
+  ),
+);
+
+final Gen<Conversation> conversationGen = Gen(
+  (r) => Conversation(
+    conversationId: opt(idGen)(r),
+    title: opt(textGen)(r),
+    endpoint: opt(idGen)(r),
+    endpointType: opt(idGen)(r),
+    model: opt(idGen)(r),
+    agentId: opt(idGen)(r),
+    spec: opt(idGen)(r),
+    iconURL: opt(textGen)(r),
+    tags: opt(stringListGen)(r),
+    isArchived: boolean(r),
+    pinned: opt(boolean)(r),
+    chatProjectId: opt(idGen)(r),
+    isTemporary: opt(boolean)(r),
+    temperature: opt(doubleGen)(r),
+    topP: opt(doubleGen)(r),
+    topK: opt(intGen)(r),
+    frequencyPenalty: opt(doubleGen)(r),
+    presencePenalty: opt(doubleGen)(r),
+    maxOutputTokens: opt(intGen)(r),
+    maxContextTokens: opt(intGen)(r),
+    maxTokens: opt(intGen)(r),
+    system: opt(textGen)(r),
+    promptPrefix: opt(textGen)(r),
+    modelLabel: opt(textGen)(r),
+    reasoningEffort: opt(idGen)(r),
+    reasoningMode: opt(idGen)(r),
+    reasoningContext: opt(idGen)(r),
+    effort: opt(idGen)(r),
+    thinkingLevel: opt(idGen)(r),
+    thinkingDisplay: opt(idGen)(r),
+    stop: opt(stringListGen)(r),
+    webSearch: opt(boolean)(r),
+    urlContext: opt(boolean)(r),
+    promptCacheTtl: opt(idGen)(r),
+    createdAt: opt(utcTimeGen)(r),
+    updatedAt: opt(utcTimeGen)(r),
+  ),
+);
+
+// Date group generators (Property 5)
+
+/// A local time from 2020 to 2030 that one time in three is a local
+/// midnight plus 0-120 s.
+final Gen<DateTime> groupingNowGen = Gen((r) {
+  final any = DateTime.fromMillisecondsSinceEpoch(
+    intRange(
+      DateTime(2020).millisecondsSinceEpoch,
+      DateTime(2030).millisecondsSinceEpoch,
+    )(r),
+  );
+  if (r.nextInt(3) != 0) return any;
+  return DateTime(
+    any.year,
+    any.month,
+    any.day,
+  ).add(Duration(seconds: intRange(0, 120)(r)));
+});
+
+/// A UTC `updatedAt` from two years before to one day after [now], weighted
+/// toward local midnights and local month starts (each plus or minus a few
+/// seconds).
+Gen<DateTime> groupingTimeGen(DateTime now) {
+  final jitter = intRange(-5, 5).map((s) => Duration(seconds: s));
+  final start = now.subtract(const Duration(days: 730));
+  return frequency([
+    (
+      2,
+      intRange(
+        start.millisecondsSinceEpoch,
+        now.add(const Duration(days: 1)).millisecondsSinceEpoch,
+      ).map((ms) => DateTime.fromMillisecondsSinceEpoch(ms)),
+    ),
+    (
+      2,
+      Gen(
+        (r) => DateTime(
+          now.year,
+          now.month,
+          now.day - intRange(-1, 730)(r),
+        ).add(jitter(r)),
+      ),
+    ),
+    (
+      1,
+      Gen(
+        (r) =>
+            DateTime(now.year, now.month - intRange(0, 24)(r)).add(jitter(r)),
+      ),
+    ),
+  ]).map((t) => t.toUtc());
+}
+
+/// Property 5's case: a `now` and 0-60 conversations `c0..cN` in random
+/// order, `updatedAt` from [groupingTimeGen] and null about one time in six.
+final Gen<({DateTime now, List<Conversation> conversations})> groupingCaseGen =
+    groupingNowGen.flatMap(
+      (now) => listOf(nullable(groupingTimeGen(now), oneIn: 6), max: 60).map(
+        (times) => (
+          now: now,
+          conversations: [
+            for (var i = 0; i < times.length; i++)
+              Conversation(conversationId: 'c$i', updatedAt: times[i]),
+          ],
+        ),
+      ),
+    );
