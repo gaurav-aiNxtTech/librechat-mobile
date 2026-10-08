@@ -14,6 +14,7 @@ import '../models/startup_config.dart';
 import '../network/api_client.dart';
 import '../network/app_exception.dart';
 import '../storage/cache_db.dart';
+import 'server_version.dart';
 
 /// What the App knows about the Server: the Server_Config, the endpoint
 /// list, the models per endpoint and the user's Role_Permissions.
@@ -21,6 +22,7 @@ import '../storage/cache_db.dart';
 /// While signed out only [config] is loaded, so [endpoints] and [models] are
 /// empty and [role] is null. [refreshError] is the last fetch's failure while
 /// cached data stays on screen (Req 6.2, 45.3), or null after a clean fetch.
+/// [version] is the Server_Version read from [config].
 @immutable
 class ServerInfo {
   const ServerInfo({
@@ -39,6 +41,9 @@ class ServerInfo {
   /// granted.
   final RolePermissions? role;
   final AppException? refreshError;
+
+  /// The Server_Version, or null while it is unknown (Req 6.6).
+  Version? get version => serverVersionOf(config);
 }
 
 /// Fetches the Server's configuration and keeps the last copy in the
