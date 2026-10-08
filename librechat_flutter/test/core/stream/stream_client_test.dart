@@ -246,6 +246,65 @@ void main() {
     expect(server.requests, hasLength(4));
   });
 
+  test('a frame that fails to decode is skipped and the stream goes '
+      'on', () async {
+    server.on(
+      'GET',
+      path,
+      respondChunks([
+        text('a'),
+        // 1e400 decodes to Infinity, which TokenUsage cannot hold.
+        formatSse([
+          const SseEvent(
+            data: '{"event":"on_token_usage","data":{"input_tokens":1e400}}',
+          ),
+        ]),
+        text('b'),
+        finalFrame,
+      ]),
+    );
+
+    expect(await open(), [
+      const TextDelta('a'),
+      const TextDelta('b'),
+      finalEvent,
+    ]);
+    expect(server.requests, hasLength(1));
+    expect(waits, isEmpty);
+  });
+
+  test('logs one attempt line per request, without the URL or stream '
+      'id', () async {
+    server
+      ..enqueue('GET', path, respond(status: 500))
+      ..enqueue('GET', path, respond(status: 401))
+      ..on('GET', path, respondChunks([finalFrame]))
+      ..on(
+        'POST',
+        '/api/auth/refresh',
+        respondJson({'token': 'access-2', 'user': user}),
+      );
+
+    expect(await open(), [const StreamReconnecting(1), finalEvent]);
+
+    final lines = (await log.file())
+        .readAsLinesSync()
+        .where((l) => l.contains(' stream attempt '))
+        .toList();
+    expect(lines, hasLength(3));
+    for (final (line, attrs) in [
+      (lines[0], 'attempt=0 status=500 outcome=status'),
+      (lines[1], 'attempt=1 status=401 outcome=refreshed'),
+      (lines[2], 'attempt=1 status=200 outcome=final'),
+    ]) {
+      expect(line, endsWith(' $attrs'));
+      expect(line, isNot(contains('s1')));
+      expect(line, isNot(contains('/api/')));
+      expect(line, isNot(contains(server.uri.host)));
+      expect(line, isNot(contains('${server.uri.port}')));
+    }
+  });
+
   test('a 404 yields StreamExpired without retrying (Req 19.5)', () async {
     server.on('GET', path, respond(status: 404));
 
@@ -261,6 +320,27 @@ void main() {
         'bearer', () async {
       server
         ..enqueue('GET', path, respond(status: 401))
+        ..on('GET', path, respondChunks([finalFrame]))
+        ..on('POST', '/api/auth/refresh', refreshOk());
+
+      expect(await open(), [finalEvent]);
+
+      expect(server.requestsTo('/api/auth/refresh'), hasLength(1));
+      final [first, retry] = server.requestsTo(path);
+      expect(first.header('authorization'), 'Bearer access-1');
+      expect(retry.header('authorization'), 'Bearer access-2');
+      expect(resumeOf(retry), isNull);
+      expect(waits, isEmpty);
+    });
+
+    test('a token another refresh already replaced is retried without '
+        'refreshing again', () async {
+      server
+        ..enqueue('GET', path, (request, response) async {
+          // Another request refreshes while this one is in flight.
+          await auth.refresh();
+          await respond(status: 401)(request, response);
+        })
         ..on('GET', path, respondChunks([finalFrame]))
         ..on('POST', '/api/auth/refresh', refreshOk());
 

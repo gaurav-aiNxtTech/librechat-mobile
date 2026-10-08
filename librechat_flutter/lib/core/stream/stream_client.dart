@@ -124,6 +124,8 @@ class StreamClient {
         while (retrySameAttempt && !cancel.isCompleted) {
           retrySameAttempt = false;
           final sentToken = _auth.session?.accessToken;
+          // Logged as sent: a parsed event resets [attempt] mid-request.
+          final sentAttempt = attempt;
           int? status;
           var outcome = 'cancelled';
           try {
@@ -213,7 +215,7 @@ class StreamClient {
           } finally {
             // One line per request; never the URL, which names the stream.
             _log.info('stream', 'attempt', {
-              'attempt': attempt,
+              'attempt': sentAttempt,
               'status': status,
               'outcome': cancel.isCompleted ? 'cancelled' : outcome,
             });
