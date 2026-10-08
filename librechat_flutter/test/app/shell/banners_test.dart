@@ -19,6 +19,8 @@ import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/ui/theme/app_theme.dart';
+import 'package:librechat_flutter/features/conversations/conversations_api.dart';
+import 'package:librechat_flutter/features/conversations/conversations_repository.dart';
 
 import '../../support/fakes.dart';
 
@@ -73,6 +75,10 @@ void main() {
         ),
         onlineProvider.overrideWith((ref) => Stream.value(online)),
         bannerProvider.overrideWith((ref) async => banner),
+        conversationsRepositoryProvider.overrideWithValue(
+          FakeConversationsRepository(),
+        ),
+        conversationsApiProvider.overrideWithValue(FakeConversationsApi()),
       ],
     );
     addTearDown(container.dispose);

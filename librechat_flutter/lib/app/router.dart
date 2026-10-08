@@ -12,6 +12,7 @@ import '../features/auth/terms_screen.dart';
 import '../features/auth/two_factor_screen.dart';
 import '../features/auth/verify_email_screen.dart';
 import '../features/chat/chat_screen.dart';
+import '../features/conversations/archived_screen.dart';
 import '../features/settings/general_settings_screen.dart';
 import 'routes.dart';
 import 'shell/app_shell.dart';
@@ -140,6 +141,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.newChat,
             builder: (context, state) => const ChatScreen(),
+          ),
+          // Stand-in until Task 11.4 lands the conversation view: rows,
+          // duplicates and archived rows already go to Routes.chat(id), and
+          // Task 11.4 replaces this redirect with the ChatScreen builder.
+          GoRoute(
+            path: '/chat/c/:conversationId',
+            redirect: (_, _) => Routes.newChat,
+          ),
+          GoRoute(
+            path: Routes.archivedConversations,
+            builder: (context, state) => const ArchivedScreen(),
           ),
           GoRoute(
             path: Routes.settingsGeneral,

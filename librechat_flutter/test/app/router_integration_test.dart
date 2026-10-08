@@ -17,6 +17,9 @@ import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/ui/theme/app_theme.dart';
+import 'package:librechat_flutter/features/conversations/archived_screen.dart';
+import 'package:librechat_flutter/features/conversations/conversations_api.dart';
+import 'package:librechat_flutter/features/conversations/conversations_repository.dart';
 
 import '../support/fakes.dart';
 
@@ -51,6 +54,10 @@ void main() {
         ),
         onlineProvider.overrideWith((ref) => Stream.value(true)),
         bannerProvider.overrideWith((ref) async => null),
+        conversationsRepositoryProvider.overrideWithValue(
+          FakeConversationsRepository(),
+        ),
+        conversationsApiProvider.overrideWithValue(FakeConversationsApi()),
       ],
     );
     addTearDown(container.dispose);
@@ -85,6 +92,38 @@ void main() {
     final router = await pump(tester);
     expect(location(router).path, Routes.newChat);
     expect(find.byType(AppShell), findsOneWidget);
+    expect(find.byType(ChatScreen), findsOneWidget);
+  });
+
+  testWidgets('/conversations/archived renders inside the AppShell with its '
+      'drawer entry selected', (tester) async {
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(800, 800);
+    addTearDown(tester.view.reset);
+    auth.emit(serverUrl: server, session: session);
+    final router = await pump(tester);
+    await tester.tap(find.text('Archived Conversations'));
+    await tester.pumpAndSettle();
+
+    expect(location(router).path, Routes.archivedConversations);
+    expect(find.byType(AppShell), findsOneWidget);
+    expect(find.byType(ArchivedScreen), findsOneWidget);
+    expect(find.text('No archived conversations'), findsOneWidget);
+    final entry = tester.widget<ListTile>(
+      find.widgetWithText(ListTile, 'Archived Conversations'),
+    );
+    expect(entry.selected, isTrue);
+  });
+
+  testWidgets('/chat/c/<id> lands on /chat until Task 11.4 (stand-in)', (
+    tester,
+  ) async {
+    auth.emit(serverUrl: server, session: session);
+    final router = await pump(tester);
+    router.go(Routes.chat('x'));
+    await tester.pumpAndSettle();
+    expect(location(router).path, Routes.newChat);
     expect(find.byType(ChatScreen), findsOneWidget);
   });
 

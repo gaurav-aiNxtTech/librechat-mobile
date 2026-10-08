@@ -21,12 +21,16 @@ import 'package:librechat_flutter/core/auth/auth_api.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
+import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/tag.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 import 'package:librechat_flutter/core/storage/cache_db.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
+import 'package:librechat_flutter/core/ui/platform_actions.dart';
+import 'package:librechat_flutter/features/chat/data/messages_api.dart';
 import 'package:librechat_flutter/features/conversations/conversations_api.dart';
+import 'package:librechat_flutter/features/conversations/conversations_repository.dart';
 
 /// Records [probe] and [save] calls. [probe] answers with [probeResult], or
 /// throws [probeError], after [probeGate] completes when one is set. Other
@@ -410,4 +414,193 @@ class FakeConversationsApi implements ConversationsApi {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// A [ConversationsRepository] over an in-memory Cache, for widget tests
+/// (drift's stream timers leak in `testWidgets`).
+///
+/// [watchList] streams [rows] (the cached list, already in display order)
+/// and every [emit]. Each call is recorded in [calls] as `(method, args)`;
+/// a method throws `errors[method]`, else [error], after [gate] completes
+/// when one is set. [refresh] answers [refreshCursor] and, when
+/// [refreshRows] is set, emits it; [loadMore] answers [loadMoreCursors] in
+/// order, then null. Mutations apply to [rows] the way the real Cache
+/// write would. [api] is a [FakeConversationsApi].
+class FakeConversationsRepository implements ConversationsRepository {
+  FakeConversationsRepository({List<Conversation> rows = const []})
+    : rows = [...rows];
+
+  List<Conversation> rows;
+  final fakeApi = FakeConversationsApi();
+  final calls = <(String, List<Object?>)>[];
+  final errors = <String, Object>{};
+  Object? error;
+  Completer<void>? gate;
+  String? refreshCursor;
+  List<Conversation>? refreshRows;
+  final loadMoreCursors = <String?>[];
+  String? importCursor;
+  Conversation duplicateReply = const Conversation(conversationId: 'copy');
+  final _changes = StreamController<List<Conversation>>.broadcast();
+
+  @override
+  ConversationsApi get api => fakeApi;
+
+  /// The calls to [method], as their args.
+  List<List<Object?>> callsTo(String method) => [
+    for (final (m, args) in calls)
+      if (m == method) args,
+  ];
+
+  /// Replaces the cached rows and notifies [watchList].
+  void emit(List<Conversation> next) {
+    rows = [...next];
+    _changes.add(rows);
+  }
+
+  Future<T> _answer<T>(
+    String method,
+    List<Object?> args,
+    T Function() reply,
+  ) async {
+    calls.add((method, args));
+    await gate?.future;
+    if (errors[method] ?? error case final error?) throw error;
+    return reply();
+  }
+
+  void _replace(Conversation next) => emit([
+    for (final c in rows) c.conversationId == next.conversationId ? next : c,
+  ]);
+
+  void _remove(String? id) => emit([
+    for (final c in rows)
+      if (c.conversationId != id) c,
+  ]);
+
+  @override
+  Stream<List<Conversation>> watchList() async* {
+    yield rows;
+    yield* _changes.stream;
+  }
+
+  @override
+  Future<String?> refresh() => _answer('refresh', const [], () {
+    if (refreshRows case final next?) emit(next);
+    return refreshCursor;
+  });
+
+  @override
+  Future<String?> loadMore(String cursor) => _answer('loadMore', [
+    cursor,
+  ], () => loadMoreCursors.isEmpty ? null : loadMoreCursors.removeAt(0));
+
+  @override
+  Future<void> upsert(Conversation conversation) =>
+      _answer('upsert', [conversation], () => _replace(conversation));
+
+  @override
+  Future<Conversation> rename(Conversation conversation, String title) =>
+      _answer('rename', [conversation, title], () {
+        final next = conversation.copyWith(title: title);
+        _replace(next);
+        return next;
+      });
+
+  @override
+  Future<Conversation> setArchived(Conversation conversation, bool archived) =>
+      _answer('setArchived', [conversation, archived], () {
+        final next = conversation.copyWith(isArchived: archived);
+        if (archived) {
+          _remove(next.conversationId);
+        } else {
+          emit([next, ...rows]);
+        }
+        return next;
+      });
+
+  @override
+  Future<Conversation> setPinned(Conversation conversation, bool pinned) =>
+      _answer('setPinned', [conversation, pinned], () {
+        final next = conversation.copyWith(pinned: pinned);
+        _replace(next);
+        return next;
+      });
+
+  @override
+  Future<Conversation> setTags(Conversation conversation, List<String> tags) =>
+      _answer('setTags', [conversation, tags], () {
+        final next = conversation.copyWith(tags: tags);
+        _replace(next);
+        return next;
+      });
+
+  @override
+  Future<void> delete(String id) => _answer('delete', [id], () => _remove(id));
+
+  @override
+  Future<Conversation> duplicate(Conversation conversation) =>
+      _answer('duplicate', [conversation], () {
+        emit([duplicateReply, ...rows]);
+        return duplicateReply;
+      });
+
+  @override
+  Future<String?> importFile(Uint8List bytes, String fileName) =>
+      _answer('importFile', [bytes, fileName], () => importCursor);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Answers [list] from [messages] (empty for an unknown id), or throws
+/// [error]. Each requested id is recorded in [requests].
+class FakeMessagesApi implements MessagesApi {
+  final messages = <String, List<Message>>{};
+  final requests = <String>[];
+  Object? error;
+
+  @override
+  Future<List<Message>> list(String conversationId) async {
+    requests.add(conversationId);
+    if (error case final error?) throw error;
+    return messages[conversationId] ?? const [];
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Records saves, shares and copies. [saveFile] answers [saveResult]
+/// (false is a cancelled save); [pickJsonFile] answers [picked] (null is a
+/// cancelled pick) and counts in [picks].
+class FakePlatformActions implements PlatformActions {
+  final saves = <({String fileName, Uint8List bytes, String mimeType})>[];
+  final shares = <String>[];
+  final copies = <String>[];
+  bool saveResult = true;
+  PickedFile? picked;
+  int picks = 0;
+
+  @override
+  Future<bool> saveFile({
+    required String fileName,
+    required Uint8List bytes,
+    required String mimeType,
+  }) async {
+    saves.add((fileName: fileName, bytes: bytes, mimeType: mimeType));
+    return saveResult;
+  }
+
+  @override
+  Future<PickedFile?> pickJsonFile() async {
+    picks++;
+    return picked;
+  }
+
+  @override
+  Future<void> share(String text) async => shares.add(text);
+
+  @override
+  Future<void> copy(String text) async => copies.add(text);
 }

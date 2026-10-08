@@ -59,25 +59,25 @@ Every KMP_App screen and user-visible feature, with its status in the Flutter Ap
 
 | KMP screen or feature                | KMP source                                                                                                   | Status | Note            |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ------ | --------------- |
-| Conversation list                    | `feature/conversations/screen/ConversationListScreen.kt`                                                     | todo   | Req 15          |
-| Date groups                          | `feature/conversations/viewmodel/ConversationGrouping.kt`                                                    | todo   | Req 15.2–15.3   |
-| Pinned section                       | `feature/conversations/screen/ConversationListScreen.kt`                                                     | todo   | Req 15          |
-| Paging                               | `feature/conversations/viewmodel/ConversationListViewModel.kt`                                               | todo   | Req 15          |
-| Search                               | `feature/conversations/components/ConversationSearchBar.kt`                                                  | todo   | Req 15.7        |
-| Tag filter chips                     | `feature/conversations/components/TagFilterBar.kt`                                                           | todo   | Req 15          |
-| Pull to refresh                      | `feature/conversations/screen/ConversationListScreen.kt`                                                     | todo   | Req 15.10       |
-| Conversation rename                  | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16          |
-| Conversation delete                  | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16          |
-| Conversation archive                 | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16          |
-| Conversation pin                     | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16; v0.8.7  |
-| Conversation tags (bookmarks)        | `feature/conversations/components/TagPicker.kt`                                                              | todo   | Req 16          |
-| Conversation duplicate               | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16          |
-| Conversation share link              | `feature/conversations/components/ConversationActionsMenu.kt`                                                | todo   | Req 16          |
+| Conversation list                    | `feature/conversations/screen/ConversationListScreen.kt`                                                     | ported | Req 15          |
+| Date groups                          | `feature/conversations/viewmodel/ConversationGrouping.kt`                                                    | ported | Req 15.2–15.3   |
+| Pinned section                       | `feature/conversations/screen/ConversationListScreen.kt`                                                     | ported | Req 15          |
+| Paging                               | `feature/conversations/viewmodel/ConversationListViewModel.kt`                                               | ported | Req 15          |
+| Search                               | `feature/conversations/components/ConversationSearchBar.kt`                                                  | ported | Req 15.7        |
+| Tag filter chips                     | `feature/conversations/components/TagFilterBar.kt`                                                           | ported | Req 15          |
+| Pull to refresh                      | `feature/conversations/screen/ConversationListScreen.kt`                                                     | ported | Req 15.10       |
+| Conversation rename                  | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16          |
+| Conversation delete                  | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16          |
+| Conversation archive                 | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16          |
+| Conversation pin                     | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16; v0.8.7  |
+| Conversation tags (bookmarks)        | `feature/conversations/components/TagPicker.kt`                                                              | ported | Req 16          |
+| Conversation duplicate               | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16          |
+| Conversation share link              | `feature/conversations/components/ConversationActionsMenu.kt`                                                | ported | Req 16          |
 | Move to project                      | `feature/conversations/components/ProjectPicker.kt`                                                          | todo   | Req 36          |
-| Conversation export (JSON, Markdown) | `feature/conversations/export/ConversationExporter.kt`, `feature/conversations/export/ExportFormatPicker.kt` | todo   | Req 16.10–16.11 |
-| Conversation import                  | `feature/conversations/export/ConversationImporter.kt`                                                       | todo   | Req 16.12–16.13 |
-| Archived conversations screen        | `feature/conversations/screen/ArchivedConversationsScreen.kt`                                                | todo   | Req 16          |
-| Offline conversation list            | `core/data/db/LibreChatDatabase.kt`                                                                          | todo   | Req 45          |
+| Conversation export (JSON, Markdown) | `feature/conversations/export/ConversationExporter.kt`, `feature/conversations/export/ExportFormatPicker.kt` | ported | Req 16.10–16.11 |
+| Conversation import                  | `feature/conversations/export/ConversationImporter.kt`                                                       | ported | Req 16.12–16.13 |
+| Archived conversations screen        | `feature/conversations/screen/ArchivedConversationsScreen.kt`                                                | ported | Req 16          |
+| Offline conversation list            | `core/data/db/LibreChatDatabase.kt`                                                                          | ported | Req 45          |
 
 ## Chat
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/feature_gate.dart';
+import '../../features/conversations/conversation_list_screen.dart';
 import '../routes.dart';
 import 'shell_menu_button.dart';
 
@@ -20,6 +21,12 @@ class _Entry {
 /// Footer rows. Each feature screen adds its row (with its [Feature]) when it
 /// lands.
 const _footer = [
+  _Entry(
+    'Archived Conversations', // KMP feature/conversations archived_conversations
+    Icons.archive_outlined,
+    Routes.archivedConversations,
+    feature: null,
+  ),
   // Task 31 retargets this to Routes.settings when the settings list lands.
   _Entry(
     'Settings', // KMP feature/conversations settings
@@ -68,8 +75,7 @@ class ShellDrawer extends ConsumerWidget {
               onPressed: () => open(Routes.newChat),
             ),
           ),
-          // The Conversation_List lands here with Task 9.
-          const Spacer(),
+          Expanded(child: ConversationListScreen(onOpen: open)),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(12),
