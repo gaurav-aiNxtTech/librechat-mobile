@@ -412,6 +412,25 @@ void main() {
       );
     });
 
+    test('opens main-frame mailto: and tel: links externally', () {
+      for (final url in [
+        'mailto:someone@example.com',
+        'mailto:someone@example.com?subject=Hi',
+        'MAILTO:someone@example.com',
+        'tel:+15555550100',
+        'tel:555-0100',
+      ]) {
+        expect(mainFrame(url), WebNavigationAction.openExternally, reason: url);
+      }
+      for (final url in ['mailto:someone@example.com', 'tel:+15555550100']) {
+        expect(
+          webNavigationAction(url, isMainFrame: false),
+          WebNavigationAction.block,
+          reason: url,
+        );
+      }
+    });
+
     test('blocks everything else', () {
       expect(
         webNavigationAction('https://example.com', isMainFrame: false),
@@ -425,6 +444,9 @@ void main() {
         'data:text/html,x',
         'content://x',
         'https://',
+        'sms:+15555550100',
+        'geo:0,0',
+        'market://details?id=x',
       ]) {
         expect(mainFrame(url), WebNavigationAction.block, reason: url);
       }

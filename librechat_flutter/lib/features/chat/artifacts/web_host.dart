@@ -719,8 +719,10 @@ enum WebNavigationAction { allow, openExternally, block }
 
 /// The navigation rule (Req 24.10): only the initial document (and its
 /// anchors) and `about:blank` load in the WebView. A main-frame `http` or
-/// `https` link opens in the external browser. Everything else is blocked,
-/// including `file:`, `intent:`, `javascript:`, `data:` and any subframe.
+/// `https` link opens in the external browser, and a main-frame `mailto:`
+/// or `tel:` link opens in the app that handles it. Everything else is
+/// blocked, including `file:`, `intent:`, `javascript:`, `data:` and any
+/// subframe.
 WebNavigationAction webNavigationAction(
   String url, {
   required bool isMainFrame,
@@ -731,11 +733,13 @@ WebNavigationAction webNavigationAction(
     return WebNavigationAction.allow;
   }
   final uri = Uri.tryParse(url);
-  if (isMainFrame &&
-      uri != null &&
-      (uri.scheme == 'http' || uri.scheme == 'https') &&
-      uri.host.isNotEmpty) {
-    return WebNavigationAction.openExternally;
+  if (isMainFrame && uri != null) {
+    final external = switch (uri.scheme) {
+      'http' || 'https' => uri.host.isNotEmpty,
+      'mailto' || 'tel' => true,
+      _ => false,
+    };
+    if (external) return WebNavigationAction.openExternally;
   }
   return WebNavigationAction.block;
 }
@@ -749,8 +753,8 @@ WebNavigationAction webNavigationAction(
 /// Custom_Headers or App cookies. The one `Host` channel passes only
 /// `{height}` to [onHeight] and `{error}` to [onError] (see
 /// [parseHostMessage]); a main-frame load error goes to [onError] too.
-/// Navigation follows [webNavigationAction]: web links open in the external
-/// browser and everything else is blocked.
+/// Navigation follows [webNavigationAction]: web, `mailto:` and `tel:`
+/// links open in an external app and everything else is blocked.
 class WebContentView extends StatefulWidget {
   const WebContentView(this.html, {super.key, this.onHeight, this.onError});
 
@@ -830,7 +834,8 @@ class _WebContentViewState extends State<WebContentView> {
   Future<void> _load() =>
       _controller.loadHtmlString(widget.html, baseUrl: webAssetBaseUrl);
 
-  /// Opens [uri] in the external browser. A device without one ignores it.
+  /// Opens [uri] in the external app for its scheme. A device without one
+  /// ignores it.
   Future<void> _openExternally(Uri uri) async {
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
