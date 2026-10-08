@@ -65,11 +65,8 @@ class EventMapper {
   List<StreamEvent> _guard(SseEvent event, List<StreamEvent> Function() body) {
     try {
       return body();
-    } on FormatException {
-      _badFrame(event);
-    } on TypeError {
-      _badFrame(event);
-    } on CheckedFromJsonException {
+    } catch (error) {
+      if (!_isDecodeError(error)) rethrow;
       _badFrame(event);
     }
     return const [];
@@ -96,11 +93,8 @@ class EventMapper {
     if (map != null) {
       try {
         return fromJson(map);
-      } on FormatException {
-        // Logged below.
-      } on TypeError {
-        // Logged below.
-      } on CheckedFromJsonException {
+      } catch (error) {
+        if (!_isDecodeError(error)) rethrow;
         // Logged below.
       }
     }
@@ -386,6 +380,16 @@ class EventMapper {
     }
   }
 }
+
+/// Whether [error] is a frame's JSON failing to decode: a wrong shape or
+/// type, or a number a model field cannot hold (`1e400` decodes to Infinity,
+/// whose `toInt()` throws [UnsupportedError]).
+bool _isDecodeError(Object error) =>
+    error is FormatException ||
+    error is TypeError ||
+    error is CheckedFromJsonException ||
+    error is UnsupportedError ||
+    error is ArgumentError;
 
 StreamEvent? _wrap<T>(T? value, StreamEvent Function(T value) wrap) =>
     value == null ? null : wrap(value);

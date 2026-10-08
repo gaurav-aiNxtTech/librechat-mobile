@@ -808,6 +808,60 @@ void main() {
       }
     });
 
+    test(
+      'a number a model cannot hold skips the frame or sub-object',
+      () async {
+        // 1e400 decodes to Infinity, whose toInt() throws UnsupportedError.
+        final good = SseEvent(
+          data: jsonEncode({
+            'event': 'on_message_delta',
+            'data': textDelta('s', 'ok'),
+          }),
+        );
+        final bad = [
+          const SseEvent(
+            data: '{"event":"on_token_usage","data":{"input_tokens":1e400}}',
+          ),
+          const SseEvent(
+            data:
+                '{"event":"on_context_usage","data":{"contextBudget":-1e400}}',
+          ),
+          // A part decoded outside _decode: the whole frame goes.
+          const SseEvent(
+            data:
+                '{"event":"on_steer_applied","data":{"steerId":"st_1",'
+                '"part":{"type":"text","text":"x","stepIndex":1e400}}}',
+          ),
+        ];
+        for (final frame in bad) {
+          expect(mapper.map(frame), isEmpty, reason: frame.data);
+          expect(mapper.map(good), [const TextDelta('ok')]);
+        }
+        // A bad sub-object of a Final_Frame is dropped and the rest survives.
+        expect(
+          mapper.map(
+            const SseEvent(
+              data:
+                  '{"final":true,"conversation":{"conversationId":"c1",'
+                  '"maxTokens":1e400},"responseMessage":{"messageId":"m1",'
+                  '"conversationId":"c1"}}',
+            ),
+          ),
+          [
+            const FinalEvent(
+              responseMessage: Message(messageId: 'm1', conversationId: 'c1'),
+            ),
+          ],
+        );
+        final lines = await badFrames();
+        expect(lines, hasLength(bad.length + 1));
+        expect(lines.last, contains('field=conversation'));
+        for (final line in lines) {
+          expect(line, isNot(contains('1e400')));
+        }
+      },
+    );
+
     test('a bad pending event does not drop the sync frame', () {
       expect(
         map({
