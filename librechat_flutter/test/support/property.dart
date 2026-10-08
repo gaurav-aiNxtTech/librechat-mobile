@@ -17,6 +17,9 @@ import 'package:librechat_flutter/core/models/attachment.dart';
 import 'package:librechat_flutter/core/models/content_part.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
 import 'package:librechat_flutter/core/models/message.dart';
+import 'package:librechat_flutter/core/stream/sse_parser.dart';
+
+import 'sse_formatter.dart';
 
 /// The seed from `--dart-define=PROPERTY_SEED`, or a random one when unset.
 final int propertySeed = const bool.hasEnvironment('PROPERTY_SEED')
@@ -513,3 +516,58 @@ final Gen<({DateTime now, List<Conversation> conversations})> groupingCaseGen =
         ),
       ),
     );
+
+// SSE (Property 8) ------------------------------------------------------------
+
+/// SSE text characters: ASCII letters, space, `:` and 2- to 4-byte UTF-8
+/// characters. No CR, LF or NUL, which SSE values cannot carry.
+const sseUnicode = '$lowercase$uppercase :éж中😀𝄞';
+
+/// An [SseEvent] with an optional non-empty name, an optional (possibly
+/// empty) id and 1 to 4 data lines, so empty, multi-line, leading-space and
+/// non-ASCII data all occur.
+final Gen<SseEvent> sseEvent = Gen(
+  (r) => SseEvent(
+    event: nullable(stringOf(sseUnicode, min: 1))(r),
+    id: nullable(stringOf(sseUnicode))(r),
+    data: listOf(
+      stringOf(sseUnicode),
+      min: 1,
+      max: 4,
+    ).map((lines) => lines.join('\n'))(r),
+  ),
+);
+
+/// One of LF, CR and CRLF.
+final Gen<SseLineEnding> sseLineEnding = elementOf(SseLineEnding.values);
+
+/// An event as written on the wire: its line ending and the comment lines
+/// before it.
+typedef SseFrame = ({
+  SseEvent event,
+  SseLineEnding ending,
+  List<String> comments,
+});
+
+/// A Property 8 case: the frames, whether a BOM leads the bytes, and seeds
+/// the test turns into cut offsets once the byte length is known.
+typedef SseCase = ({List<SseFrame> frames, bool bom, List<int> cutSeeds});
+
+/// 0 to 20 frames with 0 to 2 comments each, an optional BOM and 1 to 10 cut
+/// seeds.
+final Gen<SseCase> sseCase = Gen(
+  (r) => (
+    frames: listOf(
+      Gen<SseFrame>(
+        (r) => (
+          event: sseEvent(r),
+          ending: sseLineEnding(r),
+          comments: listOf(stringOf(sseUnicode), max: 2)(r),
+        ),
+      ),
+      max: 20,
+    )(r),
+    bom: boolean(r),
+    cutSeeds: listOf(intRange(0, 1 << 20), min: 1, max: 10)(r),
+  ),
+);
