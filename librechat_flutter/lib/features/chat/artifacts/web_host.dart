@@ -79,10 +79,26 @@ String _css(Color color) {
   return '#${rgb.padLeft(6, '0').toUpperCase()}';
 }
 
+/// Mermaid's `securityLevel`, as KMP sets it per render path.
+enum MermaidSecurityLevel {
+  /// Markdown code fences, as KMP `MermaidDiagram.kt`.
+  strict,
+
+  /// Mermaid artifacts, as KMP `MermaidWebContent.kt`.
+  loose,
+}
+
 /// The Mermaid document for [code], with zoom controls, themed `dark` or
 /// `default`. It reports `{height}` after rendering, and `{error}` plus
 /// `{height}` when the diagram does not parse.
-String buildMermaidHtml(String code, {required bool dark}) {
+///
+/// [securityLevel] defaults to [MermaidSecurityLevel.strict], for code
+/// fences; [buildArtifactHtml] passes [MermaidSecurityLevel.loose].
+String buildMermaidHtml(
+  String code, {
+  required bool dark,
+  MermaidSecurityLevel securityLevel = MermaidSecurityLevel.strict,
+}) {
   final theme = dark ? 'dark' : 'default';
   final bgColor = dark ? '#1C1B1F' : '#FFFBFE';
   final fgColor = dark ? '#E6E1E5' : '#1C1B1F';
@@ -205,7 +221,7 @@ String buildMermaidHtml(String code, {required bool dark}) {
         mermaid.initialize({
             startOnLoad: false,
             theme: '$theme',
-            securityLevel: 'loose'
+            securityLevel: '${securityLevel.name}'
         });
 
         (async function() {
@@ -243,7 +259,11 @@ String buildArtifactHtml(
   final fgColor = fg != null ? _css(fg) : (dark ? '#E6E1E5' : '#1C1B1F');
   final content = artifact.content;
   return switch (artifact.kind) {
-    ArtifactKind.mermaid => buildMermaidHtml(content, dark: dark),
+    ArtifactKind.mermaid => buildMermaidHtml(
+      content,
+      dark: dark,
+      securityLevel: MermaidSecurityLevel.loose,
+    ),
     ArtifactKind.html => _buildEnhancedHtml(content, bgColor, fgColor),
     ArtifactKind.svg => _buildSvgHtml(content, bgColor),
     ArtifactKind.react => _buildReactHtml(content, bgColor, fgColor),
@@ -255,6 +275,60 @@ String buildArtifactHtml(
       'has no WebView preview',
     ),
   };
+}
+
+/// A start tag named [name], whose quoted attribute values may hold `>`.
+RegExp _startTag(String name) => RegExp(
+  '<$name(?=[\\s/>])(?:[^>"\']|"[^"]*"|\'[^\']*\')*>',
+  caseSensitive: false,
+);
+
+final _htmlTag = _startTag('html');
+final _headTag = _startTag('head');
+
+/// Where the CSP goes in a full HTML document: before any author content
+/// that can run or load anything.
+///
+/// It walks only the document's prologue: leading whitespace and comments,
+/// the doctype, the `<html …>` tag and the `<head …>` tag, each optional and
+/// in that order. The point is right after the last one found, so the
+/// doctype stays first (no quirks mode) and an existing head keeps the
+/// policy (design "WebView_Host"). Any other markup ends the walk, so a
+/// `<head>` inside a comment, a script string or the body never moves the
+/// CSP behind earlier content. Without `<head>` the parser opens one
+/// implicitly at the inserted `<meta>`.
+int _headInsertionPoint(String html) {
+  var i = 0;
+  int skipSpaceAndComments(int from) {
+    var at = from;
+    while (true) {
+      while (at < html.length && ' \t\n\r\f'.contains(html[at])) {
+        at++;
+      }
+      if (!html.startsWith('<!--', at)) return at;
+      final end = html.indexOf('-->', at + 4);
+      // An unclosed comment hides the rest of the document; stop before it.
+      if (end < 0) return at;
+      at = end + 3;
+    }
+  }
+
+  var at = skipSpaceAndComments(i);
+  if (html.length - at >= 9 &&
+      html.substring(at, at + 9).toLowerCase() == '<!doctype') {
+    final end = html.indexOf('>', at);
+    if (end < 0) return i;
+    i = end + 1;
+    at = skipSpaceAndComments(i);
+  }
+  if (_htmlTag.matchAsPrefix(html, at) case final match?) {
+    i = match.end;
+    at = skipSpaceAndComments(i);
+  }
+  if (_headTag.matchAsPrefix(html, at) case final match?) {
+    i = match.end;
+  }
+  return i;
 }
 
 // Security note: HTML artifacts intentionally render unsanitized HTML, as
@@ -270,15 +344,8 @@ String _buildEnhancedHtml(String content, String bgColor, String fgColor) {
         'padding: 0; } '
         'img, svg, video, iframe { max-width: 100%; height: auto; }</style>\n'
         '<script src="tailwind/tailwind.min.js"></script>';
-    final head = RegExp('<head>', caseSensitive: false);
-    if (head.hasMatch(content)) {
-      return content.replaceFirstMapped(head, (m) => '${m[0]}$themeStyle');
-    }
-    final headWithAttributes = RegExp(r'<head\s[^>]*>', caseSensitive: false);
-    if (headWithAttributes.firstMatch(content) case final match?) {
-      return content.replaceRange(match.end, match.end, themeStyle);
-    }
-    return '$themeStyle\n$content';
+    final at = _headInsertionPoint(content);
+    return content.replaceRange(at, at, themeStyle);
   }
 
   return '''

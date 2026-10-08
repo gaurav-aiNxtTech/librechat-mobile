@@ -259,10 +259,98 @@ void main() {
       );
     });
 
-    test('a document without a head gets it prepended', () {
+    test('a document without a head keeps its doctype first', () {
       final html = _html('text/html', '<!DOCTYPE html><body>x</body>');
-      expect(html, startsWith('<meta http-equiv="Content-Security-Policy"'));
-      expect(html, endsWith('\n<!DOCTYPE html><body>x</body>'));
+      expect(
+        html,
+        startsWith('<!DOCTYPE html><meta http-equiv="Content-Security-Policy"'),
+      );
+      expect(html, endsWith('</script><body>x</body>'));
+      expect(_csps(html), [_htmlCsp]);
+    });
+
+    test('comments before the doctype keep it first', () {
+      final html = _html('text/html', '<!-- c -->\n<!doctype html><p>x</p>');
+      expect(
+        html,
+        startsWith(
+          '<!-- c -->\n<!doctype html><meta http-equiv="Content-Security-Policy"',
+        ),
+      );
+    });
+
+    /// The CSP must come before [marker], the first author content that
+    /// can load or run anything.
+    void expectCspBefore(String content, String marker) {
+      final html = _html('text/html', content);
+      final csp = html.indexOf('<meta http-equiv="Content-Security-Policy"');
+      expect(csp, isNonNegative);
+      expect(csp, lessThan(html.indexOf(marker)), reason: html);
+      expect(_csps(html), [_htmlCsp]);
+    }
+
+    test('the CSP precedes a script placed before <head>', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      expectCspBefore('<!DOCTYPE html><html>$evil<head></head></html>', evil);
+      expectCspBefore('<html lang="en">\n$evil<head></head></html>', evil);
+      expectCspBefore('$evil<html><head></head></html>', evil);
+    });
+
+    test('a <head> inside a comment does not capture the CSP', () {
+      const evil = '<script src="https://evil.example/x.js"></script>';
+      const content =
+          '<!DOCTYPE html><html><!-- <head> -->$evil<head></head></html>';
+      expectCspBefore(content, evil);
+      final html = _html('text/html', content);
+      expect(
+        html.indexOf('Content-Security-Policy'),
+        isNot(inInclusiveRange(html.indexOf('<!--'), html.indexOf('-->'))),
+      );
+    });
+
+    test('a <head> inside a script string does not capture the CSP', () {
+      expectCspBefore(
+        "<!DOCTYPE html><script>var s = '<head>';</script><head></head>",
+        "<script>var s = '<head>'",
+      );
+    });
+
+    test('a > inside an <html> attribute does not split the tag', () {
+      final html = _html(
+        'text/html',
+        '<html data-x="a>b"><head><title>x</title></head></html>',
+      );
+      expect(
+        html,
+        startsWith(
+          '<html data-x="a>b"><head><meta http-equiv="Content-Security-Policy"',
+        ),
+      );
+    });
+  });
+
+  group('mermaid security level', () {
+    test('code fences default to strict, as KMP MermaidDiagram.kt', () {
+      final html = buildMermaidHtml('graph TD; A-->B', dark: false);
+      expect(html, contains("securityLevel: 'strict'"));
+      expect(html, isNot(contains("securityLevel: 'loose'")));
+    });
+
+    test('artifacts use loose, as KMP MermaidWebContent.kt', () {
+      final html = _documents['mermaid artifact']!;
+      expect(html, contains("securityLevel: 'loose'"));
+      expect(html, isNot(contains("securityLevel: 'strict'")));
+    });
+
+    test('the level can be passed explicitly', () {
+      expect(
+        buildMermaidHtml(
+          'a',
+          dark: true,
+          securityLevel: MermaidSecurityLevel.loose,
+        ),
+        contains("securityLevel: 'loose'"),
+      );
     });
   });
 
