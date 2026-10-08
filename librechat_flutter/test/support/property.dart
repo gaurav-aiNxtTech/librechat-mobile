@@ -571,3 +571,147 @@ final Gen<SseCase> sseCase = Gen(
     cutSeeds: listOf(intRange(0, 1 << 20), min: 1, max: 10)(r),
   ),
 );
+
+// OpenAPI specs (Property 13, Req 34.11).
+
+/// A valid OpenAPI 3 spec: a `servers[0].url` (https, optional port, path and
+/// trailing `/`) and 1–5 paths with 1–3 operations each. Values are only
+/// strings, ints, bools, lists and maps, so JSON and YAML read them alike.
+final Gen<Map<String, Object?>> openApiSpec = Gen((r) {
+  final paths = <String, Object?>{};
+  for (var count = intRange(1, 5)(r); count > 0; count--) {
+    final segments = listOf(_openApiSegment, min: 1, max: 3)(r);
+    final path = '/${segments.join('/')}';
+    // A repeated path collapses; the first draw always lands.
+    if (!paths.containsKey(path)) paths[path] = _openApiPathItem(segments, r);
+  }
+  return {
+    'openapi': elementOf(['3.0.0', '3.0.3', '3.1.0', '3.1.1'])(r),
+    'info': {
+      'title': stringOf(alphanumeric, min: 1, max: 12)(r),
+      'version': '1.0.0',
+    },
+    'servers': [
+      {'url': _openApiServerUrl(r)},
+    ],
+    'paths': paths,
+  };
+});
+
+const _openApiMethods = [
+  'get',
+  'post',
+  'put',
+  'patch',
+  'delete',
+  'head',
+  'options',
+];
+
+const _openApiTypes = ['string', 'integer', 'number', 'boolean'];
+
+final Gen<String> _openApiLabel = stringOf('$lowercase$digits', min: 1, max: 8);
+
+final Gen<String> _openApiName = stringOf(lowercase, min: 1, max: 6);
+
+/// Free text, blank and messy ones included.
+final Gen<String> _openApiText = stringOf('$asciiPrintable$tricky', max: 20);
+
+/// A literal path segment or a `{name}` template.
+final Gen<String> _openApiSegment = oneOf([
+  stringOf('$alphanumeric-', min: 1, max: 8),
+  _openApiName.map((name) => '{$name}'),
+]);
+
+String _openApiServerUrl(Random r) {
+  final host = listOf(_openApiLabel, min: 1, max: 3)(r).join('.');
+  final port = r.nextInt(3) == 0 ? ':${intRange(1, 65535)(r)}' : '';
+  final path = listOf(_openApiLabel, max: 2)(r).map((s) => '/$s').join();
+  final slash = r.nextInt(3) == 0 ? '/' : '';
+  return 'https://$host$port$path$slash';
+}
+
+Map<String, Object?> _openApiPathItem(List<String> segments, Random r) {
+  final pathNames = [
+    for (final segment in segments)
+      if (segment.startsWith('{')) segment.substring(1, segment.length - 1),
+  ];
+  final methods = [..._openApiMethods]..shuffle(r);
+  return {
+    if (pathNames.isNotEmpty)
+      'parameters': [
+        for (final name in pathNames)
+          {
+            'name': name,
+            'in': 'path',
+            'required': true,
+            'schema': {'type': 'string'},
+          },
+      ],
+    for (final method in methods.take(intRange(1, 3)(r)))
+      method: _openApiOperation(pathNames, r),
+  };
+}
+
+Map<String, Object?> _openApiOperation(List<String> pathNames, Random r) {
+  final operationId = nullable(
+    stringOf('$alphanumeric$tricky-.', min: 1, max: 16),
+  )(r);
+  final summary = nullable(_openApiText)(r);
+  final description = nullable(_openApiText)(r);
+  final parameters = [
+    for (var count = intRange(0, 3)(r); count > 0; count--)
+      _openApiParameter(pathNames, r),
+  ];
+  return {
+    'operationId': ?operationId,
+    'summary': ?summary,
+    'description': ?description,
+    if (parameters.isNotEmpty) 'parameters': parameters,
+    if (r.nextBool()) 'requestBody': _openApiRequestBody(r),
+  };
+}
+
+Map<String, Object?> _openApiParameter(List<String> pathNames, Random r) {
+  // Reusing a path-level name, sometimes `in: path` too, exercises the
+  // operation-wins override.
+  final reuse = pathNames.isNotEmpty && r.nextInt(3) == 0;
+  final description = nullable(_openApiText)(r);
+  final required = nullable(boolean)(r);
+  return {
+    'name': reuse ? elementOf(pathNames)(r) : _openApiName(r),
+    'in': elementOf(reuse ? ['path', 'query'] : ['query', 'header'])(r),
+    'schema': {'type': elementOf(_openApiTypes)(r)},
+    'description': ?description,
+    'required': ?required,
+  };
+}
+
+Map<String, Object?> _openApiRequestBody(Random r) {
+  final properties = <String, Object?>{
+    for (final name in listOf(_openApiName, min: 1, max: 3)(r))
+      name: {
+        'type': elementOf(_openApiTypes)(r),
+        'description': ?nullable(_openApiText)(r),
+        'default': ?nullable(
+          oneOf<Object>([intRange(-1000, 1000), boolean]),
+          oneIn: 2,
+        )(r),
+      },
+  };
+  final required = [
+    for (final name in properties.keys)
+      if (r.nextBool()) name,
+  ];
+  return {
+    'content': {
+      'application/json': {
+        'schema': {
+          'type': 'object',
+          'properties': properties,
+          if (required.isNotEmpty) 'required': required,
+        },
+      },
+    },
+  };
+}
