@@ -51,7 +51,8 @@ abstract class ContentPart with _$ContentPart {
     int? stepIndex,
   }) = _ContentPart;
 
-  factory ContentPart.fromJson(Map<String, Object?> json) => _$ContentPartFromJson(json);
+  factory ContentPart.fromJson(Map<String, Object?> json) =>
+      _$ContentPartFromJson(json);
 }
 
 /// `ContentPart.tool_call`. `args` is a map mid-stream and a JSON string once saved.
@@ -66,5 +67,6 @@ abstract class ToolCall with _$ToolCall {
     double? progress,
   }) = _ToolCall;
 
-  factory ToolCall.fromJson(Map<String, Object?> json) => _$ToolCallFromJson(json);
+  factory ToolCall.fromJson(Map<String, Object?> json) =>
+      _$ToolCallFromJson(json);
 }
