@@ -96,7 +96,7 @@ class AuthService extends ChangeNotifier {
   Session? get session => _session;
 
   /// True after a LibreChat_Refresh_Rejection ended the session, until
-  /// [acknowledgeExpiry] (Req 12.7).
+  /// [acknowledgeExpiry] or the next stored session (Req 12.7).
   bool get expired => _expired;
 
   /// Takes the session that [SecureStore.load] read. A stored session that no
@@ -277,9 +277,12 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Writes [session] to the Secure_Store (Req 12.1), then makes it current.
+  /// A new session ends an unacknowledged [expired], so a later deliberate
+  /// sign-out doesn't read as an expiry.
   Future<void> _store(Session session) async {
     await _secure.writeSession(session.toJson());
     _session = session;
+    _expired = false;
     notifyListeners();
   }
 

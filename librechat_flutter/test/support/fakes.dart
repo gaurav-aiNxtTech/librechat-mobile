@@ -21,6 +21,8 @@ import 'package:librechat_flutter/core/auth/auth_api.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
+import 'package:librechat_flutter/core/models/user.dart';
+import 'package:librechat_flutter/core/storage/cache_db.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 
 /// Records [probe] and [save] calls. [probe] answers with [probeResult], or
@@ -141,8 +143,9 @@ class FakeAuthService extends ChangeNotifier implements AuthService {
 
 /// Records the account routes the Register, Forgot_Password,
 /// Reset_Password, Verify_Email and Terms screens and the AppShell's terms
-/// check call. Each answers with its reply field, or throws [error], after
-/// [gate] completes when one is set. Other members throw.
+/// check call, and answers the login, refresh and logout a real
+/// [AuthService] makes. Each answers with its reply field, or throws
+/// [error], after [gate] completes when one is set. Other members throw.
 class FakeAuthApi implements AuthApi {
   final registrations = <Map<String, String>>[];
   final resetRequests = <String>[];
@@ -224,6 +227,42 @@ class FakeAuthApi implements AuthApi {
     termsChecks++;
     return _answer(termsAcceptedReply);
   }
+
+  /// What [login] answers, for a real [AuthService] on this fake.
+  TokenReply loginReply = (
+    token: 'a',
+    user: const User(id: 'u1'),
+    twoFAPending: false,
+    tempToken: null,
+    refreshToken: 'r',
+  );
+  RefreshResult refreshReply = const RefreshRejected(401);
+  int logouts = 0;
+
+  @override
+  Future<TokenReply> login(String email, String password) =>
+      _answer(loginReply);
+
+  @override
+  Future<RefreshResult> refresh(String refreshToken) => _answer(refreshReply);
+
+  @override
+  Future<void> logout() {
+    logouts++;
+    return _answer(null);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// A [CacheDb] that holds nothing, for a real [AuthService] in widget tests.
+/// [clearAll] calls are counted. Other members throw.
+class FakeCacheDb implements CacheDb {
+  int clears = 0;
+
+  @override
+  Future<void> clearAll() async => clears++;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

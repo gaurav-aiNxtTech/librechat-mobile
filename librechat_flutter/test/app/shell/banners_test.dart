@@ -14,6 +14,7 @@ import 'package:librechat_flutter/core/models/banner.dart';
 import 'package:librechat_flutter/core/models/interface_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
+import 'package:librechat_flutter/core/network/app_exception.dart';
 import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
@@ -51,14 +52,16 @@ void main() {
     ServerBanner? banner,
     AppSettings initial = const AppSettings(),
     StartupConfig config = const StartupConfig(),
+    AuthService Function(SecureStore secure)? authFor,
   }) async {
     FlutterSecureStorage.setMockInitialValues({});
     final secure = SecureStore();
     await secure.load();
     settings = FakeSettingsStore(initial);
+    final service = authFor?.call(secure) ?? auth;
     final container = ProviderContainer(
       overrides: [
-        authServiceProvider.overrideWith((ref) => auth),
+        authServiceProvider.overrideWith((ref) => service),
         secureStoreProvider.overrideWithValue(secure),
         settingsProvider.overrideWith(() => settings),
         wallpaperSchemesProvider.overrideWithValue(null),
@@ -330,6 +333,46 @@ void main() {
       expect(find.text(expiredText), findsNothing);
       expect(auth.expiryAcknowledgements, 1);
       expect(path(router), Routes.login);
+    });
+
+    testWidgets('an expiry on /terms, then a new sign-in, leaves a later '
+        'sign-out from /chat without the dialog', (tester) async {
+      // A real AuthService, so the expiry flag follows its own rules.
+      final api = auth.authApi..termsAcceptedReply = false;
+      late AuthService real;
+      final router = await pump(
+        tester,
+        config: const StartupConfig(
+          interfaceConfig: InterfaceConfig(
+            termsOfService: TermsOfServiceConfig(modalAcceptance: true),
+          ),
+        ),
+        authFor: (secure) =>
+            real = AuthService(secure: secure, cache: FakeCacheDb())..api = api,
+      );
+      expect(path(router), Routes.serverUrl);
+      await real.saveServer(server, const {});
+      await real.login('user@example.com', 'pw');
+      await tester.pumpAndSettle();
+      expect(path(router), Routes.terms);
+
+      await expectLater(real.refresh(), throwsA(isA<AppException>()));
+      await tester.pumpAndSettle();
+      expect(real.expired, isTrue);
+      expect(path(router), Routes.login);
+      expect(find.text(expiredText), findsNothing);
+
+      api.termsAcceptedReply = true;
+      await real.login('user@example.com', 'pw');
+      await tester.pumpAndSettle();
+      expect(real.expired, isFalse);
+      expect(path(router), Routes.newChat);
+
+      await real.signOut();
+      await tester.pumpAndSettle();
+      expect(api.logouts, 1);
+      expect(path(router), Routes.login);
+      expect(find.text(expiredText), findsNothing);
     });
   });
 
