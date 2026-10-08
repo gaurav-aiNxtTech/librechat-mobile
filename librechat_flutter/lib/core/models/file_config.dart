@@ -17,8 +17,9 @@ abstract class FileConfig with _$FileConfig {
       _$FileConfigFromJson(json);
 }
 
-/// One endpoint's upload limits. A null limit does not restrict, and
-/// `supportedMimeTypes` holds regex sources.
+/// One endpoint's upload limits. `supportedMimeTypes` holds regex sources.
+/// A null field (or an empty pattern list) is unset, so the `default` entry's
+/// value applies; `checkAttachments` resolves them field by field.
 @freezed
 abstract class EndpointFileConfig with _$EndpointFileConfig {
   const factory EndpointFileConfig({
@@ -26,7 +27,7 @@ abstract class EndpointFileConfig with _$EndpointFileConfig {
     int? fileSizeLimit,
     int? totalSizeLimit,
     @Default(<String>[]) List<String> supportedMimeTypes,
-    @Default(false) bool disabled,
+    bool? disabled,
   }) = _EndpointFileConfig;
 
   factory EndpointFileConfig.fromJson(Map<String, Object?> json) =>

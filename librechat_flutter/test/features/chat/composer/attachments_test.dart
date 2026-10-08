@@ -21,15 +21,137 @@ void main() {
     supportedMimeTypes: ['^image/.*\$', '^application/pdf\$'],
   );
 
-  test('an endpoint entry wins over default as a whole entry', () {
-    final c = config({
-      'openAI': const EndpointFileConfig(fileLimit: 5),
-      'default': limits,
+  group('field-by-field resolution', () {
+    test('an entry overrides only the fields it sets', () {
+      final c = config({
+        'agents': const EndpointFileConfig(fileLimit: 5),
+        'default': limits,
+      });
+      final three = [file('a', 50), file('b', 50), file('c', 50)];
+      expect(checkAttachments(three, c, 'agents'), accepted);
+      expect(
+        checkAttachments([file('a', 101)], c, 'agents'),
+        rejected(AttachmentLimit.fileSizeLimit, 'a'),
+      );
+      expect(
+        checkAttachments([...three, file('d', 1)], c, 'agents'),
+        rejected(AttachmentLimit.totalSizeLimit),
+      );
     });
-    expect(
-      checkAttachments([file('a', 500, 'audio/x'), file('b', 1)], c, 'openAI'),
-      accepted,
+
+    test('an entry without patterns keeps default patterns', () {
+      final c = config({
+        'agents': const EndpointFileConfig(fileLimit: 5),
+        'default': limits,
+      });
+      expect(
+        checkAttachments([file('a.mp3', 1, 'audio/mpeg')], c, 'agents'),
+        rejected(AttachmentLimit.mimeType, 'a.mp3'),
+      );
+    });
+
+    test('an entry with patterns replaces default patterns', () {
+      final c = config({
+        'agents': const EndpointFileConfig(supportedMimeTypes: ['^audio/']),
+        'default': limits,
+      });
+      expect(
+        checkAttachments([file('a.mp3', 1, 'audio/mpeg')], c, 'agents'),
+        accepted,
+      );
+      expect(
+        checkAttachments([file('a.png', 1)], c, 'agents'),
+        rejected(AttachmentLimit.mimeType, 'a.png'),
+      );
+    });
+
+    test(
+      'a document-supported entry without patterns skips the mime check',
+      () {
+        // The Server swaps in its built-in list here, which the App doesn't
+        // carry.
+        final c = config({
+          'openAI': const EndpointFileConfig(fileLimit: 5),
+          'default': limits,
+        });
+        expect(
+          checkAttachments([file('a.mp3', 1, 'audio/mpeg')], c, 'openAI'),
+          accepted,
+        );
+        expect(
+          checkAttachments([file('a.mp3', 1, 'audio/mpeg')], c, 'google'),
+          rejected(AttachmentLimit.mimeType, 'a.mp3'),
+        );
+      },
     );
+
+    test('disabled is inherited and can be overridden', () {
+      final c = config({
+        'agents': const EndpointFileConfig(fileLimit: 5),
+        'openAI': const EndpointFileConfig(disabled: false),
+        'default': const EndpointFileConfig(disabled: true),
+      });
+      expect(
+        checkAttachments([file('a', 1)], c, 'agents'),
+        rejected(AttachmentLimit.disabled),
+      );
+      expect(checkAttachments([file('a', 1)], c, 'openAI'), accepted);
+    });
+  });
+
+  group('endpoint lookup', () {
+    test('the endpointType entry wins for a standard endpoint', () {
+      final c = config({
+        'agents': const EndpointFileConfig(fileLimit: 1),
+        'openAI': const EndpointFileConfig(fileLimit: 3),
+      });
+      final two = [file('a', 1), file('b', 1)];
+      expect(checkAttachments(two, c, 'openAI'), accepted);
+      expect(
+        checkAttachments(two, c, 'openAI', endpointType: 'agents'),
+        rejected(AttachmentLimit.fileLimit),
+      );
+    });
+
+    test('a custom endpoint matches its normalized name', () {
+      final c = config({'ollama': const EndpointFileConfig(fileLimit: 1)});
+      expect(
+        checkAttachments([file('a', 1), file('b', 1)], c, 'Ollama'),
+        rejected(AttachmentLimit.fileLimit),
+      );
+    });
+
+    test('a custom endpoint falls back to custom, then agents', () {
+      final both = config({
+        'custom': const EndpointFileConfig(fileLimit: 1),
+        'agents': const EndpointFileConfig(disabled: true),
+      });
+      expect(
+        checkAttachments([file('a', 1), file('b', 1)], both, 'myLLM'),
+        rejected(AttachmentLimit.fileLimit),
+      );
+      final agentsOnly = config({
+        'agents': const EndpointFileConfig(disabled: true),
+      });
+      expect(
+        checkAttachments([file('a', 1)], agentsOnly, 'myLLM'),
+        rejected(AttachmentLimit.disabled),
+      );
+      expect(
+        checkAttachments(
+          [file('a', 1)],
+          agentsOnly,
+          'openAI',
+          endpointType: 'custom',
+        ),
+        rejected(AttachmentLimit.disabled),
+      );
+    });
+
+    test('a standard endpoint does not fall back to agents', () {
+      final c = config({'agents': const EndpointFileConfig(disabled: true)});
+      expect(checkAttachments([file('a', 1)], c, 'anthropic'), accepted);
+    });
   });
 
   test('an unknown endpoint uses default', () {
@@ -121,12 +243,14 @@ void main() {
     );
   });
 
-  test('a limit of 0 restricts', () {
-    final c = config({'default': const EndpointFileConfig(fileLimit: 0)});
-    expect(
-      checkAttachments([file('a', 1)], c, 'x'),
-      rejected(AttachmentLimit.fileLimit),
-    );
+  test('a fileLimit or totalSizeLimit of 0 does not restrict', () {
+    final c = config({
+      'default': const EndpointFileConfig(fileLimit: 0, totalSizeLimit: 0),
+    });
+    expect(checkAttachments([file('a', 1), file('b', 1)], c, 'x'), accepted);
+  });
+
+  test('a fileSizeLimit of 0 restricts', () {
     final sized = config({
       'default': const EndpointFileConfig(fileSizeLimit: 0),
     });

@@ -32,7 +32,7 @@ _EndpointFileConfig _$EndpointFileConfigFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const <String>[],
-      disabled: json['disabled'] as bool? ?? false,
+      disabled: json['disabled'] as bool?,
     );
 
 Map<String, dynamic> _$EndpointFileConfigToJson(_EndpointFileConfig instance) =>
@@ -41,5 +41,5 @@ Map<String, dynamic> _$EndpointFileConfigToJson(_EndpointFileConfig instance) =>
       'fileSizeLimit': ?instance.fileSizeLimit,
       'totalSizeLimit': ?instance.totalSizeLimit,
       'supportedMimeTypes': instance.supportedMimeTypes,
-      'disabled': instance.disabled,
+      'disabled': ?instance.disabled,
     };

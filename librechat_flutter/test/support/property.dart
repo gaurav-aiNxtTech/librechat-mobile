@@ -885,24 +885,30 @@ final Gen<EndpointFileConfig> endpointFileConfigGen = Gen(
       ]),
       max: 3,
     )(r),
-    disabled: r.nextInt(8) == 0,
+    disabled: switch (r.nextInt(8)) {
+      0 => true,
+      1 => false,
+      _ => null,
+    },
   ),
 );
 
 /// Property 10's case: 0-12 files, a FileConfig with an optional `default`,
-/// an optional entry for the endpoint and an optional unrelated entry, and
-/// the endpoint. File sizes cluster around the effective `fileSizeLimit`.
+/// an optional entry for the endpoint and optional `assistants`, `agents`
+/// and `custom` entries, and the endpoint (standard, the `custom` key, or a
+/// custom name). File sizes cluster around the effective `fileSizeLimit`.
 final Gen<({List<FileInfo> files, FileConfig config, String endpoint})>
 attachmentCaseGen = Gen((r) {
-  final endpoint = elementOf(const ['openAI', 'agents', 'custom'])(r);
+  final endpoint = elementOf(const ['openAI', 'agents', 'custom', 'myLLM'])(r);
   final own = opt(endpointFileConfigGen)(r);
   final fallback = opt(endpointFileConfigGen)(r);
   final endpoints = <String, EndpointFileConfig>{
     'default': ?fallback,
+    for (final key in const ['assistants', 'agents', 'custom'])
+      if (r.nextInt(3) == 0) key: endpointFileConfigGen(r),
     endpoint: ?own,
-    if (r.nextBool()) 'assistants': endpointFileConfigGen(r),
   };
-  final sizeLimit = (own ?? fallback)?.fileSizeLimit;
+  final sizeLimit = own?.fileSizeLimit ?? fallback?.fileSizeLimit;
   final sizeGen = oneOf([
     constant(0),
     if (sizeLimit != null) ...[

@@ -287,7 +287,7 @@ as int?,
 /// @nodoc
 mixin _$EndpointFileConfig {
 
- int? get fileLimit; int? get fileSizeLimit; int? get totalSizeLimit; List<String> get supportedMimeTypes; bool get disabled;
+ int? get fileLimit; int? get fileSizeLimit; int? get totalSizeLimit; List<String> get supportedMimeTypes; bool? get disabled;
 /// Create a copy of EndpointFileConfig
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -320,7 +320,7 @@ abstract mixin class $EndpointFileConfigCopyWith<$Res>  {
   factory $EndpointFileConfigCopyWith(EndpointFileConfig value, $Res Function(EndpointFileConfig) _then) = _$EndpointFileConfigCopyWithImpl;
 @useResult
 $Res call({
- int? fileLimit, int? fileSizeLimit, int? totalSizeLimit, List<String> supportedMimeTypes, bool disabled
+ int? fileLimit, int? fileSizeLimit, int? totalSizeLimit, List<String> supportedMimeTypes, bool? disabled
 });
 
 
@@ -337,14 +337,14 @@ class _$EndpointFileConfigCopyWithImpl<$Res>
 
 /// Create a copy of EndpointFileConfig
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fileLimit = freezed,Object? fileSizeLimit = freezed,Object? totalSizeLimit = freezed,Object? supportedMimeTypes = null,Object? disabled = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fileLimit = freezed,Object? fileSizeLimit = freezed,Object? totalSizeLimit = freezed,Object? supportedMimeTypes = null,Object? disabled = freezed,}) {
   return _then(_self.copyWith(
 fileLimit: freezed == fileLimit ? _self.fileLimit : fileLimit // ignore: cast_nullable_to_non_nullable
 as int?,fileSizeLimit: freezed == fileSizeLimit ? _self.fileSizeLimit : fileSizeLimit // ignore: cast_nullable_to_non_nullable
 as int?,totalSizeLimit: freezed == totalSizeLimit ? _self.totalSizeLimit : totalSizeLimit // ignore: cast_nullable_to_non_nullable
 as int?,supportedMimeTypes: null == supportedMimeTypes ? _self.supportedMimeTypes : supportedMimeTypes // ignore: cast_nullable_to_non_nullable
-as List<String>,disabled: null == disabled ? _self.disabled : disabled // ignore: cast_nullable_to_non_nullable
-as bool,
+as List<String>,disabled: freezed == disabled ? _self.disabled : disabled // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 
@@ -429,7 +429,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool disabled)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool? disabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EndpointFileConfig() when $default != null:
 return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.supportedMimeTypes,_that.disabled);case _:
@@ -450,7 +450,7 @@ return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool disabled)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool? disabled)  $default,) {final _that = this;
 switch (_that) {
 case _EndpointFileConfig():
 return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.supportedMimeTypes,_that.disabled);case _:
@@ -470,7 +470,7 @@ return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool disabled)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? fileLimit,  int? fileSizeLimit,  int? totalSizeLimit,  List<String> supportedMimeTypes,  bool? disabled)?  $default,) {final _that = this;
 switch (_that) {
 case _EndpointFileConfig() when $default != null:
 return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.supportedMimeTypes,_that.disabled);case _:
@@ -485,7 +485,7 @@ return $default(_that.fileLimit,_that.fileSizeLimit,_that.totalSizeLimit,_that.s
 @JsonSerializable()
 
 class _EndpointFileConfig implements EndpointFileConfig {
-  const _EndpointFileConfig({this.fileLimit, this.fileSizeLimit, this.totalSizeLimit, final  List<String> supportedMimeTypes = const <String>[], this.disabled = false}): _supportedMimeTypes = supportedMimeTypes;
+  const _EndpointFileConfig({this.fileLimit, this.fileSizeLimit, this.totalSizeLimit, final  List<String> supportedMimeTypes = const <String>[], this.disabled}): _supportedMimeTypes = supportedMimeTypes;
   factory _EndpointFileConfig.fromJson(Map<String, dynamic> json) => _$EndpointFileConfigFromJson(json);
 
 @override final  int? fileLimit;
@@ -498,7 +498,7 @@ class _EndpointFileConfig implements EndpointFileConfig {
   return EqualUnmodifiableListView(_supportedMimeTypes);
 }
 
-@override@JsonKey() final  bool disabled;
+@override final  bool? disabled;
 
 /// Create a copy of EndpointFileConfig
 /// with the given fields replaced by the non-null parameter values.
@@ -533,7 +533,7 @@ abstract mixin class _$EndpointFileConfigCopyWith<$Res> implements $EndpointFile
   factory _$EndpointFileConfigCopyWith(_EndpointFileConfig value, $Res Function(_EndpointFileConfig) _then) = __$EndpointFileConfigCopyWithImpl;
 @override @useResult
 $Res call({
- int? fileLimit, int? fileSizeLimit, int? totalSizeLimit, List<String> supportedMimeTypes, bool disabled
+ int? fileLimit, int? fileSizeLimit, int? totalSizeLimit, List<String> supportedMimeTypes, bool? disabled
 });
 
 
@@ -550,14 +550,14 @@ class __$EndpointFileConfigCopyWithImpl<$Res>
 
 /// Create a copy of EndpointFileConfig
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fileLimit = freezed,Object? fileSizeLimit = freezed,Object? totalSizeLimit = freezed,Object? supportedMimeTypes = null,Object? disabled = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fileLimit = freezed,Object? fileSizeLimit = freezed,Object? totalSizeLimit = freezed,Object? supportedMimeTypes = null,Object? disabled = freezed,}) {
   return _then(_EndpointFileConfig(
 fileLimit: freezed == fileLimit ? _self.fileLimit : fileLimit // ignore: cast_nullable_to_non_nullable
 as int?,fileSizeLimit: freezed == fileSizeLimit ? _self.fileSizeLimit : fileSizeLimit // ignore: cast_nullable_to_non_nullable
 as int?,totalSizeLimit: freezed == totalSizeLimit ? _self.totalSizeLimit : totalSizeLimit // ignore: cast_nullable_to_non_nullable
 as int?,supportedMimeTypes: null == supportedMimeTypes ? _self._supportedMimeTypes : supportedMimeTypes // ignore: cast_nullable_to_non_nullable
-as List<String>,disabled: null == disabled ? _self.disabled : disabled // ignore: cast_nullable_to_non_nullable
-as bool,
+as List<String>,disabled: freezed == disabled ? _self.disabled : disabled // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 

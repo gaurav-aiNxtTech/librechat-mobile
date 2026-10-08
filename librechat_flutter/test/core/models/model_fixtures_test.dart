@@ -515,7 +515,7 @@ final _fixtures = <_Fixture<dynamic>>[
         '^application/pdf\$',
         '^text/.*\$',
       ]);
-      expect(fallback.disabled, isFalse);
+      expect(fallback.disabled, isNull);
       expect(config.serverFileSizeLimit, 104857600);
     },
   ),
