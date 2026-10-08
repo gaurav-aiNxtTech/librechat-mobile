@@ -11,6 +11,7 @@ import 'package:librechat_flutter/core/models/content_part.dart';
 import 'package:librechat_flutter/core/models/context_usage.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
 import 'package:librechat_flutter/core/models/endpoint_config.dart';
+import 'package:librechat_flutter/core/models/file_config.dart';
 import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/models/pending_action.dart';
 import 'package:librechat_flutter/core/models/pending_steer.dart';
@@ -481,6 +482,41 @@ final _fixtures = <_Fixture<dynamic>>[
       expect(usage.breakdown?['maxContextTokens'], 200000);
       expect(usage.breakdown?['instructionTokens'], 2048);
       expect(usage.breakdown?['messageTokens'], 26368);
+    },
+  ),
+  _Fixture<FileConfig>(
+    'file_config.json',
+    decode: (json) => FileConfig.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const [
+      'avatarSizeLimit',
+      'imageGeneration',
+      'clientImageResize',
+      'fileTokenLimit',
+    ],
+    check: (config) {
+      expect(config.endpoints.keys, ['assistants', 'agents', 'default']);
+      final assistants = config.endpoints['assistants']!;
+      expect(assistants.fileLimit, 10);
+      expect(assistants.fileSizeLimit, 536870912);
+      expect(assistants.totalSizeLimit, 536870912);
+      expect(assistants.supportedMimeTypes, hasLength(3));
+      expect(assistants.disabled, isFalse);
+      final agents = config.endpoints['agents']!;
+      expect(agents.disabled, isTrue);
+      expect(agents.fileLimit, isNull);
+      expect(agents.supportedMimeTypes, isEmpty);
+      final fallback = config.endpoints['default']!;
+      expect(fallback.fileLimit, 10);
+      expect(fallback.fileSizeLimit, 20971520);
+      expect(fallback.totalSizeLimit, 52428800);
+      expect(fallback.supportedMimeTypes, [
+        '^image/.*\$',
+        '^application/pdf\$',
+        '^text/.*\$',
+      ]);
+      expect(fallback.disabled, isFalse);
+      expect(config.serverFileSizeLimit, 104857600);
     },
   ),
 ];

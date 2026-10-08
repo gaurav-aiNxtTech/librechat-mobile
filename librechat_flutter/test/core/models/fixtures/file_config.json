@@ -1,0 +1,31 @@
+{
+  "endpoints": {
+    "assistants": {
+      "fileLimit": 10,
+      "fileSizeLimit": 536870912,
+      "totalSizeLimit": 536870912,
+      "supportedMimeTypes": ["^text/.*$", "^application/pdf$", "^image/(jpeg|png|webp)$"],
+      "disabled": false,
+      "fileTokenLimit": 100000
+    },
+    "agents": {
+      "disabled": true
+    },
+    "default": {
+      "fileLimit": 10,
+      "fileSizeLimit": 20971520,
+      "totalSizeLimit": 52428800,
+      "supportedMimeTypes": ["^image/.*$", "^application/pdf$", "^text/.*$"]
+    }
+  },
+  "serverFileSizeLimit": 104857600,
+  "avatarSizeLimit": 2097152,
+  "imageGeneration": {
+    "percentage": 100,
+    "px": 1024
+  },
+  "clientImageResize": {
+    "enabled": false,
+    "maxWidth": 1900
+  }
+}

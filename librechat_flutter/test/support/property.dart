@@ -16,8 +16,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:librechat_flutter/core/models/attachment.dart';
 import 'package:librechat_flutter/core/models/content_part.dart';
 import 'package:librechat_flutter/core/models/conversation.dart';
+import 'package:librechat_flutter/core/models/file_config.dart';
 import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/stream/sse_parser.dart';
+import 'package:librechat_flutter/features/chat/composer/attachments.dart';
 
 import 'sse_formatter.dart';
 
@@ -864,3 +866,66 @@ final Gen<(String, Map<String, String>)> promptFillCaseGen = zip2(
   promptTemplateGen,
   promptValuesGen,
 );
+
+// Attachment generators (Property 10)
+
+/// Limits that are null or small, so sets often land on either side.
+final Gen<EndpointFileConfig> endpointFileConfigGen = Gen(
+  (r) => EndpointFileConfig(
+    fileLimit: opt(intRange(0, 6))(r),
+    fileSizeLimit: opt(intRange(0, 5000))(r),
+    totalSizeLimit: opt(intRange(0, 5000))(r),
+    supportedMimeTypes: listOf(
+      elementOf(const [
+        '^image/.*\$',
+        '^application/pdf\$',
+        '^text/.*\$',
+        'png',
+        '^audio/mpeg\$',
+      ]),
+      max: 3,
+    )(r),
+    disabled: r.nextInt(8) == 0,
+  ),
+);
+
+/// Property 10's case: 0-12 files, a FileConfig with an optional `default`,
+/// an optional entry for the endpoint and an optional unrelated entry, and
+/// the endpoint. File sizes cluster around the effective `fileSizeLimit`.
+final Gen<({List<FileInfo> files, FileConfig config, String endpoint})>
+attachmentCaseGen = Gen((r) {
+  final endpoint = elementOf(const ['openAI', 'agents', 'custom'])(r);
+  final own = opt(endpointFileConfigGen)(r);
+  final fallback = opt(endpointFileConfigGen)(r);
+  final endpoints = <String, EndpointFileConfig>{
+    'default': ?fallback,
+    endpoint: ?own,
+    if (r.nextBool()) 'assistants': endpointFileConfigGen(r),
+  };
+  final sizeLimit = (own ?? fallback)?.fileSizeLimit;
+  final sizeGen = oneOf([
+    constant(0),
+    if (sizeLimit != null) ...[
+      constant(sizeLimit > 0 ? sizeLimit - 1 : 0),
+      constant(sizeLimit),
+      constant(sizeLimit + 1),
+    ],
+    intRange(0, 6000),
+  ]);
+  final mimeGen = elementOf(const [
+    'image/png',
+    'image/jpeg',
+    'application/pdf',
+    'text/plain',
+    'audio/x-weird',
+  ]);
+  final count = intRange(0, 12)(r);
+  return (
+    files: [
+      for (var i = 0; i < count; i++)
+        FileInfo(name: 'f$i', size: sizeGen(r), mimeType: mimeGen(r)),
+    ],
+    config: FileConfig(endpoints: endpoints),
+    endpoint: endpoint,
+  );
+});
