@@ -20,10 +20,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:librechat_flutter/core/auth/auth_api.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
+import 'package:librechat_flutter/core/models/conversation.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
+import 'package:librechat_flutter/core/models/tag.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 import 'package:librechat_flutter/core/storage/cache_db.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
+import 'package:librechat_flutter/features/conversations/conversations_api.dart';
 
 /// Records [probe] and [save] calls. [probe] answers with [probeResult], or
 /// throws [probeError], after [probeGate] completes when one is set. Other
@@ -294,6 +297,116 @@ class FakeSettingsStore extends Notifier<AppSettings> implements SettingsStore {
     saved.add(next);
     state = next;
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Records every call in [calls] as `(method, args)` and answers from the
+/// reply fields, or throws [error], after [gate] completes when one is set.
+/// [list] answers [pages] in order, then an empty last page. [rename],
+/// [archive] and [pin] answer their reply (null is a body that is not a
+/// conversation); [setConversationTags] echoes its tags unless
+/// [setTagsReply] is set.
+class FakeConversationsApi implements ConversationsApi {
+  final calls = <(String, List<Object?>)>[];
+  final pages = <ConversationPage>[];
+  final conversations = <String, Conversation>{};
+  Conversation? renameReply;
+  Conversation? archiveReply;
+  Conversation? pinReply;
+  Conversation duplicateReply = const Conversation(conversationId: 'copy');
+  List<Tag> tagsReply = const [];
+  List<String>? setTagsReply;
+  String? sharedLinkReply;
+  String createShareReply = 'share-1';
+  Object? error;
+  Completer<void>? gate;
+
+  /// The calls to [method], as their args.
+  List<List<Object?>> callsTo(String method) => [
+    for (final (m, args) in calls)
+      if (m == method) args,
+  ];
+
+  Future<T> _answer<T>(
+    String method,
+    List<Object?> args,
+    T Function() reply,
+  ) async {
+    calls.add((method, args));
+    await gate?.future;
+    if (error case final error?) throw error;
+    return reply();
+  }
+
+  @override
+  Future<ConversationPage> list({
+    String? cursor,
+    int limit = 25,
+    bool isArchived = false,
+    String? search,
+    List<String> tags = const [],
+  }) => _answer(
+    'list',
+    [cursor, limit, isArchived, search, tags],
+    () => pages.isEmpty
+        ? (conversations: const <Conversation>[], nextCursor: null)
+        : pages.removeAt(0),
+  );
+
+  @override
+  Future<Conversation> get(String id) =>
+      _answer('get', [id], () => conversations[id]!);
+
+  @override
+  Future<Conversation?> rename(String id, String title) =>
+      _answer('rename', [id, title], () => renameReply);
+
+  @override
+  Future<Conversation?> archive(String id, bool isArchived) =>
+      _answer('archive', [id, isArchived], () => archiveReply);
+
+  @override
+  Future<Conversation?> pin(String id, bool pinned) =>
+      _answer('pin', [id, pinned], () => pinReply);
+
+  @override
+  Future<void> delete(String id) => _answer('delete', [id], () {});
+
+  @override
+  Future<Conversation> duplicate(String id, String title) =>
+      _answer('duplicate', [id, title], () => duplicateReply);
+
+  @override
+  Future<void> importFile(Uint8List bytes, String fileName) =>
+      _answer('importFile', [bytes, fileName], () {});
+
+  @override
+  Future<List<Tag>> tags() => _answer('tags', const [], () => tagsReply);
+
+  @override
+  Future<Tag> createTag(String tag) =>
+      _answer('createTag', [tag], () => Tag(tag: tag));
+
+  @override
+  Future<Tag> renameTag(String tag, String newName) =>
+      _answer('renameTag', [tag, newName], () => Tag(tag: newName));
+
+  @override
+  Future<void> deleteTag(String tag) => _answer('deleteTag', [tag], () {});
+
+  @override
+  Future<List<String>> setConversationTags(String id, List<String> tags) =>
+      _answer('setConversationTags', [id, tags], () => setTagsReply ?? tags);
+
+  @override
+  Future<String?> sharedLinkId(String id) =>
+      _answer('sharedLinkId', [id], () => sharedLinkReply);
+
+  @override
+  Future<String> createShareLink(String id) =>
+      _answer('createShareLink', [id], () => createShareReply);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

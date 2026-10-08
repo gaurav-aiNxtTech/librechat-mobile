@@ -13,6 +13,7 @@ import 'package:librechat_flutter/core/models/endpoint_config.dart';
 import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/models/role_permissions.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
+import 'package:librechat_flutter/core/models/tag.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 
 /// One fixture file and how to decode, encode and check it.
@@ -228,6 +229,25 @@ final _fixtures = <_Fixture<dynamic>>[
       expect(banner.displayFrom, DateTime.utc(2026, 10));
       expect(banner.displayTo, DateTime.utc(2026, 10, 11, 2));
       expect(banner.displayTo?.isUtc, isTrue);
+    },
+  ),
+  _Fixture<Tag>(
+    'tag.json',
+    decode: (json) => Tag.fromJson(_map(json)),
+    encode: (value) => value.toJson(),
+    unknownKeys: const [
+      '_id',
+      'user',
+      'createdAt',
+      'updatedAt',
+      '__v',
+      'colorHint',
+    ],
+    check: (tag) {
+      expect(tag.tag, 'research');
+      expect(tag.description, 'Reading and sources');
+      expect(tag.count, 3);
+      expect(tag.position, 1);
     },
   ),
   _Fixture<User>(
