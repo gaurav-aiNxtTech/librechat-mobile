@@ -1,7 +1,13 @@
-// cadenceIntervalMinutes cases (Task 29.6).
+// cadenceIntervalMinutes cases (Task 29.6), ported from upstream
+// `packages/api/src/schedules/cadence.spec.ts` and the KMP
+// `core/model/.../schedule/ScheduleCadenceRulesTest.kt`.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:librechat_flutter/core/models/schedule.dart';
 import 'package:librechat_flutter/features/schedules/schedule_cadence.dart';
+
+int? structured(String frequency) => cadenceIntervalMinutes(
+  ScheduleCadence(frequency: frequency, hour: 9, minute: 0),
+);
 
 int? weekly(List<int>? days) => cadenceIntervalMinutes(
   ScheduleCadence(
@@ -16,6 +22,11 @@ int? cron(String? expression) => cadenceIntervalMinutes(
   ScheduleCadence(frequency: ScheduleFrequency.cron, expression: expression),
 );
 
+/// The Server admits a cadence when its interval is at least the floor
+/// (`handlers.ts`: `cadenceIntervalMinutes(...) >= minIntervalMinutes`).
+bool admits(int? interval, int minIntervalMinutes) =>
+    interval! >= minIntervalMinutes;
+
 void main() {
   group('structured', () {
     test('hourly is 60', () {
@@ -27,16 +38,9 @@ void main() {
       );
     });
 
-    test('daily and weekdays are 1440', () {
-      for (final frequency in ['daily', 'weekdays']) {
-        expect(
-          cadenceIntervalMinutes(
-            ScheduleCadence(frequency: frequency, hour: 9, minute: 0),
-          ),
-          1440,
-          reason: frequency,
-        );
-      }
+    test('daily and weekdays allow for a 2-hour spring-forward', () {
+      expect(structured(ScheduleFrequency.daily), 24 * 60 - 120);
+      expect(structured(ScheduleFrequency.weekdays), 24 * 60 - 120);
     });
 
     test('an unknown frequency is null', () {
@@ -48,65 +52,73 @@ void main() {
   });
 
   group('weekly', () {
-    test('one day is a week', () => expect(weekly([3]), 10080));
-    test('no days means Monday', () {
-      expect(weekly(null), 10080);
-      expect(weekly([]), 10080);
+    test('one day is a week less the allowance', () {
+      expect(weekly([3]), 7 * 24 * 60 - 120);
     });
-    test('adjacent days', () => expect(weekly([1, 2]), 1440));
-    test('the gap wraps the week', () => expect(weekly([0, 6]), 1440));
-    test('repeated days count once', () => expect(weekly([1, 1]), 10080));
-    test('every other day', () => expect(weekly([1, 3, 5]), 2880));
-    test('the smaller side of the cycle', () => expect(weekly([1, 4]), 4320));
-    test('7 is Sunday', () => expect(weekly([0, 7]), 10080));
-    test('a day out of range is null', () => expect(weekly([1, 9]), isNull));
+    test('no days means Monday', () {
+      expect(weekly(null), 7 * 24 * 60 - 120);
+      expect(weekly([]), 7 * 24 * 60 - 120);
+    });
+    test('adjacent days', () => expect(weekly([1, 2]), 24 * 60 - 120));
+    test('the gap wraps the week', () => expect(weekly([0, 6]), 24 * 60 - 120));
+    test('repeated days count once', () {
+      expect(weekly([1, 1]), 7 * 24 * 60 - 120);
+    });
+    test('every other day', () => expect(weekly([1, 3, 5]), 2 * 24 * 60 - 120));
+    test('the smaller side of the cycle', () {
+      expect(weekly([1, 4]), 3 * 24 * 60 - 120);
+    });
+    test('a day outside 0-6 is null', () {
+      expect(weekly([1, 7]), isNull);
+      expect(weekly([-1]), isNull);
+    });
   });
 
-  group('cron', () {
-    test('*/5 * * * *', () => expect(cron('*/5 * * * *'), 5));
-    test('0 * * * *', () => expect(cron('0 * * * *'), 60));
-    test('0 9 * * *', () => expect(cron('0 9 * * *'), 1440));
-    test('0 9,17 * * *', () => expect(cron('0 9,17 * * *'), 480));
-    test('0 9 * * 1-5', () => expect(cron('0 9 * * 1-5'), 1440));
-    test('0-30/10 * * * *', () => expect(cron('0-30/10 * * * *'), 10));
-    test('n/step runs to the maximum', () => expect(cron('50/5 * * * *'), 5));
-    test('30 8 1 * * (February 2027)', () => expect(cron('30 8 1 * *'), 40320));
-    test('0 0 1 1 * (yearly)', () => expect(cron('0 0 1 1 *'), 525600));
-    test('0 0 29 2 * fires once in the window', () {
-      expect(cron('0 0 29 2 *'), isNull);
-    });
-    test('restricted day-of-month and day-of-week match on either', () {
-      expect(cron('0 0 1 * 1'), 1440);
-    });
-    test('0 0 */2 * * (Jan 31 to Feb 1)', () {
-      expect(cron('0 0 */2 * *'), 1440);
-    });
-    test('0 0 * * 7 (Sunday)', () => expect(cron('0 0 * * 7'), 10080));
-    test('surrounding whitespace is trimmed', () {
-      expect(cron('  0  9 * *   * '), 1440);
+  group('the minIntervalMinutes floor', () {
+    test('daily is admitted up to 1320 and refused from 1321', () {
+      final daily = structured(ScheduleFrequency.daily);
+      expect(admits(daily, 1320), isTrue);
+      expect(admits(daily, 1321), isFalse);
+      expect(admits(daily, 1440), isFalse);
     });
 
-    test('invalid expressions are null', () {
+    test('weekdays and Mon+Tue weekly behave like daily', () {
+      for (final interval in [
+        structured(ScheduleFrequency.weekdays),
+        weekly([1, 2]),
+      ]) {
+        expect(admits(interval, 1320), isTrue);
+        expect(admits(interval, 1321), isFalse);
+      }
+    });
+
+    test('a single-day weekly is admitted up to 9960', () {
+      final interval = weekly([3]);
+      expect(admits(interval, 1440), isTrue);
+      expect(admits(interval, 9960), isTrue);
+      expect(admits(interval, 9961), isFalse);
+      expect(admits(interval, 10080), isFalse);
+    });
+
+    test('hourly has no allowance', () {
+      final hourly = structured(ScheduleFrequency.hourly);
+      expect(admits(hourly, 60), isTrue);
+      expect(admits(hourly, 61), isFalse);
+    });
+  });
+
+  group('cron is left to the Server', () {
+    test('any expression is null', () {
       for (final expression in [
-        '* * * *',
-        '* * * * * *',
-        '61 * * * *',
-        '5-1 * * * *',
-        '*/0 * * * *',
-        '0 0 * * MON',
-        '0 0 * JAN *',
-        '0 0 ? * *',
-        '0 0 L * *',
-        '0 0 15W * *',
-        '0 0 * * 1#2',
-        '0 0 0 * *',
-        '1,,2 * * * *',
+        '*/5 * * * *',
+        '0 9 * * *',
+        '0 0,12 * * *',
+        'not a cron',
         '',
       ]) {
         expect(cron(expression), isNull, reason: expression);
       }
     });
-
     test('a null expression is null', () => expect(cron(null), isNull));
   });
 
