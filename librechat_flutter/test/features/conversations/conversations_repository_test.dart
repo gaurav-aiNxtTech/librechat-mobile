@@ -265,16 +265,15 @@ void main() {
     expect(await listed(), ['copy-1']);
   });
 
-  test('importFile uploads, then refreshes', () async {
+  test('importFile only uploads; the caller refreshes', () async {
     await repository.upsert(_c('before'));
-    api.pages.add((conversations: [_c('imported')], nextCursor: 'n1'));
     final bytes = Uint8List.fromList([1, 2, 3]);
 
-    expect(await repository.importFile(bytes, 'export.json'), 'n1');
+    await repository.importFile(bytes, 'export.json');
 
-    expect([for (final (m, _) in api.calls) m], ['importFile', 'list']);
+    expect([for (final (m, _) in api.calls) m], ['importFile']);
     expect(api.callsTo('importFile').single, [bytes, 'export.json']);
-    expect(await listed(), ['imported']);
+    expect(await listed(), ['before']);
   });
 
   test('a rejected import leaves the list unchanged', () async {

@@ -421,8 +421,9 @@ class FakeConversationsApi implements ConversationsApi {
 ///
 /// [watchList] streams [rows] (the cached list, already in display order)
 /// and every [emit]. Each call is recorded in [calls] as `(method, args)`;
-/// a method throws `errors[method]`, else [error], after [gate] completes
-/// when one is set. [refresh] answers [refreshCursor] and, when
+/// a method throws `errors[method]`, else [error], after `gates[method]`,
+/// else [gate], completes when one is set. [refresh] answers
+/// [refreshCursor] and, when
 /// [refreshRows] is set, emits it; [loadMore] answers [loadMoreCursors] in
 /// order, then null. Mutations apply to [rows] the way the real Cache
 /// write would. [api] is a [FakeConversationsApi].
@@ -436,10 +437,10 @@ class FakeConversationsRepository implements ConversationsRepository {
   final errors = <String, Object>{};
   Object? error;
   Completer<void>? gate;
+  final gates = <String, Completer<void>>{};
   String? refreshCursor;
   List<Conversation>? refreshRows;
   final loadMoreCursors = <String?>[];
-  String? importCursor;
   Conversation duplicateReply = const Conversation(conversationId: 'copy');
   final _changes = StreamController<List<Conversation>>.broadcast();
 
@@ -464,7 +465,7 @@ class FakeConversationsRepository implements ConversationsRepository {
     T Function() reply,
   ) async {
     calls.add((method, args));
-    await gate?.future;
+    await (gates[method] ?? gate)?.future;
     if (errors[method] ?? error case final error?) throw error;
     return reply();
   }
@@ -546,8 +547,8 @@ class FakeConversationsRepository implements ConversationsRepository {
       });
 
   @override
-  Future<String?> importFile(Uint8List bytes, String fileName) =>
-      _answer('importFile', [bytes, fileName], () => importCursor);
+  Future<void> importFile(Uint8List bytes, String fileName) =>
+      _answer('importFile', [bytes, fileName], () {});
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

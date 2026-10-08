@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -527,16 +528,49 @@ void main() {
         exportConversationJson(const Conversation(title: 'Trip'), const []),
       );
       h.platform.picked = file('trip.json', bytes);
-      h.repository.importCursor = 'next';
       await h.pump(
         tester,
         config: StartupConfig(conversationImportMaxFileSize: bytes.length),
       );
+      h.repository.refreshRows = [
+        Conversation(conversationId: 'i1', title: 'Trip', updatedAt: now),
+        alpha,
+      ];
       await import(tester);
       expect(h.repository.callsTo('importFile'), [
         [bytes, 'trip.json'],
       ]);
+      expect(h.repository.callsTo('refresh'), hasLength(2));
       expect(find.widgetWithText(SnackBar, 'Imported: Trip'), findsOneWidget);
+      expect(find.widgetWithText(ListTile, 'Trip'), findsOneWidget);
+    });
+
+    testWidgets('a failed refresh after the upload still reads as imported', (
+      tester,
+    ) async {
+      final h = harness();
+      h.platform.picked = file('chats.json', utf8.encode('[1, 2]'));
+      await h.pump(tester);
+      final refresh = Completer<void>();
+      h.repository
+        ..gates['refresh'] = refresh
+        ..errors['refresh'] = AppException(FailureKind.network);
+      await import(tester);
+      expect(h.repository.callsTo('importFile'), hasLength(1));
+      expect(h.repository.callsTo('refresh'), hasLength(2));
+      expect(find.widgetWithText(SnackBar, 'Imported: chats'), findsOneWidget);
+
+      // The refresh failure takes the list's own SnackBar path.
+      refresh.complete();
+      await tester.pumpAndSettle();
+      expect(
+        find.widgetWithText(
+          SnackBar,
+          'Network unavailable. Check your connection.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Alpha'), findsOneWidget);
     });
 
     testWidgets('a file that is not an export reads as its file name', (

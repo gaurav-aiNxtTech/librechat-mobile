@@ -103,8 +103,8 @@ class _ConversationListScreenState
                   importConversations(
                     context,
                     ref,
-                    onImported: (cursor) {
-                      if (mounted) _controller.listRefreshed(cursor);
+                    onImported: () {
+                      if (mounted) unawaited(_controller.refreshList());
                     },
                   ),
                 ),
@@ -296,7 +296,7 @@ class _ConversationListScreenState
           child: TextButton.icon(
             style: TextButton.styleFrom(minimumSize: const Size(88, 48)),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'), // New copy: the KMP_App has none
+            label: const Text('Retry'), // KMP retry
             onPressed: () => unawaited(_controller.retryPage()),
           ),
         ),

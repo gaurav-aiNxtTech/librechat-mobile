@@ -15,8 +15,11 @@ part 'conversation_list_controller.freezed.dart';
 ///
 /// The grouped list is [cached], paged by [nextCursor]. A search or a tag
 /// filter shows [results] instead, paged by [resultsCursor] and never
-/// cached; [results] is null in grouped mode. [loading] is the grouped
-/// list's page-1 fetch and [searching] the results' page-1 fetch.
+/// cached; [results] is null in grouped mode. [resultsQuery] and
+/// [resultsTags] are the filter that produced [results], so later pages
+/// pair [resultsCursor] with it rather than with a [query] still being
+/// typed. [loading] is the grouped list's page-1 fetch and [searching] the
+/// results' page-1 fetch.
 /// [loadingMore] and [pageError] belong to the mode on screen. [error] is
 /// the last page-1 failure; the data on screen stays.
 @freezed
@@ -31,6 +34,8 @@ abstract class ConversationListState with _$ConversationListState {
     @Default('') String query,
     List<Conversation>? results,
     String? resultsCursor,
+    @Default('') String resultsQuery,
+    @Default(<String>[]) List<String> resultsTags,
     @Default(false) bool searching,
     @Default(<Tag>[]) List<Tag> tags,
     @Default(<String>[]) List<String> selectedTags,
@@ -68,6 +73,11 @@ class ConversationListController extends Notifier<ConversationListState> {
 
   @override
   ConversationListState build() {
+    // The Notifier outlives a rebuild (a new session user), so replies to
+    // the old state's requests are dropped.
+    _listGeneration++;
+    _resultsGeneration++;
+    _pageGeneration++;
     ref.watch(authServiceProvider.select((a) => a.session?.user.id));
     _repository = ref.watch(conversationsRepositoryProvider);
     final subscription = _repository.watchList().listen(
@@ -81,9 +91,7 @@ class ConversationListController extends Notifier<ConversationListState> {
     });
     ref.listen(
       featureGatesProvider.select((g) => g.has(Feature.bookmarks)),
-      (_, on) => on
-          ? unawaited(reloadTags())
-          : state = state.copyWith(tags: const [], selectedTags: const []),
+      (_, on) => on ? unawaited(reloadTags()) : _dropTags(),
     );
     Future.microtask(() async {
       if (!ref.mounted) return;
@@ -149,18 +157,9 @@ class ConversationListController extends Notifier<ConversationListState> {
     }
   }
 
-  /// Takes the cursor of a refresh that ran outside this controller (the
-  /// import).
-  void listRefreshed(String? cursor) {
-    _listGeneration++;
-    _pageGeneration++;
-    state = state.copyWith(
-      nextCursor: cursor,
-      loading: false,
-      loadingMore: state.results == null ? false : state.loadingMore,
-      pageError: state.results == null ? null : state.pageError,
-    );
-  }
+  /// Page 1 of the grouped list whatever mode is on screen, after an import.
+  /// Results paging is left alone; a failure shows as [error].
+  Future<void> refreshList() => _refreshList();
 
   /// Applies a row action to the uncached [results]: [updated] replaces the
   /// row with [id], or null removes it. The grouped list follows the Cache.
@@ -186,8 +185,8 @@ class ConversationListController extends Notifier<ConversationListState> {
       return;
     }
     final generation = _pageGeneration;
-    final query = state.query;
-    final tags = state.selectedTags;
+    final query = state.resultsQuery;
+    final tags = state.resultsTags;
     state = state.copyWith(loadingMore: true);
     try {
       if (inResults) {
@@ -260,10 +259,26 @@ class ConversationListController extends Notifier<ConversationListState> {
         searching: false,
         results: page.conversations,
         resultsCursor: page.nextCursor,
+        resultsQuery: query,
+        resultsTags: tags,
       );
     } catch (e) {
       if (!ref.mounted || generation != _resultsGeneration) return;
       state = state.copyWith(searching: false, error: e);
+    }
+  }
+
+  /// Feature.bookmarks went off: the chips go, and a tag filter on screen
+  /// gives way to the query's results, or the grouped list for a blank
+  /// query.
+  void _dropTags() {
+    final filtered = state.selectedTags.isNotEmpty;
+    state = state.copyWith(tags: const [], selectedTags: const []);
+    if (!filtered) return;
+    if (_wantsResults) {
+      unawaited(_search());
+    } else {
+      _showList();
     }
   }
 
@@ -274,6 +289,8 @@ class ConversationListController extends Notifier<ConversationListState> {
     state = state.copyWith(
       results: null,
       resultsCursor: null,
+      resultsQuery: '',
+      resultsTags: const [],
       searching: false,
       loadingMore: false,
       pageError: null,

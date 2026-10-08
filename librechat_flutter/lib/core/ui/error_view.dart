@@ -48,7 +48,7 @@ class ErrorView extends StatelessWidget {
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(minimumSize: const Size(88, 48)),
-              child: const Text('Retry'), // New copy: the KMP_App has none
+              child: const Text('Retry'), // KMP retry
             ),
           ],
         ),

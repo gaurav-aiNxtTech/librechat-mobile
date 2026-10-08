@@ -125,7 +125,7 @@ class ArchivedScreen extends ConsumerWidget {
                 child: TextButton.icon(
                   style: TextButton.styleFrom(minimumSize: const Size(88, 48)),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'), // New copy: the KMP_App has none
+                  label: const Text('Retry'), // KMP retry
                   onPressed: () => unawaited(controller.retryPage()),
                 ),
               ),

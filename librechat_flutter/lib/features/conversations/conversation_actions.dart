@@ -209,13 +209,13 @@ Future<bool> confirmDeleteConversation(
 
 /// Picks a `.json` export and uploads it (Req 16.12, 16.13). A file over
 /// the Server's `conversationImportMaxFileSize` is refused before upload.
-/// On success [onImported] gets the refreshed list's cursor and
-/// "Imported: {title}" shows; a rejection shows the Server's message and the
-/// list stays as it was.
+/// Once the upload succeeds "Imported: {title}" shows and [onImported]
+/// refreshes the list, which reports its own failure; a rejection shows the
+/// Server's message and the list stays as it was.
 Future<void> importConversations(
   BuildContext context,
   WidgetRef ref, {
-  required void Function(String? cursor) onImported,
+  required void Function() onImported,
 }) async {
   final repository = ref.read(conversationsRepositoryProvider);
   final platform = ref.read(platformActionsProvider);
@@ -239,15 +239,16 @@ Future<void> importConversations(
       _toast(messenger, tooLarge);
       return;
     }
-    final cursor = await repository.importFile(bytes, file.name);
-    onImported(cursor);
+    await repository.importFile(bytes, file.name);
     _toast(
       messenger,
       'Imported: ${_importTitle(bytes, file.name)}',
     ); // KMP imported_title
   } catch (e) {
     _toast(messenger, userMessage(e));
+    return;
   }
+  onImported();
 }
 
 /// The export's title when it parses and has one, else [fileName] without
@@ -531,7 +532,7 @@ class _ShareSheet extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.link),
-            title: const Text('Copy link'), // New copy: the KMP_App has none
+            title: const Text('Copy link'), // KMP cd_copy_link
             onTap: () {
               Navigator.pop(context);
               unawaited(onCopy());

@@ -140,12 +140,10 @@ class ConversationsRepository {
     return copy;
   }
 
-  /// Uploads an export, then [refresh]es so the imported conversations show.
-  /// Returns the next page's cursor.
-  Future<String?> importFile(Uint8List bytes, String fileName) async {
-    await api.importFile(bytes, fileName);
-    return refresh();
-  }
+  /// Uploads an export. The caller [refresh]es after, so a failed refresh
+  /// does not read as a failed import.
+  Future<void> importFile(Uint8List bytes, String fileName) =>
+      api.importFile(bytes, fileName);
 
   /// Sends [request], then caches the Server's row when it is the same
   /// conversation, else [local] applied to [conversation]. With [force],
