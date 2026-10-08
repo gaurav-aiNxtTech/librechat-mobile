@@ -168,11 +168,6 @@ void main() {
   testWidgets('banners are live regions, stacked offline, server, version', (
     tester,
   ) async {
-    // Tall enough for the landing below three banners.
-    tester.view
-      ..devicePixelRatio = 1
-      ..physicalSize = const Size(800, 1000);
-    addTearDown(tester.view.reset);
     final handle = tester.ensureSemantics();
     await pump(
       tester,
@@ -190,6 +185,33 @@ void main() {
     expect(offlineY, lessThan(serverY));
     expect(serverY, lessThan(versionY));
     handle.dispose();
+  });
+
+  group('the landing scrolls instead of overflowing below banners', () {
+    for (final (name, size, offline, withBanners) in [
+      ('three banners at 800x600', const Size(800, 600), true, true),
+      ('the offline banner at 640x360', const Size(640, 360), true, false),
+    ]) {
+      testWidgets(name, (tester) async {
+        tester.view
+          ..devicePixelRatio = 1
+          ..physicalSize = size;
+        addTearDown(tester.view.reset);
+        await pump(
+          tester,
+          online: !offline,
+          banner: withBanners
+              ? const ServerBanner(bannerId: 'b1', message: 'Maintenance')
+              : null,
+          config: withBanners
+              ? const StartupConfig(version: '0.8.7')
+              : const StartupConfig(),
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.text(offlineText), findsOneWidget);
+        expect(find.text('How can I help you today?'), findsOneWidget);
+      });
+    }
   });
 
   group('version banner', () {

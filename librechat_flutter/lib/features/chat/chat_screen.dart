@@ -32,7 +32,6 @@ class ChatScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final welcome = ref
         .watch(
           serverConfigProvider.select(
@@ -42,52 +41,63 @@ class ChatScreen extends ConsumerWidget {
         ?.trim();
     return Scaffold(
       appBar: AppBar(leading: ShellMenuButton.leading(context)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: ColoredBox(
-                  color: colors.primaryContainer,
-                  child: SizedBox.square(
-                    dimension: 56,
-                    child: Icon(
-                      Icons.chat_bubble_outline,
-                      size: 32,
-                      color: colors.onPrimaryContainer,
-                      semanticLabel:
-                          'Switchboard', // KMP feature/chat cd_librechat
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Semantics(
-                header: true,
-                child: Text(
-                  timeGreeting(DateTime.now()),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    color: colors.onSurface,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                welcome == null || welcome.isEmpty
-                    ? 'How can I help you today?' // KMP feature/chat how_can_i_help
-                    : welcome,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-            ],
+      // Centered when it fits; scrolls when banners or a landscape phone
+      // leave too little height.
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(child: _landing(theme, welcome)),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _landing(ThemeData theme, String? welcome) {
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: ColoredBox(
+              color: colors.primaryContainer,
+              child: SizedBox.square(
+                dimension: 56,
+                child: Icon(
+                  Icons.chat_bubble_outline,
+                  size: 32,
+                  color: colors.onPrimaryContainer,
+                  semanticLabel: 'Switchboard', // KMP feature/chat cd_librechat
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Semantics(
+            header: true,
+            child: Text(
+              timeGreeting(DateTime.now()),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineLarge?.copyWith(
+                color: colors.onSurface,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            welcome == null || welcome.isEmpty
+                ? 'How can I help you today?' // KMP feature/chat how_can_i_help
+                : welcome,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
