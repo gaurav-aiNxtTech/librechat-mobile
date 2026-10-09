@@ -1,0 +1,442 @@
+{
+  "pbtResults": {
+    "3.2 Write property test for Server URL normalization": {
+      "status": "passed",
+      "lastRunTimestamp": 1791354432582
+    },
+    "3.5 Write property test for the Cookie merge": {
+      "status": "passed",
+      "lastRunTimestamp": 1791353121538
+    },
+    "3.4 Write property test for header validation": {
+      "status": "passed",
+      "lastRunTimestamp": 1791353130910
+    },
+    "3.7 Write property test for model JSON": {
+      "status": "passed",
+      "lastRunTimestamp": 1791354598386
+    }
+  },
+  "executionHistory": {
+    "1.1 Trim the pre-spec foundation": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349238938
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349485495
+      },
+      {
+        "executionId": "aa0591a5-1288-4eac-921a-65e9acceb4d5",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791350772896
+      }
+    ],
+    "1.2 Create the test support": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349493104
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350000407
+      }
+    ],
+    "1.3 Implement DiagnosticLog": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349493488
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350000500
+      }
+    ],
+    "1.4 Implement SettingsStore and AppSettings": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349495005
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350001508
+      }
+    ],
+    "1.6 Implement CacheDb": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349496038
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350002953
+      }
+    ],
+    "1.10 Seed the Parity_Checklist": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791349497279
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350005169
+      }
+    ],
+    "1.5 Implement SecureStore": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350011543
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350166211
+      }
+    ],
+    "1.7 Build the theme, bootstrap and router skeleton": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350174698
+      },
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350540586
+      }
+    ],
+    "1. Trim the foundation and bootstrap the app": [
+      {
+        "executionId": "50763c3d-53e4-4cf3-964b-8320728c37be",
+        "chatSessionId": "sess_f55c018a-9d09-4cc8-af41-e1def4630fd0",
+        "timestamp": 1791350540651
+      }
+    ],
+    "2. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "13f38a91-c7bd-4161-a93e-32958b30955f",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791350842838
+      }
+    ],
+    "3.1 Implement the Server URL rules": [
+      {
+        "executionId": "18d6d970-8b52-44d1-8ba2-1886d404f846",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791351067725
+      },
+      {
+        "executionId": "18d6d970-8b52-44d1-8ba2-1886d404f846",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791351320124
+      }
+    ],
+    "3.3 Implement the Custom_Headers rules": [
+      {
+        "executionId": "3d5c3fb4-1534-4e02-928c-7927f05a660d",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791351567448
+      },
+      {
+        "executionId": "3d5c3fb4-1534-4e02-928c-7927f05a660d",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791352483197
+      }
+    ],
+    "3.2 Write property test for Server URL normalization": [
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791352966545
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354756394
+      }
+    ],
+    "3.4 Write property test for header validation": [
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791352966610
+      },
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791353174273
+      }
+    ],
+    "3.5 Write property test for the Cookie merge": [
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791352968223
+      },
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791353175272
+      }
+    ],
+    "3.9 Implement AppException and userMessage": [
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791352969353
+      },
+      {
+        "executionId": "f1e95e23-e211-4c11-bf1c-037f7903e42b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791353176658
+      }
+    ],
+    "3.13 Implement HeadersEditor": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791353676761
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354299057
+      }
+    ],
+    "3.6 Create the core data models": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791353676830
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354298174
+      }
+    ],
+    "3.7 Write property test for model JSON": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354310271
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354757400
+      }
+    ],
+    "3.8 Write fixture round-trip tests": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354310450
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354758948
+      }
+    ],
+    "3.14 Widget tests for HeadersEditor": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354310984
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354760007
+      }
+    ],
+    "3.10 Implement the session holder and ApiClient": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791354761483
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791355411345
+      }
+    ],
+    "3.11 Implement ImageLoader and AppImage": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791355411488
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791355934734
+      }
+    ],
+    "3. Build the network core": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791355934803
+      }
+    ],
+    "3.12 HTTP tests for ApiClient and ImageLoader": [
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791355936798
+      },
+      {
+        "executionId": "fe97a18d-f464-4e49-867e-ff1a642c8dd0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791356706692
+      }
+    ],
+    "4. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "a196f51c-4f2a-4682-89ed-d94f66c4045c",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791357067268
+      },
+      {
+        "executionId": "a196f51c-4f2a-4682-89ed-d94f66c4045c",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791357156236
+      }
+    ],
+    "5.1 Implement AuthApi and the auth flows": [
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791357960653
+      },
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791363485035
+      }
+    ],
+    "5.2 Implement ConfigRepository and serverConfigProvider": [
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791363485088
+      },
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791364207835
+      }
+    ],
+    "5.3 Tests for AuthService and server config": [
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791364208437
+      },
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791364585026
+      }
+    ],
+    "5.4 Implement the redirect rules and Server_URL_Screen": [
+      {
+        "executionId": "330dacc7-e566-459c-8a6c-16e4cb5bdeb0",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791364585736
+      },
+      {
+        "executionId": "d9a6462d-5610-4f3c-8254-89d61612099b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791366996353
+      },
+      {
+        "executionId": "d9a6462d-5610-4f3c-8254-89d61612099b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791368540527
+      }
+    ],
+    "5.5 Implement the sign-in screens": [
+      {
+        "executionId": "d9a6462d-5610-4f3c-8254-89d61612099b",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791368540903
+      },
+      {
+        "executionId": "0e9a5f64-9293-431b-a646-5946028e4b53",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791369566765
+      },
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791370557625
+      },
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791372665367
+      }
+    ],
+    "5.6 Implement Terms_Screen and SSO_Screen": [
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791372690010
+      },
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791373622225
+      }
+    ],
+    "5. Implement authentication": [
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791373622297
+      }
+    ],
+    "5.7 Widget tests for the auth screens": [
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791373629696
+      },
+      {
+        "executionId": "828c0e39-86db-41a3-b66e-ad08fdce59f1",
+        "chatSessionId": "sess_65430a09-f3d8-4035-acfb-aeb0dc4ce61b",
+        "timestamp": 1791373887307
+      }
+    ],
+    "10. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "34b11f29-ba96-4d23-bba6-01227d6493ac",
+        "chatSessionId": "sess_413f264c-2e0b-482b-a1b7-93b0882e2cb3",
+        "timestamp": 1791456387914
+      },
+      {
+        "executionId": "34b11f29-ba96-4d23-bba6-01227d6493ac",
+        "chatSessionId": "sess_413f264c-2e0b-482b-a1b7-93b0882e2cb3",
+        "timestamp": 1791456616292
+      }
+    ]
+  }
+}
