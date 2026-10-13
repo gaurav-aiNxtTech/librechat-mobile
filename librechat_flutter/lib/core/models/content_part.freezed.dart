@@ -17,7 +17,8 @@ mixin _$ContentPart {
 
  String get type;@FlexibleTextConverter() String? get text; String? get think;@JsonKey(name: 'tool_call_ids') List<String>? get toolCallIds;@JsonKey(name: 'tool_call') ToolCall? get toolCall;@JsonKey(name: 'image_url') Object? get imageUrl;@JsonKey(name: 'image_file') Map<String, Object?>? get imageFile;@JsonKey(name: 'video_url') Object? get videoUrl;@JsonKey(name: 'input_audio') Map<String, Object?>? get inputAudio; String? get error;@JsonKey(name: 'agent_update') Map<String, Object?>? get agentUpdate; Object? get steer;// The Server sends the steered text as a string.
 @JsonKey(name: 'activity_label') String? get activityLabel;@JsonKey(name: 'activity_label_type') String? get activityLabelType;@JsonKey(name: 'activity_end_index') int? get activityEndIndex;// An activity label still being written: a reservation, or a phase that has not finalized.
- bool? get pending;// An activity label's `failed` or `partial` batch status.
+ bool? get pending;// An activity label's `failed` or `partial` batch status, or a live
+// tool call's terminal step status from `on_run_step_closed`.
  String? get status;// A summary's body: a string or a list of `{type, text}` blocks.
  Object? get content; String? get agentId; int? get groupId; int? get stepIndex;
 /// Create a copy of ContentPart
@@ -294,7 +295,8 @@ class _ContentPart implements ContentPart {
 @override@JsonKey(name: 'activity_end_index') final  int? activityEndIndex;
 // An activity label still being written: a reservation, or a phase that has not finalized.
 @override final  bool? pending;
-// An activity label's `failed` or `partial` batch status.
+// An activity label's `failed` or `partial` batch status, or a live
+// tool call's terminal step status from `on_run_step_closed`.
 @override final  String? status;
 // A summary's body: a string or a list of `{type, text}` blocks.
 @override final  Object? content;

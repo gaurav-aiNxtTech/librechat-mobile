@@ -208,13 +208,7 @@ class EventMapper {
   List<StreamEvent> _attachment(SseEvent event, Map<String, Object?> data) {
     final attachment = _decode(event, 'attachment', data, Attachment.fromJson);
     if (attachment == null) return const [];
-    return [
-      StreamEvent.attachment(
-        attachment,
-        text: _str(data['text']),
-        textFormat: _str(data['textFormat']),
-      ),
-    ];
+    return [StreamEvent.attachment(attachment)];
   }
 
   List<StreamEvent> _langGraph(

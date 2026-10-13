@@ -30,7 +30,8 @@ abstract class Message with _$Message {
     @UtcDateTimeConverter() DateTime? updatedAt,
   }) = _Message;
 
-  factory Message.fromJson(Map<String, Object?> json) => _$MessageFromJson(json);
+  factory Message.fromJson(Map<String, Object?> json) =>
+      _$MessageFromJson(json);
 }
 
 enum FeedbackRating { thumbsUp, thumbsDown, unknown }
@@ -44,5 +45,6 @@ abstract class MessageFeedback with _$MessageFeedback {
     String? text,
   }) = _MessageFeedback;
 
-  factory MessageFeedback.fromJson(Map<String, Object?> json) => _$MessageFeedbackFromJson(json);
+  factory MessageFeedback.fromJson(Map<String, Object?> json) =>
+      _$MessageFeedbackFromJson(json);
 }

@@ -19,6 +19,13 @@ final conversationsRepositoryProvider = Provider<ConversationsRepository>(
   ),
 );
 
+/// The cached row of one conversation, for the Chat_Screen's title and the
+/// Composer's selection.
+final conversationRowProvider = StreamProvider.autoDispose
+    .family<Conversation?, String>(
+      (ref, id) => ref.watch(conversationsRepositoryProvider).watchOne(id),
+    );
+
 /// The Conversation_List's data: the cached rows and every mutation that
 /// changes them (Req 15, 16, 45.1-45.3).
 ///
@@ -41,6 +48,15 @@ class ConversationsRepository {
       ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]);
     return query.watch().map(
       (rows) => [for (final row in rows) ?_decode(row.json)],
+    );
+  }
+
+  /// The cached row of [id], archived or not, or null when it is not cached
+  /// or no longer decodes. The Chat_Screen reads its title from here.
+  Stream<Conversation?> watchOne(String id) {
+    final query = _db.select(_db.conversations)..where((t) => t.id.equals(id));
+    return query.watchSingleOrNull().map(
+      (row) => row == null ? null : _decode(row.json),
     );
   }
 

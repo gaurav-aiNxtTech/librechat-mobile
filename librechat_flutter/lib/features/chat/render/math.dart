@@ -1,3 +1,59 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
+
+/// TeX rendered natively through flutter_math_fork (Req 22.3): [inline]
+/// math sits in the line, block math scrolls sideways when wider than the
+/// screen. When [tex] fails to parse, its source shows in a monospace font
+/// instead (Req 22.5). TalkBack reads the TeX source.
+class MathView extends StatelessWidget {
+  const MathView(
+    this.tex, {
+    super.key,
+    required this.style,
+    required this.inline,
+  });
+
+  final String tex;
+  final TextStyle style;
+  final bool inline;
+
+  @override
+  Widget build(BuildContext context) {
+    final math = Math.tex(
+      tex,
+      mathStyle: inline ? MathStyle.text : MathStyle.display,
+      textStyle: style,
+      onErrorFallback: (_) =>
+          Text(tex, style: style.copyWith(fontFamily: 'monospace')),
+    );
+    return Semantics(
+      label: tex,
+      child: ExcludeSemantics(
+        child: inline
+            ? math
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: math,
+              ),
+      ),
+    );
+  }
+}
+
+/// The end of the fenced code block opening at [lineStart] (the end of its
+/// closing line, or of the text when unclosed), or null when no fence opens
+/// there. [lineStart] must be 0 or follow a newline.
+int? fencedCodeEnd(String text, int lineStart) => _fenceEnd(text, lineStart);
+
+/// The end of the code span whose backtick run starts at [start]: past its
+/// closing run, or past the opening run alone when no run of the same
+/// length closes it (the backticks are then literal).
+int codeSpanEnd(String text, int start) {
+  final run = _runLength(text, start, _backtick);
+  final close = _closingBacktickRun(text, start + run, run);
+  return close == null ? start + run : close + run;
+}
+
 /// Rewrites Markdown math delimiters into the forms the Markdown renderer
 /// reads (Req 22.3, 22.4): `$$…$$` becomes `\[…\]`, and a one-line `$…$`
 /// becomes `\(…\)` when its content reads as LaTeX.
@@ -24,9 +80,7 @@ String prepareMath(String text) {
     }
     final char = text.codeUnitAt(i);
     if (char == _backtick) {
-      final run = _runLength(text, i, _backtick);
-      final close = _closingBacktickRun(text, i + run, run);
-      final end = close == null ? i + run : close + run;
+      final end = codeSpanEnd(text, i);
       out.write(text.substring(i, end));
       i = end;
     } else if (char == _backslash) {

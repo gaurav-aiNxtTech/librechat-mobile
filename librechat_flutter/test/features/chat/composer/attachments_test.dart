@@ -291,6 +291,155 @@ void main() {
     );
   });
 
+  group('delivery (Req 26.5)', () {
+    // The Server's own default: any well-formed mime type.
+    const open = FileConfig(
+      text: MimeTypesConfig(supportedMimeTypes: [r'^[\w.-]+/[\w.-]+$']),
+    );
+
+    test('a text-extractable file can go either way', () {
+      for (final mime in const [
+        'text/plain',
+        'text/markdown',
+        'application/pdf',
+        'application/json',
+        'application/vnd.openxmlformats-officedocument.'
+            'wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.oasis.opendocument.text',
+      ]) {
+        expect(isTextExtractable(mime), isTrue, reason: mime);
+        expect(
+          canDeliverAsText(file('f', 1, mime), open),
+          isTrue,
+          reason: mime,
+        );
+      }
+    });
+
+    test('a type the Server cannot extract has only the provider', () {
+      for (final mime in const [
+        'application/zip',
+        'application/vnd.openxmlformats-officedocument.'
+            'presentationml.presentation',
+        'video/mp4',
+        'audio/mpeg',
+        'application/octet-stream',
+      ]) {
+        expect(isTextExtractable(mime), isFalse, reason: mime);
+        expect(
+          canDeliverAsText(file('f', 1, mime), open),
+          isFalse,
+          reason: mime,
+        );
+      }
+    });
+
+    test('an image never goes as text', () {
+      expect(canDeliverAsText(file('a.png', 1), open), isFalse);
+      // Even an svg, which is text underneath.
+      expect(
+        canDeliverAsText(file('a.svg', 1, 'image/svg+xml'), open),
+        isFalse,
+      );
+    });
+
+    test('fileConfig.text decides, not the endpoint allowlist', () {
+      const narrowed = FileConfig(
+        endpoints: {'default': limits},
+        text: MimeTypesConfig(supportedMimeTypes: [r'^text/plain$']),
+      );
+      expect(
+        canDeliverAsText(file('a.txt', 1, 'text/plain'), narrowed),
+        isTrue,
+      );
+      expect(
+        canDeliverAsText(file('a.pdf', 1, 'application/pdf'), narrowed),
+        isFalse,
+      );
+      // No list closes the path rather than opening it.
+      expect(
+        canDeliverAsText(file('a.txt', 1, 'text/plain'), const FileConfig()),
+        isFalse,
+      );
+    });
+
+    test('the text route carries tool_resource=context', () {
+      expect(UploadRoute.text.toolResource, 'context');
+      expect(UploadRoute.provider.toolResource, isNull);
+    });
+  });
+
+  group('attachmentLimitMessage (Req 26.3)', () {
+    final c = config({'default': limits});
+
+    test('names the limit that applied', () {
+      expect(
+        attachmentLimitMessage(
+          rejected(AttachmentLimit.fileLimit),
+          c,
+          'openAI',
+        ),
+        'You can attach at most 2 files at a time.',
+      );
+      expect(
+        attachmentLimitMessage(
+          rejected(AttachmentLimit.fileSizeLimit, 'big.png'),
+          c,
+          'openAI',
+        ),
+        'big.png is larger than the server limit of 100 B.',
+      );
+      expect(
+        attachmentLimitMessage(
+          rejected(AttachmentLimit.totalSizeLimit),
+          c,
+          'openAI',
+        ),
+        'The attachments are larger than the server limit of 150 B in total.',
+      );
+      expect(
+        attachmentLimitMessage(
+          rejected(AttachmentLimit.mimeType, 'a.mp3'),
+          c,
+          'openAI',
+        ),
+        'a.mp3 is not a type this endpoint accepts.',
+      );
+      expect(
+        attachmentLimitMessage(rejected(AttachmentLimit.disabled), c, 'openAI'),
+        'File uploads are off for this endpoint.',
+      );
+    });
+
+    test('the figure follows the endpoint the check used', () {
+      final perEndpoint = config({
+        'default': limits,
+        'agents': const EndpointFileConfig(fileLimit: 7),
+      });
+      expect(
+        attachmentLimitMessage(
+          rejected(AttachmentLimit.fileLimit),
+          perEndpoint,
+          'agents',
+        ),
+        'You can attach at most 7 files at a time.',
+      );
+    });
+  });
+
+  group('formatByteSize', () {
+    test('rolls up a tier and drops a trailing zero', () {
+      expect(formatByteSize(0), '0 B');
+      expect(formatByteSize(512), '512 B');
+      expect(formatByteSize(1024), '1 KB');
+      expect(formatByteSize(1536), '1.5 KB');
+      expect(formatByteSize(1024 * 1024), '1 MB');
+      expect(formatByteSize(10 * 1024 * 1024), '10 MB');
+      expect(formatByteSize(1024 * 1024 * 1024 - 1), '1 GB');
+    });
+  });
+
   group('FileInfo.detect', () {
     test('reads the extension', () {
       expect(FileInfo.detect(name: 'a.png', size: 3).mimeType, 'image/png');

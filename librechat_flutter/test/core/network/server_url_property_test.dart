@@ -111,11 +111,10 @@ void main() {
   test('Property 4: Server URL normalization is idempotent', () async {
     await forAll(_acceptedInput, (input) {
       final once = normalizeServerUrl(input).url!;
-      expect(
-        normalizeServerUrl(once),
-        (url: once, problem: null),
-        reason: 'first output: ${describeCase(once)}',
-      );
+      expect(normalizeServerUrl(once), (
+        url: once,
+        problem: null,
+      ), reason: 'first output: ${describeCase(once)}');
     }, runs: 100);
   });
 }

@@ -179,7 +179,7 @@ return failed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String text,  String? agentId)?  textDelta,TResult Function( String think,  String? agentId)?  thinkDelta,TResult Function( String id,  String? name,  Object? args,  String? agentId)?  toolCallStarted,TResult Function( String toolCallId,  String? output,  String? agentId)?  toolCallCompleted,TResult Function( String toolCallId,  String status,  String? agentId)?  toolCallClosed,TResult Function( String text,  String? agentId)?  summary,TResult Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)?  subagentUpdate,TResult Function( Attachment attachment,  String? text,  String? textFormat)?  attachment,TResult Function( String? conversationId,  String title)?  title,TResult Function( TokenUsage usage)?  tokenUsage,TResult Function( ContextUsage usage)?  contextUsage,TResult Function( PendingAction action)?  pendingAction,TResult Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)?  steerApplied,TResult Function( List<ContentPart> parts)?  syncSnapshot,TResult Function( List<PendingSteer> steers)?  steersSynced,TResult Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)?  finalFrame,TResult Function( String? conversationId,  String? messageId,  String? parentMessageId)?  created,TResult Function( String text)?  streamError,TResult Function( int attempt)?  reconnecting,TResult Function()?  expired,TResult Function()?  retryExhausted,TResult Function( AppException error)?  failed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String text,  String? agentId)?  textDelta,TResult Function( String think,  String? agentId)?  thinkDelta,TResult Function( String id,  String? name,  Object? args,  String? agentId)?  toolCallStarted,TResult Function( String toolCallId,  String? output,  String? agentId)?  toolCallCompleted,TResult Function( String toolCallId,  String status,  String? agentId)?  toolCallClosed,TResult Function( String text,  String? agentId)?  summary,TResult Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)?  subagentUpdate,TResult Function( Attachment attachment)?  attachment,TResult Function( String? conversationId,  String title)?  title,TResult Function( TokenUsage usage)?  tokenUsage,TResult Function( ContextUsage usage)?  contextUsage,TResult Function( PendingAction action)?  pendingAction,TResult Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)?  steerApplied,TResult Function( List<ContentPart> parts)?  syncSnapshot,TResult Function( List<PendingSteer> steers)?  steersSynced,TResult Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)?  finalFrame,TResult Function( String? conversationId,  String? messageId,  String? parentMessageId)?  created,TResult Function( String text)?  streamError,TResult Function( int attempt)?  reconnecting,TResult Function()?  expired,TResult Function()?  retryExhausted,TResult Function( AppException error)?  failed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TextDelta() when textDelta != null:
 return textDelta(_that.text,_that.agentId);case ThinkDelta() when thinkDelta != null:
@@ -189,7 +189,7 @@ return toolCallCompleted(_that.toolCallId,_that.output,_that.agentId);case ToolC
 return toolCallClosed(_that.toolCallId,_that.status,_that.agentId);case SummaryEvent() when summary != null:
 return summary(_that.text,_that.agentId);case SubagentUpdate() when subagentUpdate != null:
 return subagentUpdate(_that.phase,_that.parentToolCallId,_that.subagentRunId,_that.subagentType,_that.label);case AttachmentEvent() when attachment != null:
-return attachment(_that.attachment,_that.text,_that.textFormat);case TitleEvent() when title != null:
+return attachment(_that.attachment);case TitleEvent() when title != null:
 return title(_that.conversationId,_that.title);case TokenUsageEvent() when tokenUsage != null:
 return tokenUsage(_that.usage);case ContextUsageEvent() when contextUsage != null:
 return contextUsage(_that.usage);case PendingActionEvent() when pendingAction != null:
@@ -221,7 +221,7 @@ return failed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String text,  String? agentId)  textDelta,required TResult Function( String think,  String? agentId)  thinkDelta,required TResult Function( String id,  String? name,  Object? args,  String? agentId)  toolCallStarted,required TResult Function( String toolCallId,  String? output,  String? agentId)  toolCallCompleted,required TResult Function( String toolCallId,  String status,  String? agentId)  toolCallClosed,required TResult Function( String text,  String? agentId)  summary,required TResult Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)  subagentUpdate,required TResult Function( Attachment attachment,  String? text,  String? textFormat)  attachment,required TResult Function( String? conversationId,  String title)  title,required TResult Function( TokenUsage usage)  tokenUsage,required TResult Function( ContextUsage usage)  contextUsage,required TResult Function( PendingAction action)  pendingAction,required TResult Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)  steerApplied,required TResult Function( List<ContentPart> parts)  syncSnapshot,required TResult Function( List<PendingSteer> steers)  steersSynced,required TResult Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)  finalFrame,required TResult Function( String? conversationId,  String? messageId,  String? parentMessageId)  created,required TResult Function( String text)  streamError,required TResult Function( int attempt)  reconnecting,required TResult Function()  expired,required TResult Function()  retryExhausted,required TResult Function( AppException error)  failed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String text,  String? agentId)  textDelta,required TResult Function( String think,  String? agentId)  thinkDelta,required TResult Function( String id,  String? name,  Object? args,  String? agentId)  toolCallStarted,required TResult Function( String toolCallId,  String? output,  String? agentId)  toolCallCompleted,required TResult Function( String toolCallId,  String status,  String? agentId)  toolCallClosed,required TResult Function( String text,  String? agentId)  summary,required TResult Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)  subagentUpdate,required TResult Function( Attachment attachment)  attachment,required TResult Function( String? conversationId,  String title)  title,required TResult Function( TokenUsage usage)  tokenUsage,required TResult Function( ContextUsage usage)  contextUsage,required TResult Function( PendingAction action)  pendingAction,required TResult Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)  steerApplied,required TResult Function( List<ContentPart> parts)  syncSnapshot,required TResult Function( List<PendingSteer> steers)  steersSynced,required TResult Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)  finalFrame,required TResult Function( String? conversationId,  String? messageId,  String? parentMessageId)  created,required TResult Function( String text)  streamError,required TResult Function( int attempt)  reconnecting,required TResult Function()  expired,required TResult Function()  retryExhausted,required TResult Function( AppException error)  failed,}) {final _that = this;
 switch (_that) {
 case TextDelta():
 return textDelta(_that.text,_that.agentId);case ThinkDelta():
@@ -231,7 +231,7 @@ return toolCallCompleted(_that.toolCallId,_that.output,_that.agentId);case ToolC
 return toolCallClosed(_that.toolCallId,_that.status,_that.agentId);case SummaryEvent():
 return summary(_that.text,_that.agentId);case SubagentUpdate():
 return subagentUpdate(_that.phase,_that.parentToolCallId,_that.subagentRunId,_that.subagentType,_that.label);case AttachmentEvent():
-return attachment(_that.attachment,_that.text,_that.textFormat);case TitleEvent():
+return attachment(_that.attachment);case TitleEvent():
 return title(_that.conversationId,_that.title);case TokenUsageEvent():
 return tokenUsage(_that.usage);case ContextUsageEvent():
 return contextUsage(_that.usage);case PendingActionEvent():
@@ -259,7 +259,7 @@ return failed(_that.error);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String text,  String? agentId)?  textDelta,TResult? Function( String think,  String? agentId)?  thinkDelta,TResult? Function( String id,  String? name,  Object? args,  String? agentId)?  toolCallStarted,TResult? Function( String toolCallId,  String? output,  String? agentId)?  toolCallCompleted,TResult? Function( String toolCallId,  String status,  String? agentId)?  toolCallClosed,TResult? Function( String text,  String? agentId)?  summary,TResult? Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)?  subagentUpdate,TResult? Function( Attachment attachment,  String? text,  String? textFormat)?  attachment,TResult? Function( String? conversationId,  String title)?  title,TResult? Function( TokenUsage usage)?  tokenUsage,TResult? Function( ContextUsage usage)?  contextUsage,TResult? Function( PendingAction action)?  pendingAction,TResult? Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)?  steerApplied,TResult? Function( List<ContentPart> parts)?  syncSnapshot,TResult? Function( List<PendingSteer> steers)?  steersSynced,TResult? Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)?  finalFrame,TResult? Function( String? conversationId,  String? messageId,  String? parentMessageId)?  created,TResult? Function( String text)?  streamError,TResult? Function( int attempt)?  reconnecting,TResult? Function()?  expired,TResult? Function()?  retryExhausted,TResult? Function( AppException error)?  failed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String text,  String? agentId)?  textDelta,TResult? Function( String think,  String? agentId)?  thinkDelta,TResult? Function( String id,  String? name,  Object? args,  String? agentId)?  toolCallStarted,TResult? Function( String toolCallId,  String? output,  String? agentId)?  toolCallCompleted,TResult? Function( String toolCallId,  String status,  String? agentId)?  toolCallClosed,TResult? Function( String text,  String? agentId)?  summary,TResult? Function( String phase,  String? parentToolCallId,  String? subagentRunId,  String? subagentType,  String? label)?  subagentUpdate,TResult? Function( Attachment attachment)?  attachment,TResult? Function( String? conversationId,  String title)?  title,TResult? Function( TokenUsage usage)?  tokenUsage,TResult? Function( ContextUsage usage)?  contextUsage,TResult? Function( PendingAction action)?  pendingAction,TResult? Function( String steerId,  String? clientSteerId,  int? index,  ContentPart? part)?  steerApplied,TResult? Function( List<ContentPart> parts)?  syncSnapshot,TResult? Function( List<PendingSteer> steers)?  steersSynced,TResult? Function( Conversation? conversation,  Message? requestMessage,  Message? responseMessage,  bool aborted,  bool earlyAbort,  List<PendingSteer> pendingSteers)?  finalFrame,TResult? Function( String? conversationId,  String? messageId,  String? parentMessageId)?  created,TResult? Function( String text)?  streamError,TResult? Function( int attempt)?  reconnecting,TResult? Function()?  expired,TResult? Function()?  retryExhausted,TResult? Function( AppException error)?  failed,}) {final _that = this;
 switch (_that) {
 case TextDelta() when textDelta != null:
 return textDelta(_that.text,_that.agentId);case ThinkDelta() when thinkDelta != null:
@@ -269,7 +269,7 @@ return toolCallCompleted(_that.toolCallId,_that.output,_that.agentId);case ToolC
 return toolCallClosed(_that.toolCallId,_that.status,_that.agentId);case SummaryEvent() when summary != null:
 return summary(_that.text,_that.agentId);case SubagentUpdate() when subagentUpdate != null:
 return subagentUpdate(_that.phase,_that.parentToolCallId,_that.subagentRunId,_that.subagentType,_that.label);case AttachmentEvent() when attachment != null:
-return attachment(_that.attachment,_that.text,_that.textFormat);case TitleEvent() when title != null:
+return attachment(_that.attachment);case TitleEvent() when title != null:
 return title(_that.conversationId,_that.title);case TokenUsageEvent() when tokenUsage != null:
 return tokenUsage(_that.usage);case ContextUsageEvent() when contextUsage != null:
 return contextUsage(_that.usage);case PendingActionEvent() when pendingAction != null:
@@ -784,12 +784,10 @@ as String?,
 
 
 class AttachmentEvent implements StreamEvent {
-  const AttachmentEvent(this.attachment, {this.text, this.textFormat});
+  const AttachmentEvent(this.attachment);
   
 
  final  Attachment attachment;
- final  String? text;
- final  String? textFormat;
 
 /// Create a copy of StreamEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -801,16 +799,16 @@ $AttachmentEventCopyWith<AttachmentEvent> get copyWith => _$AttachmentEventCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttachmentEvent&&(identical(other.attachment, attachment) || other.attachment == attachment)&&(identical(other.text, text) || other.text == text)&&(identical(other.textFormat, textFormat) || other.textFormat == textFormat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AttachmentEvent&&(identical(other.attachment, attachment) || other.attachment == attachment));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,attachment,text,textFormat);
+int get hashCode => Object.hash(runtimeType,attachment);
 
 @override
 String toString() {
-  return 'StreamEvent.attachment(attachment: $attachment, text: $text, textFormat: $textFormat)';
+  return 'StreamEvent.attachment(attachment: $attachment)';
 }
 
 
@@ -821,7 +819,7 @@ abstract mixin class $AttachmentEventCopyWith<$Res> implements $StreamEventCopyW
   factory $AttachmentEventCopyWith(AttachmentEvent value, $Res Function(AttachmentEvent) _then) = _$AttachmentEventCopyWithImpl;
 @useResult
 $Res call({
- Attachment attachment, String? text, String? textFormat
+ Attachment attachment
 });
 
 
@@ -838,12 +836,10 @@ class _$AttachmentEventCopyWithImpl<$Res>
 
 /// Create a copy of StreamEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? attachment = null,Object? text = freezed,Object? textFormat = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? attachment = null,}) {
   return _then(AttachmentEvent(
 null == attachment ? _self.attachment : attachment // ignore: cast_nullable_to_non_nullable
-as Attachment,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
-as String?,textFormat: freezed == textFormat ? _self.textFormat : textFormat // ignore: cast_nullable_to_non_nullable
-as String?,
+as Attachment,
   ));
 }
 

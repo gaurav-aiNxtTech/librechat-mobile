@@ -2,9 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:librechat_flutter/core/ui/platform_actions.dart';
 import 'package:librechat_flutter/features/chat/artifacts/artifact_parser.dart';
 import 'package:librechat_flutter/features/chat/artifacts/web_host.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import '../../../support/fakes.dart';
 
 // The CSPs from the design.md WebView_Host table, copied as literals so a
 // drift in the lib constants fails here.
@@ -122,6 +127,41 @@ void main() {
       }
     }
     expect(checked, 9);
+  });
+
+  test('no document names a remote origin outside img-src (Req 24.8)', () {
+    // Scripts, styles and fonts come from the page and the APK only; a
+    // remote URL is allowed for images and nowhere else.
+    const local = {
+      "'none'",
+      "'self'",
+      "'unsafe-inline'",
+      "'unsafe-eval'",
+      'data:',
+      'blob:',
+      'file:',
+    };
+    for (final MapEntry(key: name, value: html) in _documents.entries) {
+      final csp = _csps(html).single;
+      final directives = {
+        for (final part in csp.split(';').map((p) => p.trim()))
+          if (part.isNotEmpty)
+            part.split(' ').first: part.split(' ').skip(1).toList(),
+      };
+      expect(directives['default-src'], ["'none'"], reason: name);
+      for (final MapEntry(key: directive, value: sources)
+          in directives.entries) {
+        if (directive == 'img-src') continue;
+        expect(sources, isNotEmpty, reason: '$name: $directive');
+        expect(sources, everyElement(isIn(local)), reason: '$name: $directive');
+      }
+      // Only images may name a remote scheme, and only by scheme.
+      expect(
+        directives['img-src']!,
+        everyElement(isIn({...local, 'https:'})),
+        reason: name,
+      );
+    }
   });
 
   group('theme', () {
@@ -532,5 +572,221 @@ void main() {
       expect(hasWebPreview(type), isTrue, reason: type);
       expect(() => _html(type, 'x'), returnsNormally, reason: type);
     }
+  });
+
+  group('inlineWebHeight', () {
+    test('a page that has not reported yet gets the floor', () {
+      expect(inlineWebHeight(null, 1000), minInlineHeight);
+    });
+
+    test('a short page gets the floor', () {
+      expect(inlineWebHeight(0, 1000), minInlineHeight);
+      expect(inlineWebHeight(minInlineHeight, 1000), minInlineHeight);
+      expect(inlineWebHeight(minInlineHeight - 1, 1000), minInlineHeight);
+    });
+
+    test('a page between the floor and the cap gets its own height', () {
+      expect(inlineWebHeight(minInlineHeight + 1, 1000), minInlineHeight + 1);
+      expect(inlineWebHeight(300, 1000), 300);
+      // Exactly the cap.
+      expect(inlineWebHeight(700, 1000), 700);
+    });
+
+    test('a long page is capped to the window fraction', () {
+      expect(inlineWebHeight(900, 1000), 1000 * inlineMaxHeightFraction);
+      expect(inlineWebHeight(100000, 1000), 700);
+    });
+
+    test('a window too short for the cap still gets the floor', () {
+      // 0.7 × 150 is below the floor, so the floor wins over the cap.
+      expect(inlineWebHeight(140, 150), minInlineHeight);
+      expect(inlineWebHeight(10000, 150), minInlineHeight);
+      expect(inlineWebHeight(300, 0), minInlineHeight);
+    });
+  });
+
+  // These mount the real WebContentView over a fake WebView platform, so
+  // the Host channel, the navigation rule and the load calls are exercised
+  // as the App wires them. The fake leaves every other platform member
+  // unimplemented, so a call the App should not make (a load with headers,
+  // a user agent, a cookie) would throw instead of passing silently
+  // (Req 24.9).
+  group('WebContentView', () {
+    late FakeWebViewPlatform webView;
+    late FakePlatformActions platform;
+
+    setUp(() {
+      webView = FakeWebViewPlatform.install();
+      platform = FakePlatformActions();
+    });
+
+    Future<void> pump(WidgetTester tester, Widget child) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [platformActionsProvider.overrideWithValue(platform)],
+          child: MaterialApp(home: Scaffold(body: child)),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the document loads from the APK assets, with one channel', (
+      tester,
+    ) async {
+      const html = '<p>hi</p>';
+      await pump(tester, const WebContentView(html));
+      final controller = webView.controller;
+      expect(controller.loads, [(html, webAssetBaseUrl)]);
+      expect(controller.javaScriptMode, JavaScriptMode.unrestricted);
+      expect(controller.backgroundColor, Colors.transparent);
+      expect(controller.channels.keys, ['Host']);
+      // A platform that is not AndroidWebViewController is simply left
+      // alone; the view still configures and loads.
+      expect(controller.navigationDelegate, isNotNull);
+    });
+
+    testWidgets('the Host channel reports height and error, and drops the '
+        'rest (Req 24.14)', (tester) async {
+      final heights = <double>[];
+      final errors = <String>[];
+      await pump(
+        tester,
+        WebContentView('<p>hi</p>', onHeight: heights.add, onError: errors.add),
+      );
+      final controller = webView.controller;
+      controller.postHostMessage('{"height":240}');
+      controller.postHostMessage('{"error":"Mermaid parse error"}');
+      for (final junk in ['not json', '{}', '{"other":1}', '{"height":-1}']) {
+        controller.postHostMessage(junk);
+      }
+      expect(heights, [240.0]);
+      expect(errors, ['Mermaid parse error']);
+    });
+
+    testWidgets('a main-frame load error becomes an error, a subframe one '
+        'does not (Req 24.14)', (tester) async {
+      final errors = <String>[];
+      await pump(tester, WebContentView('<p>hi</p>', onError: errors.add));
+      webView.controller.failLoad('net::ERR_FAILED', isForMainFrame: false);
+      expect(errors, isEmpty);
+      webView.controller.failLoad('net::ERR_FAILED');
+      expect(errors, ['net::ERR_FAILED']);
+    });
+
+    testWidgets('the initial document and about:blank load in the view', (
+      tester,
+    ) async {
+      await pump(tester, const WebContentView('<p>hi</p>'));
+      for (final url in [
+        webAssetBaseUrl,
+        '$webAssetBaseUrl#section',
+        'about:blank',
+      ]) {
+        expect(
+          await webView.controller.navigate(url),
+          NavigationDecision.navigate,
+          reason: url,
+        );
+      }
+      expect(platform.opened, isEmpty);
+    });
+
+    testWidgets('a web, mailto or tel link leaves the view and opens an '
+        'external app (Req 24.10)', (tester) async {
+      await pump(tester, const WebContentView('<p>hi</p>'));
+      const urls = [
+        'https://example.com/docs',
+        'http://example.com/a?b=1',
+        'mailto:someone@example.com?subject=Hi',
+        'tel:+15555550100',
+      ];
+      for (final url in urls) {
+        expect(
+          await webView.controller.navigate(url),
+          NavigationDecision.prevent,
+          reason: url,
+        );
+      }
+      await tester.pump();
+      expect(platform.opened.map((u) => u.toString()), urls);
+      // Nothing but the first document ever loads in the WebView itself.
+      expect(webView.controller.loads, hasLength(1));
+    });
+
+    testWidgets('every other link is blocked without opening an app', (
+      tester,
+    ) async {
+      await pump(tester, const WebContentView('<p>hi</p>'));
+      for (final (url, isMainFrame) in [
+        ('javascript:alert(1)', true),
+        ('file:///data/data/x', true),
+        ('${webAssetBaseUrl}react/react.production.min.js', true),
+        ('intent://x#Intent;end', true),
+        ('data:text/html,x', true),
+        ('content://x', true),
+        ('https://example.com', false),
+        ('mailto:someone@example.com', false),
+      ]) {
+        expect(
+          await webView.controller.navigate(url, isMainFrame: isMainFrame),
+          NavigationDecision.prevent,
+          reason: url,
+        );
+      }
+      await tester.pump();
+      expect(platform.opened, isEmpty);
+    });
+
+    testWidgets('new html reloads the same controller, the same html does '
+        'not', (tester) async {
+      await pump(tester, const WebContentView('<p>one</p>'));
+      await pump(tester, const WebContentView('<p>two</p>'));
+      expect(webView.controllers, hasLength(1));
+      expect(webView.controller.loads.map((l) => l.$1), [
+        '<p>one</p>',
+        '<p>two</p>',
+      ]);
+
+      await pump(tester, const WebContentView('<p>two</p>'));
+      expect(webView.controller.loads, hasLength(2));
+    });
+
+    testWidgets('an inline preview sizes itself from the page, clamped to '
+        'the window', (tester) async {
+      await pump(tester, const InlineWebView('<p>hi</p>'));
+      double height() => tester.getSize(find.byType(WebContentView)).height;
+      // 800×600 is the test window, so the cap is 420.
+      final cap = 600 * inlineMaxHeightFraction;
+      expect(height(), minInlineHeight);
+
+      webView.controller.postHostMessage('{"height":300}');
+      await tester.pump();
+      expect(height(), 300);
+
+      webView.controller.postHostMessage('{"height":5000}');
+      await tester.pump();
+      expect(height(), cap);
+
+      webView.controller.postHostMessage('{"height":40}');
+      await tester.pump();
+      expect(height(), minInlineHeight);
+
+      // A new document starts over at the floor until its page reports.
+      webView.controller.postHostMessage('{"height":300}');
+      await tester.pump();
+      expect(height(), 300);
+      await pump(tester, const InlineWebView('<p>other</p>'));
+      expect(height(), minInlineHeight);
+    });
+
+    testWidgets('a Mermaid view renders its code in a themed document', (
+      tester,
+    ) async {
+      await pump(tester, const MermaidView('graph TD; A-->B'));
+      final html = webView.controller.loads.single.$1;
+      expect(html, contains("securityLevel: 'strict'"));
+      expect(html, contains("theme: 'default'"));
+      expect(html, contains('mermaid/mermaid.min.js'));
+    });
   });
 }

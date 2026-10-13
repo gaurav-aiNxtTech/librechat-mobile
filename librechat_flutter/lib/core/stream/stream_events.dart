@@ -71,13 +71,9 @@ sealed class StreamEvent with _$StreamEvent {
   }) = SubagentUpdate;
 
   /// SSE `event: attachment` / `librechat:attachment`, or the LangGraph
-  /// `attachment` event. [text] and [textFormat] are an office preview's
-  /// body, which the Attachment model does not carry.
-  const factory StreamEvent.attachment(
-    Attachment attachment, {
-    String? text,
-    String? textFormat,
-  }) = AttachmentEvent;
+  /// `attachment` event. An office preview's `status`, `text`, `textFormat`
+  /// and `previewError` ride on the [Attachment].
+  const factory StreamEvent.attachment(Attachment attachment) = AttachmentEvent;
 
   /// `title`: the Server named the conversation mid-stream.
   const factory StreamEvent.title({

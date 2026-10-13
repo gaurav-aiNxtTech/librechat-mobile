@@ -35,7 +35,8 @@ abstract class InterfaceConfig with _$InterfaceConfig {
     Object? marketplace,
   }) = _InterfaceConfig;
 
-  factory InterfaceConfig.fromJson(Map<String, Object?> json) => _$InterfaceConfigFromJson(json);
+  factory InterfaceConfig.fromJson(Map<String, Object?> json) =>
+      _$InterfaceConfigFromJson(json);
 }
 
 /// `interface.termsOfService`. `modalContent` is a string or a list of strings.

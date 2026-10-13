@@ -18,6 +18,7 @@ import 'core/storage/secure_store.dart';
 import 'core/storage/settings_store.dart';
 import 'core/stream/stream_client.dart';
 import 'core/ui/theme/app_theme.dart';
+import 'features/chat/data/file_downloads.dart';
 
 /// Bootstrap: every step finishes before `runApp`, so the first frame uses the stored theme
 /// (Req 3.9) and the stored session (Req 12.2).
@@ -64,6 +65,13 @@ Future<void> main() async {
     api,
     Directory(p.join(cacheDir.path, 'images')),
   );
+  // Attachments and media download to `<app cache>/downloads` for
+  // open_filex and the players.
+  final fileDownloads = FileDownloads(
+    api,
+    Directory(p.join(cacheDir.path, 'downloads')),
+    currentUser: () => auth.session?.user.id,
+  );
   final wallpaperSchemes = await loadWallpaperSchemes();
 
   // 7. Run with Riverpod's automatic retry off; failures surface as errors instead.
@@ -79,6 +87,7 @@ Future<void> main() async {
         apiClientProvider.overrideWithValue(api),
         streamClientProvider.overrideWithValue(streamClient),
         imageLoaderProvider.overrideWithValue(imageLoader),
+        fileDownloadsProvider.overrideWithValue(fileDownloads),
         wallpaperSchemesProvider.overrideWithValue(wallpaperSchemes),
       ],
       child: const SwitchboardApp(),

@@ -9,7 +9,8 @@ import 'package:librechat_flutter/core/models/role_permissions.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 
-Map<String, Object?> _decode(String json) => jsonDecode(json) as Map<String, Object?>;
+Map<String, Object?> _decode(String json) =>
+    jsonDecode(json) as Map<String, Object?>;
 
 const _configJson = '''
 {
@@ -131,7 +132,11 @@ void main() {
     expect(call.output, 'done');
     expect(call.progress, 1.0);
     expect(parts[2].text, 'Answer');
-    expect(parts[3].text, 'Edited', reason: 'the {value, annotations} form reads as its value');
+    expect(
+      parts[3].text,
+      'Edited',
+      reason: 'the {value, annotations} form reads as its value',
+    );
 
     expect(message.attachments!.single.toolCallId, 't1');
     expect(message.attachments!.single.webSearch, {'organic': <Object?>[]});
@@ -152,7 +157,8 @@ void main() {
     expect(part.toJson(), {'type': 'text', 'text': 'Hi'});
 
     final message = Message.fromJson(_decode(_messageJson));
-    final json = jsonDecode(jsonEncode(message.toJson())) as Map<String, Object?>;
+    final json =
+        jsonDecode(jsonEncode(message.toJson())) as Map<String, Object?>;
     expect(json.containsKey('endpoint'), isFalse);
     expect(json['createdAt'], '2025-03-01T10:20:30.123Z');
     expect((json['content'] as List)[3], {'type': 'text', 'text': 'Edited'});
@@ -185,7 +191,11 @@ void main() {
     expect(convo.agentId, 'agent_1');
     expect(convo.topP, 1.0);
     expect(convo.isArchived, isFalse);
-    expect(convo.updatedAt, isNull, reason: 'an unparseable timestamp does not fail decoding');
+    expect(
+      convo.updatedAt,
+      isNull,
+      reason: 'an unparseable timestamp does not fail decoding',
+    );
 
     final endpoint = EndpointConfig.fromJson({
       'type': 'custom',

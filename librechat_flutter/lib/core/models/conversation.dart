@@ -49,5 +49,6 @@ abstract class Conversation with _$Conversation {
     @UtcDateTimeConverter() DateTime? updatedAt,
   }) = _Conversation;
 
-  factory Conversation.fromJson(Map<String, Object?> json) => _$ConversationFromJson(json);
+  factory Conversation.fromJson(Map<String, Object?> json) =>
+      _$ConversationFromJson(json);
 }

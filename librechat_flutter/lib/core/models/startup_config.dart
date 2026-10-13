@@ -38,10 +38,13 @@ abstract class StartupConfig with _$StartupConfig {
     BuildInfo? buildInfo,
     // Null on servers that predate compaction, which is the gate, so it has no default.
     bool? compactionEnabled,
-    @JsonKey(name: 'interface') @Default(InterfaceConfig()) InterfaceConfig interfaceConfig,
+    @JsonKey(name: 'interface')
+    @Default(InterfaceConfig())
+    InterfaceConfig interfaceConfig,
   }) = _StartupConfig;
 
-  factory StartupConfig.fromJson(Map<String, Object?> json) => _$StartupConfigFromJson(json);
+  factory StartupConfig.fromJson(Map<String, Object?> json) =>
+      _$StartupConfigFromJson(json);
 }
 
 @freezed
@@ -51,19 +54,22 @@ abstract class LdapConfig with _$LdapConfig {
     @Default(false) bool username,
   }) = _LdapConfig;
 
-  factory LdapConfig.fromJson(Map<String, Object?> json) => _$LdapConfigFromJson(json);
+  factory LdapConfig.fromJson(Map<String, Object?> json) =>
+      _$LdapConfigFromJson(json);
 }
 
 @freezed
 abstract class BalanceConfig with _$BalanceConfig {
   const factory BalanceConfig({@Default(false) bool enabled}) = _BalanceConfig;
 
-  factory BalanceConfig.fromJson(Map<String, Object?> json) => _$BalanceConfigFromJson(json);
+  factory BalanceConfig.fromJson(Map<String, Object?> json) =>
+      _$BalanceConfigFromJson(json);
 }
 
 @freezed
 abstract class BuildInfo with _$BuildInfo {
   const factory BuildInfo({String? commit}) = _BuildInfo;
 
-  factory BuildInfo.fromJson(Map<String, Object?> json) => _$BuildInfoFromJson(json);
+  factory BuildInfo.fromJson(Map<String, Object?> json) =>
+      _$BuildInfoFromJson(json);
 }

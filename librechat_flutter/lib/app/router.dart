@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +12,9 @@ import '../features/auth/sso_screen.dart';
 import '../features/auth/terms_screen.dart';
 import '../features/auth/two_factor_screen.dart';
 import '../features/auth/verify_email_screen.dart';
+import '../features/chat/artifacts/artifact_viewer.dart';
 import '../features/chat/chat_screen.dart';
+import '../features/chat/media_screen.dart';
 import '../features/conversations/archived_screen.dart';
 import '../features/settings/general_settings_screen.dart';
 import 'routes.dart';
@@ -133,6 +136,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.terms,
         builder: (context, state) => const TermsScreen(),
       ),
+      GoRoute(
+        path: Routes.artifactFullscreen,
+        // The artifact travels in `extra`, so a restored or typed location
+        // without it goes back to the chat (Req 24.13).
+        redirect: (context, state) =>
+            state.extra is ArtifactArgs ? null : Routes.newChat,
+        builder: (context, state) =>
+            ArtifactFullscreenScreen(args: state.extra! as ArtifactArgs),
+      ),
       // Every signed-in route except /terms and /artifact goes inside the
       // AppShell (Req 14.1–14.3).
       ShellRoute(
@@ -142,12 +154,23 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: Routes.newChat,
             builder: (context, state) => const ChatScreen(),
           ),
-          // Stand-in until Task 11.4 lands the conversation view: rows,
-          // duplicates and archived rows already go to Routes.chat(id), and
-          // Task 11.4 replaces this redirect with the ChatScreen builder.
+          // Routes.chat(id). The key gives each conversation its own
+          // screen state, such as the scroll position.
           GoRoute(
             path: '/chat/c/:conversationId',
-            redirect: (_, _) => Routes.newChat,
+            builder: (context, state) {
+              final id = state.pathParameters['conversationId']!;
+              return ChatScreen(key: ValueKey(id), conversationId: id);
+            },
+            routes: [
+              // Routes.conversationMedia(id) (Req 25.12).
+              GoRoute(
+                path: 'media',
+                builder: (context, state) => MediaScreen(
+                  conversationId: state.pathParameters['conversationId']!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: Routes.archivedConversations,

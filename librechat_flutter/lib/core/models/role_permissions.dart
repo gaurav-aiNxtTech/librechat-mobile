@@ -11,5 +11,6 @@ abstract class RolePermissions with _$RolePermissions {
     Map<String, Map<String, bool>>? permissions,
   }) = _RolePermissions;
 
-  factory RolePermissions.fromJson(Map<String, Object?> json) => _$RolePermissionsFromJson(json);
+  factory RolePermissions.fromJson(Map<String, Object?> json) =>
+      _$RolePermissionsFromJson(json);
 }

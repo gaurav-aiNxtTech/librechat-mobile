@@ -17,12 +17,17 @@ abstract class Attachment with _$Attachment {
     int? height,
     String? messageId,
     String? toolCallId,
+    // An office preview's lifecycle (`pending`, `ready`, `failed`) and, once
+    // ready, its extracted body: `textFormat` is `html` or `text`.
     String? status,
+    String? text,
+    String? textFormat,
     String? previewError,
     @JsonKey(name: 'web_search') Map<String, Object?>? webSearch,
     @JsonKey(name: 'file_search') Map<String, Object?>? fileSearch,
     Map<String, Object?>? memory,
   }) = _Attachment;
 
-  factory Attachment.fromJson(Map<String, Object?> json) => _$AttachmentFromJson(json);
+  factory Attachment.fromJson(Map<String, Object?> json) =>
+      _$AttachmentFromJson(json);
 }

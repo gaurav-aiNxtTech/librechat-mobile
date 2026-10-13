@@ -16,6 +16,7 @@ import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/core/storage/secure_store.dart';
 import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/ui/theme/app_theme.dart';
+import 'package:librechat_flutter/features/chat/data/messages_repository.dart';
 import 'package:librechat_flutter/features/conversations/conversations_api.dart';
 import 'package:librechat_flutter/features/conversations/conversations_repository.dart';
 
@@ -68,6 +69,8 @@ void main() {
           FakeConversationsRepository(),
         ),
         conversationsApiProvider.overrideWithValue(FakeConversationsApi()),
+        // The landing's Composer reads its draft.
+        messagesRepositoryProvider.overrideWithValue(FakeMessagesRepository()),
       ],
     );
     addTearDown(container.dispose);

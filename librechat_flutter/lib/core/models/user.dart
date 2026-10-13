@@ -23,7 +23,8 @@ abstract class User with _$User {
 }
 
 /// The Server sends `_id`, and most user routes also send it as `id`.
-Object? _readId(Map<dynamic, dynamic> json, String key) => json[key] ?? json['id'];
+Object? _readId(Map<dynamic, dynamic> json, String key) =>
+    json[key] ?? json['id'];
 
 @freezed
 abstract class UserPersonalization with _$UserPersonalization {

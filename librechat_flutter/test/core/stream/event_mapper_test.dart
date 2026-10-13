@@ -91,9 +91,9 @@ void main() {
             toolCallId: 'call_1',
             messageId: 'm1',
             status: 'ready',
+            text: '<html><body>hi</body></html>',
+            textFormat: 'html',
           ),
-          text: '<html><body>hi</body></html>',
-          textFormat: 'html',
         ),
       ]);
 

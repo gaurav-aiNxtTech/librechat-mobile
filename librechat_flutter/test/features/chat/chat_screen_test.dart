@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
+import 'package:librechat_flutter/core/storage/settings_store.dart';
 import 'package:librechat_flutter/core/models/interface_config.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
+import 'package:librechat_flutter/core/auth/auth_service.dart';
+import 'package:librechat_flutter/core/config/feature_gate.dart';
+import 'package:librechat_flutter/core/network/connectivity.dart';
 import 'package:librechat_flutter/features/chat/chat_screen.dart';
+import 'package:librechat_flutter/features/chat/data/messages_repository.dart';
+import 'package:librechat_flutter/features/chat/render/endpoint_icon.dart';
 
 import '../../support/fakes.dart';
+
+/// What the landing's Composer reads besides the settings and config.
+List<Override> composerOverrides() => [
+  messagesRepositoryProvider.overrideWithValue(FakeMessagesRepository()),
+  authServiceProvider.overrideWith((ref) => FakeAuthService()),
+  onlineProvider.overrideWith((ref) => Stream.value(true)),
+  missingFeaturesProvider.overrideWithValue(ValueNotifier(const {})),
+];
 
 void main() {
   group('timeGreeting', () {
@@ -47,6 +63,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...composerOverrides(),
+          settingsProvider.overrideWith(FakeSettingsStore.new),
           serverConfigProvider.overrideWith(
             () => FakeServerConfig(
               ServerInfo(
@@ -93,5 +111,48 @@ void main() {
     );
     expect(find.bySemanticsLabel('Switchboard'), findsOneWidget);
     handle.dispose();
+  });
+
+  landingIconTests();
+}
+
+void landingIconTests() {
+  testWidgets('the landing shows the last endpoint\'s icon and model', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          ...composerOverrides(),
+          serverConfigProvider.overrideWith(
+            () => FakeServerConfig(const ServerInfo(config: StartupConfig())),
+          ),
+          settingsProvider.overrideWith(
+            () => FakeSettingsStore(
+              const AppSettings(
+                lastEndpoint: 'anthropic',
+                lastModel: 'claude-sonnet',
+              ),
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: ChatScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(SvgPicture), findsOneWidget);
+    // Under the greeting and on the Composer's model chip.
+    expect(find.text('claude-sonnet'), findsNWidgets(2));
+    expect(find.bySemanticsLabel('Switchboard'), findsNothing);
+  });
+
+  test('endpointIconAsset maps the bundled brands only', () {
+    expect(endpointIconAsset('openAI'), 'assets/icons/providers/openai.svg');
+    expect(
+      endpointIconAsset('azureAssistants'),
+      'assets/icons/providers/azure.svg',
+    );
+    expect(endpointIconAsset('Ollama'), isNull);
+    expect(endpointIconAsset(null), isNull);
   });
 }

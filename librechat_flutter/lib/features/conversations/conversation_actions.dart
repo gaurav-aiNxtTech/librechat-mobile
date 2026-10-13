@@ -175,8 +175,7 @@ Future<void> showConversationActions(
         if (!await confirmDeleteConversation(context, conversation)) return;
         await repository.delete(id);
         onChanged(null);
-        // Stand-in until Task 11.4 declares the conversation view: the
-        // open conversation's path is Routes.chat(id).
+        // Deleting the open conversation leaves its view for a new chat.
         if (openPath == Routes.chat(id)) onOpen(Routes.newChat);
     }
   } catch (e) {

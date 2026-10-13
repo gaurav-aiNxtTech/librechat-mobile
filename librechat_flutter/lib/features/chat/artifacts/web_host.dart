@@ -12,12 +12,14 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
+import '../../../core/ui/platform_actions.dart';
 import 'artifact_parser.dart';
 
 /// The document base URL: the Flutter assets inside the APK.
@@ -832,7 +834,7 @@ WebNavigationAction webNavigationAction(
 /// [parseHostMessage]); a main-frame load error goes to [onError] too.
 /// Navigation follows [webNavigationAction]: web, `mailto:` and `tel:`
 /// links open in an external app and everything else is blocked.
-class WebContentView extends StatefulWidget {
+class WebContentView extends ConsumerStatefulWidget {
   const WebContentView(this.html, {super.key, this.onHeight, this.onError});
 
   final String html;
@@ -840,11 +842,14 @@ class WebContentView extends StatefulWidget {
   final ValueChanged<String>? onError;
 
   @override
-  State<WebContentView> createState() => _WebContentViewState();
+  ConsumerState<WebContentView> createState() => _WebContentViewState();
 }
 
-class _WebContentViewState extends State<WebContentView> {
+class _WebContentViewState extends ConsumerState<WebContentView> {
   late final WebViewController _controller;
+
+  /// Read once, so a link tapped as the view goes away still opens.
+  late final PlatformActions _platform;
 
   /// Completes once the controller is configured and the first load starts.
   late final Future<void> _configured;
@@ -852,6 +857,7 @@ class _WebContentViewState extends State<WebContentView> {
   @override
   void initState() {
     super.initState();
+    _platform = ref.read(platformActionsProvider);
     _controller = WebViewController();
     _configured = _configure();
     unawaited(_configured);
@@ -911,11 +917,11 @@ class _WebContentViewState extends State<WebContentView> {
   Future<void> _load() =>
       _controller.loadHtmlString(widget.html, baseUrl: webAssetBaseUrl);
 
-  /// Opens [uri] in the external app for its scheme. A device without one
-  /// ignores it.
+  /// Opens [uri] in the external app for its scheme, through the
+  /// PlatformActions seam. A device without one ignores it.
   Future<void> _openExternally(Uri uri) async {
     try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await _platform.openExternal(uri);
     } on Exception {
       // No app handles the link; the page stays as it is.
     }
@@ -931,4 +937,83 @@ class _WebContentViewState extends State<WebContentView> {
 
   @override
   Widget build(BuildContext context) => WebViewWidget(controller: _controller);
+}
+
+/// Inline previews are capped to this fraction of the window height (KMP
+/// `INLINE_MAX_HEIGHT_FRACTION`), so one long page cannot claim several
+/// screens of the message list. The Artifact_Viewer shows the rest.
+const inlineMaxHeightFraction = 0.7;
+
+/// The height an inline preview gets before its page reports one, and the
+/// floor afterwards.
+const minInlineHeight = 120.0;
+
+/// The height of an inline preview whose page reported [reported] CSS
+/// pixels in a window of [windowHeight]: at least [minInlineHeight], and at
+/// most [inlineMaxHeightFraction] of the window. A page that has not
+/// reported yet, or reported a height below the floor, gets the floor.
+double inlineWebHeight(double? reported, double windowHeight) {
+  final cap = windowHeight * inlineMaxHeightFraction;
+  if (!(reported != null && reported > minInlineHeight)) return minInlineHeight;
+  return cap <= minInlineHeight ? minInlineHeight : min(reported, cap);
+}
+
+/// A [WebContentView] that sizes itself from the page's `{height}` message
+/// (design "WebContentView"), clamped by [inlineWebHeight]. A new [html]
+/// starts over at [minInlineHeight] until its page reports again.
+class InlineWebView extends StatefulWidget {
+  const InlineWebView(this.html, {super.key, this.onError});
+
+  final String html;
+  final ValueChanged<String>? onError;
+
+  @override
+  State<InlineWebView> createState() => _InlineWebViewState();
+}
+
+class _InlineWebViewState extends State<InlineWebView> {
+  double? _reported;
+
+  @override
+  void didUpdateWidget(InlineWebView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.html != oldWidget.html) _reported = null;
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: inlineWebHeight(_reported, MediaQuery.sizeOf(context).height),
+    child: WebContentView(
+      widget.html,
+      onHeight: (height) {
+        if (mounted && height != _reported) setState(() => _reported = height);
+      },
+      onError: widget.onError,
+    ),
+  );
+}
+
+/// A Mermaid diagram rendered inline (Req 24.6): a closed ```` ```mermaid ````
+/// fence in a settled reply, or a Mermaid artifact shown inline. The page
+/// itself shows a diagram that does not parse, with its source.
+class MermaidView extends StatelessWidget {
+  const MermaidView(
+    this.code, {
+    super.key,
+    this.securityLevel = MermaidSecurityLevel.strict,
+  });
+
+  final String code;
+
+  /// `strict` for code fences, `loose` for Mermaid artifacts, as in KMP.
+  final MermaidSecurityLevel securityLevel;
+
+  @override
+  Widget build(BuildContext context) => InlineWebView(
+    buildMermaidHtml(
+      code,
+      dark: isDarkSurface(Theme.of(context).colorScheme),
+      securityLevel: securityLevel,
+    ),
+  );
 }

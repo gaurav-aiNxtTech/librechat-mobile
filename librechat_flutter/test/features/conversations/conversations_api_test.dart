@@ -9,6 +9,7 @@ import 'package:librechat_flutter/core/auth/auth_api.dart';
 import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/feature_gate.dart';
 import 'package:librechat_flutter/core/log/diagnostic_log.dart';
+import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/network/api_client.dart';
 import 'package:librechat_flutter/core/network/app_exception.dart';
 import 'package:librechat_flutter/core/storage/cache_db.dart';
@@ -448,5 +449,220 @@ void main() {
     expect(messages.map((m) => m.messageId), ['m1', 'm2']);
     expect(messages.first.isCreatedByUser, isTrue);
     expect(messages.last.text, 'Hi');
+  });
+
+  // The message actions' request shapes (Task 21.3).
+  group('POST /api/convos/fork', () {
+    test('sends the mode, the split and the path\'s leaf, and decodes the '
+        'new conversation with its messages (Req 25.9)', () async {
+      server.on(
+        'POST',
+        '/api/convos/fork',
+        respondJson({
+          'conversation': {'conversationId': 'fork-1', 'title': 'Trip plans'},
+          'messages': [
+            {'messageId': 'u1', 'conversationId': 'fork-1'},
+            {'messageId': 'a1', 'conversationId': 'fork-1', 'text': 'Hi'},
+          ],
+        }, status: 201),
+      );
+
+      final forked = await api.fork(
+        conversationId: 'c1',
+        messageId: 'a1',
+        option: 'targetLevel',
+        splitAtTarget: true,
+        latestMessageId: 'leaf-1',
+      );
+
+      final request = only('/api/convos/fork');
+      expect(request.method, 'POST');
+      expect(request.json, {
+        'conversationId': 'c1',
+        'messageId': 'a1',
+        'option': 'targetLevel',
+        'splitAtTarget': true,
+        'latestMessageId': 'leaf-1',
+      });
+      expect(forked.conversation.conversationId, 'fork-1');
+      expect(forked.conversation.title, 'Trip plans');
+      expect(forked.messages.map((m) => m.messageId), ['u1', 'a1']);
+    });
+
+    test('leaves out an absent leaf and reads absent messages as '
+        'empty', () async {
+      server.on(
+        'POST',
+        '/api/convos/fork',
+        respondJson({
+          'conversation': {'conversationId': 'fork-2'},
+        }, status: 201),
+      );
+
+      final forked = await api.fork(
+        conversationId: 'c1',
+        messageId: 'a1',
+        option: 'directPath',
+        splitAtTarget: false,
+      );
+
+      expect(only('/api/convos/fork').json, {
+        'conversationId': 'c1',
+        'messageId': 'a1',
+        'option': 'directPath',
+        'splitAtTarget': false,
+      });
+      expect(forked.messages, isEmpty);
+    });
+  });
+
+  group('PUT /api/messages/{conversationId}/{messageId}', () {
+    test('saves the text into a content part by index and reads the '
+        'Server\'s message (Req 25.3)', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c1/a1',
+        respondJson({
+          'messageId': 'a1',
+          'conversationId': 'c1',
+          'content': [
+            {'type': 'text', 'text': 'Saved answer'},
+          ],
+        }),
+      );
+
+      final saved = await MessagesApi(
+        client,
+      ).update('c1', 'a1', text: 'Saved answer', index: 1);
+
+      final request = only('/api/messages/c1/a1');
+      expect(request.method, 'PUT');
+      expect(request.json, {'text': 'Saved answer', 'index': 1});
+      expect(saved.messageId, 'a1');
+      expect(saved.content!.single.text, 'Saved answer');
+    });
+
+    test('leaves out the index for a message with no content parts', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c1/u1',
+        respondJson({
+          'messageId': 'u1',
+          'conversationId': 'c1',
+          'text': 'Edited',
+        }),
+      );
+
+      final saved = await MessagesApi(
+        client,
+      ).update('c1', 'u1', text: 'Edited');
+
+      expect(only('/api/messages/c1/u1').json, {'text': 'Edited'});
+      expect(saved.text, 'Edited');
+    });
+
+    test('encodes both ids', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c%201/a%2Fb',
+        respondJson({'messageId': 'a/b', 'conversationId': 'c 1'}),
+      );
+
+      await MessagesApi(client).update('c 1', 'a/b', text: 'x');
+
+      expect(
+        server.requests.single.uri.toString(),
+        '/api/messages/c%201/a%2Fb',
+      );
+    });
+  });
+
+  group('PUT /api/messages/{conversationId}/{messageId}/feedback', () {
+    test('sends the rating, the reason tag and the comment, and reads the '
+        'stored feedback (Req 25.6)', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c1/a1/feedback',
+        respondJson({
+          'messageId': 'a1',
+          'conversationId': 'c1',
+          'feedback': {
+            'rating': 'thumbsDown',
+            'tag': 'inaccurate',
+            'text': 'Wrong dates',
+          },
+        }),
+      );
+
+      final feedback = await MessagesApi(client).setFeedback(
+        'c1',
+        'a1',
+        rating: 'thumbsDown',
+        tag: 'inaccurate',
+        text: 'Wrong dates',
+      );
+
+      final request = only('/api/messages/c1/a1/feedback');
+      expect(request.method, 'PUT');
+      expect(request.json, {
+        'feedback': {
+          'rating': 'thumbsDown',
+          'tag': 'inaccurate',
+          'text': 'Wrong dates',
+        },
+      });
+      expect(feedback!.rating, FeedbackRating.thumbsDown);
+      expect(feedback.tag, 'inaccurate');
+      expect(feedback.text, 'Wrong dates');
+    });
+
+    test('leaves out an absent comment', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c1/a1/feedback',
+        respondJson({
+          'feedback': {'rating': 'thumbsUp', 'tag': 'creative_solution'},
+        }),
+      );
+
+      final feedback = await MessagesApi(
+        client,
+      ).setFeedback('c1', 'a1', rating: 'thumbsUp', tag: 'creative_solution');
+
+      expect(only('/api/messages/c1/a1/feedback').json, {
+        'feedback': {'rating': 'thumbsUp', 'tag': 'creative_solution'},
+      });
+      expect(feedback!.rating, FeedbackRating.thumbsUp);
+      expect(feedback.text, isNull);
+    });
+
+    test('a clear sends an empty body and reads no feedback '
+        '(Req 25.7)', () async {
+      server.on(
+        'PUT',
+        '/api/messages/c1/a1/feedback',
+        respondJson({'messageId': 'a1', 'conversationId': 'c1'}),
+      );
+
+      expect(await MessagesApi(client).clearFeedback('c1', 'a1'), isNull);
+
+      final request = only('/api/messages/c1/a1/feedback');
+      expect(request.method, 'PUT');
+      expect(request.json, <String, Object?>{});
+    });
+
+    test('a 404 marks the feedback feature missing', () async {
+      await expectLater(
+        MessagesApi(client).setFeedback('c1', 'a1', rating: 'x', tag: 'y'),
+        throwsA(
+          isA<AppException>().having(
+            (e) => e.kind,
+            'kind',
+            FailureKind.unsupported,
+          ),
+        ),
+      );
+      expect(client.missingFeatures.value, {Feature.feedback});
+    });
   });
 }

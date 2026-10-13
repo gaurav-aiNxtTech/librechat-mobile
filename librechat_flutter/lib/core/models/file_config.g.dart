@@ -14,13 +14,29 @@ _FileConfig _$FileConfigFromJson(Map<String, dynamic> json) => _FileConfig(
       ) ??
       const <String, EndpointFileConfig>{},
   serverFileSizeLimit: (json['serverFileSizeLimit'] as num?)?.toInt(),
+  text: json['text'] == null
+      ? null
+      : MimeTypesConfig.fromJson(json['text'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$FileConfigToJson(_FileConfig instance) =>
     <String, dynamic>{
       'endpoints': instance.endpoints.map((k, e) => MapEntry(k, e.toJson())),
       'serverFileSizeLimit': ?instance.serverFileSizeLimit,
+      'text': ?instance.text?.toJson(),
     };
+
+_MimeTypesConfig _$MimeTypesConfigFromJson(Map<String, dynamic> json) =>
+    _MimeTypesConfig(
+      supportedMimeTypes:
+          (json['supportedMimeTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
+    );
+
+Map<String, dynamic> _$MimeTypesConfigToJson(_MimeTypesConfig instance) =>
+    <String, dynamic>{'supportedMimeTypes': instance.supportedMimeTypes};
 
 _EndpointFileConfig _$EndpointFileConfigFromJson(Map<String, dynamic> json) =>
     _EndpointFileConfig(

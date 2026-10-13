@@ -437,6 +437,905 @@
         "chatSessionId": "sess_413f264c-2e0b-482b-a1b7-93b0882e2cb3",
         "timestamp": 1791456616292
       }
+    ],
+    "11.1 Implement the Message_Tree": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789377
+      },
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527821005
+      },
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791528121348
+      }
+    ],
+    "11.3 Implement MessagesRepository and conversationMessagesProvider": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789465
+      },
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791528125933
+      },
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791529194384
+      }
+    ],
+    "11.4 Implement the ChatScreen conversation view": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789516
+      },
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791529198839
+      }
+    ],
+    "12. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789565
+      },
+      {
+        "executionId": "d969fd1b-aff0-4489-a664-9586b6e4d98d",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791530127280
+      },
+      {
+        "executionId": "d969fd1b-aff0-4489-a664-9586b6e4d98d",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791536011354
+      }
+    ],
+    "15.1 Implement the payload builder": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789598
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791536221330
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791536841116
+      }
+    ],
+    "15.2 Implement RunState, the reducer and the final merge": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789633
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791536842584
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791537403760
+      }
+    ],
+    "15.4 Implement RunService start, events and finals": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789666
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791537406281
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791538792300
+      }
+    ],
+    "15.5 Implement stop and recovery": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789697
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791538792484
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791540494783
+      }
+    ],
+    "15.7 Implement the Composer and Model_Selector": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789731
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791540495619
+      },
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791543225781
+      }
+    ],
+    "16. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789759
+      },
+      {
+        "executionId": "20eea4be-0c2d-4fa3-a4c4-bfaceb586b11",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791543731803
+      },
+      {
+        "executionId": "20eea4be-0c2d-4fa3-a4c4-bfaceb586b11",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791543890840
+      }
+    ],
+    "17.2 Implement the content part views": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789790
+      },
+      {
+        "executionId": "629a2689-b50c-4d72-9897-9337dbc418d0",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791544223964
+      },
+      {
+        "executionId": "efe19134-79f0-4105-8530-ad7a6283081d",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791545067154
+      },
+      {
+        "executionId": "efe19134-79f0-4105-8530-ad7a6283081d",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791546540823
+      }
+    ],
+    "17.3 Implement code, math and citations": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789822
+      },
+      {
+        "executionId": "629a2689-b50c-4d72-9897-9337dbc418d0",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791544224030
+      },
+      {
+        "executionId": "efe19134-79f0-4105-8530-ad7a6283081d",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791545067656
+      },
+      {
+        "executionId": "efe19134-79f0-4105-8530-ad7a6283081d",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791545884576
+      }
+    ],
+    "17.4 Implement images, attachments and media": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789851
+      },
+      {
+        "executionId": "17317a8d-8868-4998-8d53-9d04efbebd0a",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791546866690
+      },
+      {
+        "executionId": "d54bbcaa-484c-4c7f-b9bb-9a9dfe9d59ec",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791779801900
+      }
+    ],
+    "18. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789882
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780601994
+      },
+      {
+        "executionId": "03a5d536-a5b3-481e-b0cd-7bc972008a42",
+        "chatSessionId": "sess_7d63aaa7-9ce2-492e-acde-9d222198fce5",
+        "timestamp": 1791781713169
+      },
+      {
+        "executionId": "7a9e320b-dabd-45f1-86be-4c364cf9cc94",
+        "chatSessionId": "sess_7d63aaa7-9ce2-492e-acde-9d222198fce5",
+        "timestamp": 1791781914563
+      },
+      {
+        "executionId": "827def66-9ac3-4718-b861-29727fa8a731",
+        "chatSessionId": "sess_29645efa-48c6-416d-a2ed-8819156a0fc0",
+        "timestamp": 1791786792458
+      },
+      {
+        "executionId": "827def66-9ac3-4718-b861-29727fa8a731",
+        "chatSessionId": "sess_29645efa-48c6-416d-a2ed-8819156a0fc0",
+        "timestamp": 1791786929021
+      },
+      {
+        "executionId": "c707b68a-a15a-4295-a3df-82e2e32038a1",
+        "chatSessionId": "sess_950b5747-afb8-4c26-9087-154911483fe1",
+        "timestamp": 1791786949843
+      },
+      {
+        "executionId": "dad91d70-31c5-454a-aab2-da992fc12ee7",
+        "chatSessionId": "sess_b37de70e-e51c-4be0-9789-5a3d4235200f",
+        "timestamp": 1791787994675
+      },
+      {
+        "executionId": "dad91d70-31c5-454a-aab2-da992fc12ee7",
+        "chatSessionId": "sess_b37de70e-e51c-4be0-9789-5a3d4235200f",
+        "timestamp": 1791788208977
+      }
+    ],
+    "19.5 Implement the Artifact_Viewer": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789914
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602053
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780840498
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780922884
+      },
+      {
+        "executionId": "78efea96-9239-4535-a26d-d72559cdb6be",
+        "chatSessionId": "sess_d7e5064c-f634-4aaa-a917-763e74c51664",
+        "timestamp": 1791783722147
+      },
+      {
+        "executionId": "5d4ff43b-3181-439c-bb6a-0138a75ba056",
+        "chatSessionId": "sess_c05acf66-1802-497f-b7ea-c86e7c678740",
+        "timestamp": 1791788233455
+      },
+      {
+        "executionId": "5d4ff43b-3181-439c-bb6a-0138a75ba056",
+        "chatSessionId": "sess_c05acf66-1802-497f-b7ea-c86e7c678740",
+        "timestamp": 1791789223185
+      }
+    ],
+    "20. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789948
+      },
+      {
+        "executionId": "40825f88-26ef-4554-8d76-0bd9b284afb9",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780124034
+      }
+    ],
+    "21.1 Implement message actions": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527789981
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602095
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791794958247
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791796537005
+      }
+    ],
+    "21.2 Implement quotes, search and the Media_Screen": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790006
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602133
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791796544812
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791798792077
+      }
+    ],
+    "21.4 Implement attachments and uploads": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790034
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602173
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780841135
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780924217
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791796545088
+      },
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791798792116
+      }
+    ],
+    "21.6 Implement tools, parameters and presets": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790066
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602209
+      }
+    ],
+    "21.7 Implement `/` prompt commands": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790098
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602251
+      }
+    ],
+    "21.9 Implement favorites in the Model_Selector": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790132
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602285
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780842435
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780925693
+      }
+    ],
+    "22. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790179
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602326
+      }
+    ],
+    "23.1 Implement human-in-the-loop pauses": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790207
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602364
+      }
+    ],
+    "23.2 Implement steering and Queued_Turns": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790234
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602399
+      }
+    ],
+    "23.4 Implement Comparison": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790263
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602432
+      }
+    ],
+    "23.5 Implement context usage, compaction, subagents and traces": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790297
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602467
+      }
+    ],
+    "24. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790331
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602500
+      }
+    ],
+    "25.1 Implement VoiceService": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790359
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602534
+      }
+    ],
+    "26. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790391
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602567
+      }
+    ],
+    "27.1 Implement Agent_Marketplace and Agent_Detail_Screen": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790421
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602614
+      }
+    ],
+    "27.4 Implement SharingSheet": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790450
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602649
+      }
+    ],
+    "27.5 Implement the Agent_Editor": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790482
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602682
+      }
+    ],
+    "28. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790511
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602715
+      }
+    ],
+    "29.1 Implement the Prompts_Library": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790539
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602755
+      }
+    ],
+    "29.2 Implement the Projects_Screen": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790573
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602790
+      }
+    ],
+    "29.3 Implement the Files_Manager": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790607
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602827
+      }
+    ],
+    "29.4 Implement the Skills_Screen": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790640
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602861
+      }
+    ],
+    "29.5 Implement the Schedules_Screen": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790672
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602899
+      }
+    ],
+    "30. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790701
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602933
+      }
+    ],
+    "31.1 Implement the settings root, Chat and About": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790732
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780602969
+      }
+    ],
+    "31.2 Implement Data settings": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790759
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603005
+      }
+    ],
+    "31.3 Implement Account settings": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790801
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603041
+      }
+    ],
+    "31.4 Implement keys, favorites, MCP, memories, presets and role skills": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790837
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603084
+      }
+    ],
+    "32. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790866
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603121
+      }
+    ],
+    "33.1 Implement deep links": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790898
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603150
+      }
+    ],
+    "33.2 Implement shares": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790924
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603183
+      }
+    ],
+    "33.3 Update the Android manifest": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790956
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603218
+      }
+    ],
+    "34. Checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527790984
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603258
+      }
+    ],
+    "35.1 Finish the release build": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527791013
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603295
+      }
+    ],
+    "35.2 Do the accessibility and copy pass": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527791041
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603330
+      }
+    ],
+    "35.4 Add the CI_Workflow": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527791073
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603364
+      }
+    ],
+    "35.5 Finalize the Parity_Checklist": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527791102
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603398
+      }
+    ],
+    "36. Final checkpoint: run `scripts/ci.sh --skip-build`, make sure all tests pass, and ask the user if questions arise.": [
+      {
+        "executionId": "3138fb58-ad08-4ce1-8d62-b40ded2361a8",
+        "chatSessionId": "sess_390be9c2-ce84-4a0e-b5bd-3e127e7dd862",
+        "timestamp": 1791527791132
+      },
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780603435
+      }
+    ],
+    "15. Implement sending and stopping": [
+      {
+        "executionId": "6930da02-e986-437b-bb83-f7605750dd24",
+        "chatSessionId": "sess_c518acc4-9f88-4d0f-a86b-ae9aa68c4f27",
+        "timestamp": 1791543225833
+      }
+    ],
+    "11. Implement reading a conversation": [
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780742262
+      }
+    ],
+    "17. Implement rich rendering": [
+      {
+        "executionId": "b3f86bd5-91cc-468b-a45f-670ad1d4c458",
+        "chatSessionId": "sess_85af4c8f-fde1-445b-b071-7d3f1a72bd39",
+        "timestamp": 1791780742287
+      }
+    ],
+    "17.5 Tests for rendering": [
+      {
+        "executionId": "dfd5df7d-8006-4a16-8d74-f0e6dad2a9c6",
+        "chatSessionId": "sess_bd805848-356a-4a26-8242-a7e6d70f2af0",
+        "timestamp": 1791785323186
+      },
+      {
+        "executionId": "dfd5df7d-8006-4a16-8d74-f0e6dad2a9c6",
+        "chatSessionId": "sess_bd805848-356a-4a26-8242-a7e6d70f2af0",
+        "timestamp": 1791786760386
+      }
+    ],
+    "19.6 Tests for artifacts": [
+      {
+        "executionId": "5d4ff43b-3181-439c-bb6a-0138a75ba056",
+        "chatSessionId": "sess_c05acf66-1802-497f-b7ea-c86e7c678740",
+        "timestamp": 1791789226550
+      },
+      {
+        "executionId": "5d4ff43b-3181-439c-bb6a-0138a75ba056",
+        "chatSessionId": "sess_c05acf66-1802-497f-b7ea-c86e7c678740",
+        "timestamp": 1791789987178
+      }
+    ],
+    "19. Implement Artifacts and Mermaid": [
+      {
+        "executionId": "5d4ff43b-3181-439c-bb6a-0138a75ba056",
+        "chatSessionId": "sess_c05acf66-1802-497f-b7ea-c86e7c678740",
+        "timestamp": 1791789987233
+      }
+    ],
+    "15.8 Tests for the Composer": [
+      {
+        "executionId": "28e68397-7c80-482d-bd65-65a68c32b2a9",
+        "chatSessionId": "sess_48f21af8-a8c5-4bef-b726-71f0eb575c48",
+        "timestamp": 1791790089688
+      },
+      {
+        "executionId": "28e68397-7c80-482d-bd65-65a68c32b2a9",
+        "chatSessionId": "sess_48f21af8-a8c5-4bef-b726-71f0eb575c48",
+        "timestamp": 1791790509435
+      }
+    ],
+    "21.3 Tests for message actions": [
+      {
+        "executionId": "1e3253cd-0163-4ee5-93c7-a7cb335c484a",
+        "chatSessionId": "sess_9e21450b-04db-43a0-b6cd-bf9a48f95832",
+        "timestamp": 1791798798011
+      }
     ]
   }
 }

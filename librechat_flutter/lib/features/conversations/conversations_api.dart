@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/feature_gate.dart';
 import '../../core/models/conversation.dart';
+import '../../core/models/message.dart';
 import '../../core/models/tag.dart';
 import '../../core/network/api_client.dart';
 
@@ -12,6 +13,13 @@ import '../../core/network/api_client.dart';
 typedef ConversationPage = ({
   List<Conversation> conversations,
   String? nextCursor,
+});
+
+/// `POST /api/convos/fork`: the new conversation and the messages the
+/// Server copied into it (Req 25.9).
+typedef ForkedConversation = ({
+  Conversation conversation,
+  List<Message> messages,
 });
 
 /// The [ConversationsApi] on the app's [ApiClient]. Tests override it.
@@ -97,6 +105,41 @@ class ConversationsApi {
         final body = json! as Map;
         return _conversation(body['conversation'] ?? body)!;
       }, data: {'conversationId': id, 'title': title});
+
+  /// `POST /api/convos/fork` (no Arg_Envelope): forks [conversationId] at
+  /// [messageId] (Req 25.9).
+  ///
+  /// [option] is one of the KMP_App's fork modes (`directPath`,
+  /// `includeBranches`, `targetLevel`), [splitAtTarget] starts the fork at
+  /// the target instead of the root, and [latestMessageId] is the open
+  /// conversation's leaf, which the Server uses to resolve the branch.
+  Future<ForkedConversation> fork({
+    required String conversationId,
+    required String messageId,
+    required String option,
+    required bool splitAtTarget,
+    String? latestMessageId,
+  }) => _api.json(
+    'POST',
+    '/api/convos/fork',
+    (json) {
+      final body = json! as Map;
+      return (
+        conversation: _conversation(body['conversation'])!,
+        messages: [
+          for (final item in (body['messages'] as List?) ?? const [])
+            Message.fromJson((item as Map).cast<String, Object?>()),
+        ],
+      );
+    },
+    data: {
+      'conversationId': conversationId,
+      'messageId': messageId,
+      'option': option,
+      'splitAtTarget': splitAtTarget,
+      'latestMessageId': ?latestMessageId,
+    },
+  );
 
   /// `POST /api/convos/import`: uploads [bytes] as the multipart `file`
   /// field, named [fileName].

@@ -16,5 +16,6 @@ abstract class EndpointConfig with _$EndpointConfig {
     List<String>? capabilities,
   }) = _EndpointConfig;
 
-  factory EndpointConfig.fromJson(Map<String, Object?> json) => _$EndpointConfigFromJson(json);
+  factory EndpointConfig.fromJson(Map<String, Object?> json) =>
+      _$EndpointConfigFromJson(json);
 }

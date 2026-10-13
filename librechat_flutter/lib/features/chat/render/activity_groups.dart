@@ -47,6 +47,7 @@ final class ActivityGroup extends PartGroup {
     required this.failed,
     required this.toolCount,
     required this.completed,
+    this.labelIndex,
   });
 
   @override
@@ -57,6 +58,11 @@ final class ActivityGroup extends PartGroup {
 
   /// The trimmed `activity_label` text, or `''` for an untitled group.
   final String label;
+
+  /// The index of the part [label] comes from, which the in-conversation
+  /// search numbers the header's text under (Req 25.11). Null for an
+  /// untitled group, whose header the Server never sent.
+  final int? labelIndex;
 
   /// The label's batch status is `failed` or `partial`.
   final bool failed;
@@ -79,6 +85,7 @@ final class ActivityGroup extends PartGroup {
       other is ActivityGroup &&
       other.key == key &&
       other.label == label &&
+      other.labelIndex == labelIndex &&
       other.failed == failed &&
       other.toolCount == toolCount &&
       other.completed == completed &&
@@ -88,6 +95,7 @@ final class ActivityGroup extends PartGroup {
   int get hashCode => Object.hash(
     key,
     label,
+    labelIndex,
     failed,
     toolCount,
     completed,
@@ -96,7 +104,7 @@ final class ActivityGroup extends PartGroup {
 
   @override
   String toString() =>
-      'ActivityGroup($key, label: "$label", '
+      'ActivityGroup($key, label: "$label"@$labelIndex, '
       'entries: ${[for (final e in entries) e.index]}, failed: $failed, '
       'toolCount: $toolCount, completed: $completed)';
 }
@@ -111,6 +119,21 @@ bool _sameEntries(List<IndexedPart> a, List<IndexedPart> b) {
 
 const _phase = 'phase';
 const _transferPrefix = 'lc_transfer_to_';
+
+/// The parts of [parts] that reach the screen, in render order: every part
+/// except a phase label (`activity_label_type == "phase"`) and a batch
+/// label a finalized phase span consumed. [groupParts] groups exactly this
+/// list, and the in-conversation search walks it too (Req 25.11), so the
+/// two can never disagree about which text is on screen.
+List<IndexedPart> visibleParts(List<ContentPart> parts) {
+  if (parts.isEmpty) return const [];
+  final consumed = _batchLabelsConsumedByPhase(parts);
+  return [
+    for (var i = 0; i < parts.length; i++)
+      if (!_isPhaseLabel(parts[i]) && !consumed.contains(i))
+        (index: i, part: parts[i]),
+  ];
+}
 
 /// Splits a message's content into the groups the bubble renders
 /// (Req 23.10–23.12). Ported from the KMP `groupContentParts`
@@ -128,12 +151,7 @@ const _transferPrefix = 'lc_transfer_to_';
 ///   form an untitled group, and reasoning stays standalone.
 List<PartGroup> groupParts(List<ContentPart> parts, {bool grouping = true}) {
   if (parts.isEmpty) return [];
-  final consumed = _batchLabelsConsumedByPhase(parts);
-  final entries = <IndexedPart>[
-    for (var i = 0; i < parts.length; i++)
-      if (!_isPhaseLabel(parts[i]) && !consumed.contains(i))
-        (index: i, part: parts[i]),
-  ];
+  final entries = visibleParts(parts);
   if (!grouping) return [for (final e in entries) SinglePart(e)];
 
   final result = <PartGroup>[];
@@ -181,7 +199,7 @@ List<PartGroup> groupParts(List<ContentPart> parts, {bool grouping = true}) {
       block = block.sublist(0, claimStart);
       flushUnlabeled();
       if (claimed.isNotEmpty) {
-        result.add(_activityGroup(claimed, part));
+        result.add(_activityGroup(claimed, entry));
       } else if (!_coversTransferCall(part, parts)) {
         result.add(SinglePart(entry));
       }
@@ -194,20 +212,22 @@ List<PartGroup> groupParts(List<ContentPart> parts, {bool grouping = true}) {
   return result;
 }
 
-ActivityGroup _activityGroup(List<IndexedPart> entries, ContentPart? label) {
-  final text = label == null ? '' : _labelText(label);
+ActivityGroup _activityGroup(List<IndexedPart> entries, IndexedPart? label) {
+  final part = label?.part;
+  final text = part == null ? '' : _labelText(part);
   final tools = [
     for (final e in entries)
       if (e.part.type == ContentPartType.toolCall) e,
   ];
   // The Server settles a filled label only after every output returned, so a
   // tool that legitimately returned '' still completes the group.
-  final settled = text.isNotEmpty && label?.pending != true;
+  final settled = text.isNotEmpty && part?.pending != true;
   return ActivityGroup(
     key: _groupKey(entries),
     entries: List.unmodifiable(entries),
     label: text,
-    failed: label?.status == 'failed' || label?.status == 'partial',
+    labelIndex: label?.index,
+    failed: part?.status == 'failed' || part?.status == 'partial',
     toolCount: tools.length,
     completed:
         settled ||

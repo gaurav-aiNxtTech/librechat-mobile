@@ -11,6 +11,9 @@ import 'package:librechat_flutter/core/auth/auth_service.dart';
 import 'package:librechat_flutter/core/config/feature_gate.dart';
 import 'package:librechat_flutter/core/config/server_config.dart';
 import 'package:librechat_flutter/features/chat/chat_screen.dart';
+import 'package:librechat_flutter/features/chat/data/chat_api.dart';
+import 'package:librechat_flutter/features/chat/data/messages_repository.dart';
+import 'package:librechat_flutter/core/models/message.dart';
 import 'package:librechat_flutter/core/models/startup_config.dart';
 import 'package:librechat_flutter/core/models/user.dart';
 import 'package:librechat_flutter/core/network/connectivity.dart';
@@ -33,8 +36,12 @@ void main() {
   );
 
   late FakeAuthService auth;
+  late FakeMessagesRepository messages;
 
-  setUp(() => auth = FakeAuthService());
+  setUp(() {
+    auth = FakeAuthService();
+    messages = FakeMessagesRepository();
+  });
 
   Future<GoRouter> pump(WidgetTester tester) async {
     FlutterSecureStorage.setMockInitialValues({});
@@ -58,6 +65,8 @@ void main() {
           FakeConversationsRepository(),
         ),
         conversationsApiProvider.overrideWithValue(FakeConversationsApi()),
+        messagesRepositoryProvider.overrideWithValue(messages),
+        chatApiProvider.overrideWithValue(FakeChatApi()),
       ],
     );
     addTearDown(container.dispose);
@@ -116,15 +125,21 @@ void main() {
     expect(entry.selected, isTrue);
   });
 
-  testWidgets('/chat/c/<id> lands on /chat until Task 11.4 (stand-in)', (
+  testWidgets('/chat/c/<id> opens the conversation in the AppShell', (
     tester,
   ) async {
+    messages.fakeApi.messages['x'] = const [
+      Message(messageId: 'm1', conversationId: 'x', text: 'Hello there'),
+    ];
     auth.emit(serverUrl: server, session: session);
     final router = await pump(tester);
     router.go(Routes.chat('x'));
     await tester.pumpAndSettle();
-    expect(location(router).path, Routes.newChat);
-    expect(find.byType(ChatScreen), findsOneWidget);
+    expect(location(router).path, Routes.chat('x'));
+    expect(find.byType(AppShell), findsOneWidget);
+    final screen = tester.widget<ChatScreen>(find.byType(ChatScreen));
+    expect(screen.conversationId, 'x');
+    expect(find.text('Hello there'), findsOneWidget);
   });
 
   testWidgets('Terms I Accept opens /chat', (tester) async {

@@ -21,9 +21,11 @@ final Gen<String> _value = stringOf(
 );
 
 /// Pads [core] on both sides; the merge must keep [core] trimmed.
-Gen<_Segment> _keptSegment(Gen<String> core) => zip3(_pad, core, _pad).map(
-  (p) => (raw: '${p.$1}${p.$2}${p.$3}', kept: p.$2.trim()),
-);
+Gen<_Segment> _keptSegment(Gen<String> core) => zip3(
+  _pad,
+  core,
+  _pad,
+).map((p) => (raw: '${p.$1}${p.$2}${p.$3}', kept: p.$2.trim()));
 
 /// `name=value`, which is kept unless the value trims the whole thing empty.
 final Gen<_Segment> _pair = _keptSegment(

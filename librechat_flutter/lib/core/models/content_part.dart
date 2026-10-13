@@ -44,7 +44,8 @@ abstract class ContentPart with _$ContentPart {
     @JsonKey(name: 'activity_end_index') int? activityEndIndex,
     // An activity label still being written: a reservation, or a phase that has not finalized.
     bool? pending,
-    // An activity label's `failed` or `partial` batch status.
+    // An activity label's `failed` or `partial` batch status, or a live
+    // tool call's terminal step status from `on_run_step_closed`.
     String? status,
     // A summary's body: a string or a list of `{type, text}` blocks.
     Object? content,

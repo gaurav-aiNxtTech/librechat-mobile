@@ -21,7 +21,8 @@ class UtcDateTimeConverter implements JsonConverter<DateTime?, Object?> {
   const UtcDateTimeConverter();
 
   @override
-  DateTime? fromJson(Object? json) => json is String ? DateTime.tryParse(json)?.toUtc() : null;
+  DateTime? fromJson(Object? json) =>
+      json is String ? DateTime.tryParse(json)?.toUtc() : null;
 
   @override
   Object? toJson(DateTime? time) => time?.toUtc().toIso8601String();
